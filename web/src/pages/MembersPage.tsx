@@ -242,7 +242,11 @@ export function MembersPage() {
                     )}
                   </td>
                   <td className="px-3 py-2 align-middle">
-                    {u.is_admin ? <Badge>{L("Admin")}</Badge> : <Badge variant="secondary">{L("Member")}</Badge>}
+                    {u.is_admin ? (
+                      <Badge>{L("Admin")}</Badge>
+                    ) : (
+                      <Badge variant="secondary">{L("Member")}</Badge>
+                    )}
                   </td>
                   <td className="px-3 py-2 align-middle text-muted-foreground">
                     {formatEpoch(u.last_login_at)}
@@ -348,9 +352,9 @@ export function MembersPage() {
           <DialogHeader>
             <DialogTitle>{L("Invite URL")}</DialogTitle>
             <DialogDescription>
-              {L("Send this URL to the new member. It expires in")}{formatTtl(inviteResult?.expires_at)}{" "}
-              and is single-use — once they redeem it, it can't be used again. This URL is shown
-              only once.
+              {L("Send this URL to the new member. It expires in")}
+              {formatTtl(inviteResult?.expires_at)} and is single-use — once they redeem it, it
+              can't be used again. This URL is shown only once.
             </DialogDescription>
           </DialogHeader>
           {inviteResult !== null && <CopyableValue value={rebaseUrl(inviteResult.register_url)} />}
@@ -369,7 +373,10 @@ export function MembersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{L("New password for")}{resetResult?.id}</DialogTitle>
+            <DialogTitle>
+              {L("New password for")}
+              {resetResult?.id}
+            </DialogTitle>
             <DialogDescription>
               Send this password to the user out-of-band (e.g. Slack DM). It is shown only once.
             </DialogDescription>
@@ -394,7 +401,10 @@ export function MembersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{L("Remove")}{deleteCandidate}?</DialogTitle>
+            <DialogTitle>
+              {L("Remove")}
+              {deleteCandidate}?
+            </DialogTitle>
             <DialogDescription>
               This deletes the user account and revokes all their session permissions. Sessions they
               own become inaccessible unless another user has manage rights on them. This action

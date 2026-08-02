@@ -193,8 +193,8 @@ export function SwitchAgentDialog({
 
         {resetsModelSettings && (
           <p data-testid="switch-agent-reset-warning" className="text-xs text-muted-foreground">
-            {L("Model &amp; reasoning effort will reset to")}{chosen?.display_name}'s defaults (different
-            provider).
+            {L("Model &amp; reasoning effort will reset to")}
+            {chosen?.display_name}'s defaults (different provider).
           </p>
         )}
 

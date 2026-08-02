@@ -1338,7 +1338,11 @@ function UiCodeFontFamilyControl() {
       {/* Reset sits left of the input so the input's right edge lines up flush
           with the size stepper above. `invisible` (not removed) at the default
           keeps the row from shifting. */}
-      <div role="group" aria-label={L("Code font family")} className="flex shrink-0 items-center gap-2">
+      <div
+        role="group"
+        aria-label={L("Code font family")}
+        className="flex shrink-0 items-center gap-2"
+      >
         <Button
           type="button"
           variant="ghost"
@@ -1401,7 +1405,10 @@ function StepperButton({
 
 function ShortcutsSection() {
   return (
-    <Section title={L("Keyboard shortcuts")} description={L("Speed up common actions with the keyboard.")}>
+    <Section
+      title={L("Keyboard shortcuts")}
+      description={L("Speed up common actions with the keyboard.")}
+    >
       <KeyboardShortcutsList />
     </Section>
   );
@@ -1440,7 +1447,9 @@ function LocalCliSection() {
   return (
     <Section
       title={L("Local CLI")}
-      description={L("The Omnigent command-line tool this app uses to run a local server and connect this machine as a runner.")}
+      description={L(
+        "The Omnigent command-line tool this app uses to run a local server and connect this machine as a runner.",
+      )}
     >
       {status === null ? (
         <p className="text-sm text-muted-foreground">{L("CLI status is unavailable.")}</p>
@@ -1617,7 +1626,9 @@ function UpdatesSection() {
 
           <div className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">{L("Install downloaded updates on next quit")}</span>
+              <span className="text-sm font-medium">
+                {L("Install downloaded updates on next quit")}
+              </span>
               <span className="text-xs text-muted-foreground">
                 Applies only after you choose to download an update.
               </span>
@@ -1735,7 +1746,9 @@ function AccountSection() {
             <div className="truncate font-medium">
               {me.id}
               {me.is_admin && (
-                <span className="ml-1 text-xs font-normal text-muted-foreground">{L("(admin)")}</span>
+                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  {L("(admin)")}
+                </span>
               )}
             </div>
           </div>
@@ -1950,7 +1963,9 @@ function ArchivedSection() {
   return (
     <Section
       title={L("Archived sessions")}
-      description={L("Sessions you've archived. Restore one to the sidebar, or delete it for good.")}
+      description={L(
+        "Sessions you've archived. Restore one to the sidebar, or delete it for good.",
+      )}
     >
       {items.length > 0 && (
         <div className="mb-4 flex items-center gap-2">

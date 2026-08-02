@@ -1682,7 +1682,8 @@ function ConversationList({
     const err = conversationsQuery.error;
     return (
       <p className="px-2 py-1 text-destructive text-xs">
-        {L("Failed to load:")}{err instanceof Error ? err.message : String(err)}
+        {L("Failed to load:")}
+        {err instanceof Error ? err.message : String(err)}
       </p>
     );
   }
@@ -2698,7 +2699,8 @@ function ConversationMenuItems({
             </div>
           </TooltipTrigger>
           <TooltipContent side="left">
-            {L("Only the session owner can")}{isArchived ? "unarchive" : "archive"} this session
+            {L("Only the session owner can")}
+            {isArchived ? "unarchive" : "archive"} this session
           </TooltipContent>
         </Tooltip>
       )}
@@ -3476,8 +3478,9 @@ function ConversationRow({
           <DialogHeader>
             <DialogTitle>{L("Stop session?")}</DialogTitle>
             <DialogDescription>
-              {L("This terminates the running session for")}<span className="font-medium">{label}</span>{" "}
-              and stops its runner. The conversation and its history are kept.
+              {L("This terminates the running session for")}
+              <span className="font-medium">{label}</span> and stops its runner. The conversation
+              and its history are kept.
             </DialogDescription>
           </DialogHeader>
           {stopSession.isError && (
@@ -3593,7 +3596,8 @@ function DeletingRow({
           className="min-w-0 flex-1 truncate text-destructive"
           title={`Couldn't delete ${label}`}
         >
-          {L("Couldn't delete")}<span className="font-medium">{label}</span>
+          {L("Couldn't delete")}
+          <span className="font-medium">{label}</span>
         </span>
         <Button type="button" variant="ghost" size="sm" className="h-6 px-1.5" onClick={onRetry}>
           Retry
@@ -3867,8 +3871,9 @@ function ProjectFolderMenu({
               <span className="rounded bg-muted px-1 py-0.5 font-mono text-[0.95em] break-all">
                 {projectName}
               </span>{" "}
-              {L("and archives")}<span className="font-medium">{L("all of its sessions")}</span>. Their history
-              is kept. You can find and restore them anytime from Settings.
+              {L("and archives")}
+              <span className="font-medium">{L("all of its sessions")}</span>. Their history is
+              kept. You can find and restore them anytime from Settings.
             </DialogDescription>
           </DialogHeader>
           {deleteProject.isError && (
@@ -4293,7 +4298,10 @@ function BulkActionBar({
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{L("Delete")}{ownedSelected.length} {L("session(s)?")}</DialogTitle>
+            <DialogTitle>
+              {L("Delete")}
+              {ownedSelected.length} {L("session(s)?")}
+            </DialogTitle>
             <DialogDescription>
               This will permanently delete the selected sessions and all their history. This cannot
               be undone.
@@ -4318,7 +4326,8 @@ function BulkActionBar({
               onClick={handleDelete}
               disabled={bulkDelete.isPending}
             >
-              {L("Delete")}{ownedSelected.length} session(s)
+              {L("Delete")}
+              {ownedSelected.length} session(s)
             </Button>
           </DialogFooter>
         </DialogContent>

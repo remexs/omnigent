@@ -336,7 +336,9 @@ export function WorkspacePathField({
               )}
             </>
           )}
-          {showLoading && <div className="px-3 py-2 text-xs text-muted-foreground">{L("Loading…")}</div>}
+          {showLoading && (
+            <div className="px-3 py-2 text-xs text-muted-foreground">{L("Loading…")}</div>
+          )}
         </div>
       )}
     </div>

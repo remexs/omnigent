@@ -272,7 +272,9 @@ function EmptyState({
   return (
     <div className="py-8" data-testid="tasks-empty-state">
       {hasAny && (
-        <div className="py-10 text-center text-sm text-muted-foreground">{L("No automations found")}</div>
+        <div className="py-10 text-center text-sm text-muted-foreground">
+          {L("No automations found")}
+        </div>
       )}
       {!hasAny && (
         <div className="flex flex-col items-center gap-2 py-12 text-center">

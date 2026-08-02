@@ -184,7 +184,11 @@ function FileScopeSwitch({
   const activePill = "bg-muted text-foreground";
   const idlePill = "text-muted-foreground hover:text-foreground";
   return (
-    <div role="radiogroup" aria-label={L("File scope")} className="flex shrink-0 items-center gap-1">
+    <div
+      role="radiogroup"
+      aria-label={L("File scope")}
+      className="flex shrink-0 items-center gap-1"
+    >
       <button
         type="button"
         role="radio"

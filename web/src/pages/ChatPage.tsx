@@ -2702,7 +2702,10 @@ export function SandboxFailedIndicator({ status }: { status: SandboxStatus }) {
       )}
     >
       <AlertTriangleIcon className="size-3.5 shrink-0" aria-hidden />
-      <span>{L("Sandbox launch failed")}{status.error ? `: ${status.error}` : ""}</span>
+      <span>
+        {L("Sandbox launch failed")}
+        {status.error ? `: ${status.error}` : ""}
+      </span>
     </div>
   );
 }
@@ -3236,7 +3239,9 @@ function useCopyMessage(getText: () => string): {
         window.clearTimeout(timeoutRef.current);
         timeoutRef.current = window.setTimeout(() => setIsCopied(false), 2000);
         if (isMobile) {
-          showToast(<span className="text-sm">{L("Copied to clipboard")}</span>, { duration: 1500 });
+          showToast(<span className="text-sm">{L("Copied to clipboard")}</span>, {
+            duration: 1500,
+          });
         }
       },
       (error) => {
@@ -3490,7 +3495,10 @@ function AssistantBubble({
       </Message>
 
       {bubble.lifecycle === "failed" && (
-        <p className="text-destructive text-xs">{L("Error:")}{bubble.error}</p>
+        <p className="text-destructive text-xs">
+          {L("Error:")}
+          {bubble.error}
+        </p>
       )}
     </>
   );
@@ -3714,7 +3722,10 @@ function ContextRing({ contextWindow, tokensUsed }: { contextWindow: number; tok
         </span>
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-44 text-center text-xs">
-        <p className="tabular-nums">{usedPct}{L("% of context used.")}</p>
+        <p className="tabular-nums">
+          {usedPct}
+          {L("% of context used.")}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
@@ -3979,7 +3990,8 @@ function SubagentComposerTray({ label }: { label: string }) {
       <BotIcon className="size-3.5 shrink-0" aria-hidden="true" />
       {/* truncate so a long sub-agent name never wraps the tray to two rows */}
       <span className="min-w-0 truncate">
-        {L("Chatting with sub-agent")}<strong className="font-semibold">{label}</strong>
+        {L("Chatting with sub-agent")}
+        <strong className="font-semibold">{label}</strong>
       </span>
     </div>
   );
@@ -5739,7 +5751,10 @@ function SessionConfigModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" data-testid="composer-config-modal">
         <DialogHeader>
-          <DialogTitle>{L("Configure")}{harnessLabel ?? "session"}</DialogTitle>
+          <DialogTitle>
+            {L("Configure")}
+            {harnessLabel ?? "session"}
+          </DialogTitle>
           <DialogDescription className="sr-only">
             Change how this session runs. Model, effort, and smart routing apply to the next turn.
           </DialogDescription>
@@ -5750,7 +5765,10 @@ function SessionConfigModal({
           no Model dropdown to fold it into (e.g. Polly). Agents that render a
           Model dropdown (Claude, Codex, …) offer it as a Model option below. */}
           {costRoutingEligible && !showModels && (
-            <ConfigRow label={L("Smart Routing")} description={L("Auto-pick the model per turn by task")}>
+            <ConfigRow
+              label={L("Smart Routing")}
+              description={L("Auto-pick the model per turn by task")}
+            >
               <div className="flex h-8 items-center justify-end">
                 <Switch
                   size="sm"

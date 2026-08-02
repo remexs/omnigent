@@ -137,7 +137,8 @@ export function HarnessSetupDialog({
       <DialogContent className="sm:max-w-lg" data-testid="harness-setup-dialog">
         <DialogHeader>
           <DialogTitle>
-            {L("Set up")}{name} on {host?.name}
+            {L("Set up")}
+            {name} on {host?.name}
           </DialogTitle>
           {/* Only show a description when it adds something the title doesn't:
               the done / needs-more-setup states. The generic "complete these
@@ -157,8 +158,12 @@ export function HarnessSetupDialog({
           // (all green ticks) rather than showing a "run omni setup"
           // signpost that would contradict the "is ready" description.
           <p className="py-1 text-sm text-muted-foreground" data-testid="harness-setup-empty">
-            {L("Run")}<code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{L("omni setup")}</code>{" "}
-            on {host?.name} {L("to finish setting up")}{name}.
+            {L("Run")}
+            <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+              {L("omni setup")}
+            </code>{" "}
+            on {host?.name} {L("to finish setting up")}
+            {name}.
           </p>
         ) : hasSteps ? (
           <ul className="flex flex-col gap-3 py-1">
@@ -256,7 +261,8 @@ function SetupStepRow({
               rather than stranded at the bottom of the dialog. */}
           {step.kind === "install" && installing ? (
             <span className="text-xs text-muted-foreground" data-testid="harness-setup-installing">
-              {L("Installing on")}{host?.name} — this can take a few minutes for larger agents.
+              {L("Installing on")}
+              {host?.name} — this can take a few minutes for larger agents.
             </span>
           ) : (
             detail && <span className="text-xs text-muted-foreground">{detail}</span>

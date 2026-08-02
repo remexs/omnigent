@@ -629,7 +629,9 @@ export function WorkspacePicker({
         </div>
       )}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {isLoading && <div className="px-3 py-3 text-xs text-muted-foreground">{L("Loading…")}</div>}
+        {isLoading && (
+          <div className="px-3 py-3 text-xs text-muted-foreground">{L("Loading…")}</div>
+        )}
         {error !== null && error !== undefined && !isLoading && (
           <div className="px-3 py-3 text-xs text-destructive" data-testid="workspace-picker-error">
             {error instanceof Error ? error.message : "Failed to load directory"}

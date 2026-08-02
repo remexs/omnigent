@@ -311,7 +311,8 @@ function AdoptRow({
       data-testid="harness-credential-adopt"
     >
       <span className="flex-1 text-xs">
-        {L("Found")}<code className="font-mono">{detected.source}</code> on this host.
+        {L("Found")}
+        <code className="font-mono">{detected.source}</code> on this host.
       </span>
       <Button type="button" size="sm" loading={busy} onClick={onUse}>
         Use it

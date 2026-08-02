@@ -233,8 +233,9 @@ export function ProjectSettingsDialog({
         <DialogHeader>
           <DialogTitle>{L("Project settings")}</DialogTitle>
           <DialogDescription>
-            {L("Defaults for new sessions in")}<span className="font-medium">{projectName}</span>. Each is
-            a starting point you can change per session; leave a field blank for no default.
+            {L("Defaults for new sessions in")}
+            <span className="font-medium">{projectName}</span>. Each is a starting point you can
+            change per session; leave a field blank for no default.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -356,7 +357,9 @@ export function ProjectSettingsDialog({
 
           <Field
             label={L("Random worktree")}
-            hint={L("Start each new session in a fresh randomly-named git worktree (vs. directly in the workspace)")}
+            hint={L(
+              "Start each new session in a fresh randomly-named git worktree (vs. directly in the workspace)",
+            )}
           >
             <div className="flex sm:justify-end">
               <Switch

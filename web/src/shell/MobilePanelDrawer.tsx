@@ -70,7 +70,13 @@ export function MobilePanelDrawer({
     >
       <header className="flex shrink-0 items-center justify-between border-border border-b px-4 py-2">
         <h2 className="font-medium text-sm">{title}</h2>
-        <Button type="button" variant="ghost" size="icon-sm" aria-label={L("Close")} onClick={onClose}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={L("Close")}
+          onClick={onClose}
+        >
           <XIcon className="size-4" />
         </Button>
       </header>

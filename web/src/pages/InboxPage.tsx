@@ -215,8 +215,8 @@ export function InboxPage() {
         >
           <AlertTriangleIcon className="size-4 shrink-0 text-destructive" />
           <span className="flex-1">
-            {L("Couldn’t load inbox items from")}{failedSessionCount}{" "}
-            {failedSessionCount === 1 ? "session" : "sessions"}.
+            {L("Couldn’t load inbox items from")}
+            {failedSessionCount} {failedSessionCount === 1 ? "session" : "sessions"}.
           </span>
           <Button
             variant="outline"

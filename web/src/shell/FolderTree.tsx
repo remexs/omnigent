@@ -310,14 +310,16 @@ export function FolderTree({
     if (isSearchError) {
       return (
         <p className="px-2 py-1 text-destructive text-xs">
-          {L("Search failed:")}{searchError instanceof Error ? searchError.message : "Unknown error"}
+          {L("Search failed:")}
+          {searchError instanceof Error ? searchError.message : "Unknown error"}
         </p>
       );
     }
     if (!searchResults || searchResults.length === 0) {
       return (
         <p className="px-2 py-1 text-muted-foreground text-xs">
-          {L("No files match \"")}{searchQuery.trim()}"
+          {L('No files match "')}
+          {searchQuery.trim()}"
         </p>
       );
     }
@@ -367,11 +369,14 @@ export function FolderTree({
     // session just hasn't started, fall through to the empty state.
     if (error instanceof RunnerOfflineError) {
       if (runnerWentOffline) return <RunnerAsleepHint />;
-      return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No files in workspace")}</p>;
+      return (
+        <p className="px-2 py-1 text-muted-foreground text-xs">{L("No files in workspace")}</p>
+      );
     }
     return (
       <p className="px-2 py-1 text-destructive text-xs">
-        {L("Failed to load:")}{error instanceof Error ? error.message : String(error)}
+        {L("Failed to load:")}
+        {error instanceof Error ? error.message : String(error)}
       </p>
     );
   }

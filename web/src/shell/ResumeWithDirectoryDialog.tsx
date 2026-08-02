@@ -314,7 +314,9 @@ export function ResumeWithDirectoryDialog({
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-medium text-muted-foreground">{L("Working directory")}</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                {L("Working directory")}
+              </span>
               {selectedHostId ? (
                 <>
                   <WorkspacePathField

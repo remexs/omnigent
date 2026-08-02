@@ -111,7 +111,9 @@ export function RegisterPage() {
                 disabled={submitting}
                 required
                 pattern="[a-z0-9][a-z0-9._\-]{0,63}(@[a-z0-9.\-]+\.[a-z]{2,})?"
-                title={L("Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)")}
+                title={L(
+                  "Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)",
+                )}
               />
               <p className="text-xs text-muted-foreground">
                 Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.

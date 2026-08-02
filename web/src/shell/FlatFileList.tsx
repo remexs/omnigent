@@ -119,7 +119,10 @@ function FileListItem({
             )}
             {file.lines_added !== null && file.lines_removed !== null && " "}
             {file.lines_removed !== null && (
-              <span className="text-destructive">{L("&minus;")}{file.lines_removed}</span>
+              <span className="text-destructive">
+                {L("&minus;")}
+                {file.lines_removed}
+              </span>
             )}
           </span>
         )}
@@ -192,16 +195,21 @@ export function FlatFileList({
     // state rather than alarm the user.
     if (error instanceof RunnerOfflineError) {
       if (runnerWentOffline) return <RunnerAsleepHint />;
-      return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No workspace changes yet")}</p>;
+      return (
+        <p className="px-2 py-1 text-muted-foreground text-xs">{L("No workspace changes yet")}</p>
+      );
     }
     return (
       <p className="px-2 py-1 text-destructive text-xs">
-        {L("Failed to load:")}{error instanceof Error ? error.message : String(error)}
+        {L("Failed to load:")}
+        {error instanceof Error ? error.message : String(error)}
       </p>
     );
   }
   if (!files || files.length === 0) {
-    return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No workspace changes yet")}</p>;
+    return (
+      <p className="px-2 py-1 text-muted-foreground text-xs">{L("No workspace changes yet")}</p>
+    );
   }
   const normalizedSearchQuery = normalizeSearchQuery(searchQuery);
   const visibleFiles = files.filter(
@@ -233,7 +241,8 @@ export function FlatFileList({
   if (sorted.length === 0) {
     return (
       <p className="px-2 py-1 text-muted-foreground text-xs">
-        {L("No changed files match \"")}{searchQuery.trim()}"
+        {L('No changed files match "')}
+        {searchQuery.trim()}"
       </p>
     );
   }

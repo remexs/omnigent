@@ -1261,7 +1261,12 @@ function FileViewerBody({
             {toolbarCollapsed ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="ghost" size="icon-sm" aria-label={L("More actions")}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={L("More actions")}
+                  >
                     <MoreHorizontalIcon className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -1353,7 +1358,8 @@ function FileViewerBody({
               <span>{L("This file has been deleted.")}</span>
               {isDiffAvailable && (
                 <span className="text-xs">
-                  {L("Click")}<FileDiffIcon className="inline size-3.5 align-text-bottom" /> to view its
+                  {L("Click")}
+                  <FileDiffIcon className="inline size-3.5 align-text-bottom" /> to view its
                   previous content.
                 </span>
               )}

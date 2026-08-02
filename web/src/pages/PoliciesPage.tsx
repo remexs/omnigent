@@ -152,7 +152,9 @@ function AddDefaultPolicyDialog({
       <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{L("Add Global Policy")}</DialogTitle>
-          <DialogDescription>{L("Choose a policy to apply globally to all sessions.")}</DialogDescription>
+          <DialogDescription>
+            {L("Choose a policy to apply globally to all sessions.")}
+          </DialogDescription>
         </DialogHeader>
         <div className="min-w-0 space-y-3 pt-1">
           {!selected &&
@@ -622,7 +624,10 @@ export function PoliciesPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{L("Remove")}{deleteCandidate?.name}?</DialogTitle>
+            <DialogTitle>
+              {L("Remove")}
+              {deleteCandidate?.name}?
+            </DialogTitle>
             <DialogDescription>
               This removes the global policy from all sessions. Existing session-level policies with
               the same handler are unaffected.

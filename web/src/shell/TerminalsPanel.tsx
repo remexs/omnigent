@@ -181,7 +181,13 @@ export function TerminalsPanel({
             conversationId={conversationId}
             onCreated={(key) => setActiveKey(key)}
           />
-          <Button type="button" variant="ghost" size="icon-sm" aria-label={L("Close")} onClick={onClose}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={L("Close")}
+            onClick={onClose}
+          >
             <XIcon className="size-4" />
           </Button>
         </div>

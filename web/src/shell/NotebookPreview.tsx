@@ -196,7 +196,8 @@ function CodeCell({ cell, language }: { cell: NotebookCell; language: BundledLan
   return (
     <div className="flex gap-2">
       <div className="w-14 shrink-0 pt-1 text-right font-mono text-xs text-muted-foreground select-none">
-        {L("In [")}{count ?? " "}]:
+        {L("In [")}
+        {count ?? " "}]:
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="rounded border bg-muted/30 text-xs">
@@ -225,7 +226,10 @@ export function NotebookPreview({
   if (error || !notebook) {
     return (
       <div className="p-8 text-sm">
-        <div className="text-destructive">{L("Cannot render notebook:")}{error}</div>
+        <div className="text-destructive">
+          {L("Cannot render notebook:")}
+          {error}
+        </div>
         <div className="mt-1 text-muted-foreground">
           Switch to the source view to inspect the raw file.
         </div>

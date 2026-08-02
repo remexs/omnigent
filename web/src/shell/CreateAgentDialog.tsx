@@ -202,7 +202,8 @@ export function CreateAgentDialog({
               htmlFor="create-agent-name"
               className="text-xs font-medium text-muted-foreground"
             >
-              {L("Name")}<span className="text-destructive">*</span>
+              {L("Name")}
+              <span className="text-destructive">*</span>
             </label>
             <Input
               id="create-agent-name"
@@ -234,7 +235,8 @@ export function CreateAgentDialog({
           {/* Harness */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              {L("Harness")}<span className="text-destructive">*</span>
+              {L("Harness")}
+              <span className="text-destructive">*</span>
             </label>
             <Select value={harness} onValueChange={setHarness}>
               <SelectTrigger data-testid="create-agent-harness" className="w-full">
@@ -256,7 +258,8 @@ export function CreateAgentDialog({
               htmlFor="create-agent-model"
               className="text-xs font-medium text-muted-foreground"
             >
-              {L("Model")}<span className="text-destructive">*</span>
+              {L("Model")}
+              <span className="text-destructive">*</span>
             </label>
             <Input
               id="create-agent-model"

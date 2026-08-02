@@ -345,7 +345,9 @@ function StatusIndicator({ activity, label, details }: AgentStatus) {
         data-testid="subagent-status-dot"
         className="inline-flex shrink-0 items-center text-xs"
       >
-        <Badge className="border-transparent bg-warning/15 text-warning">{L("Needs response")}</Badge>
+        <Badge className="border-transparent bg-warning/15 text-warning">
+          {L("Needs response")}
+        </Badge>
       </span>
     );
   }

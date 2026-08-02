@@ -577,16 +577,18 @@ function harnessWarningMessage(
   if (reason === "needs-auth" && isCodex) {
     return (
       <>
-        {agentName} {L("needs Codex authentication on")}{hostName} {L("— run")}<code>{L("codex login")}</code> on that
-        machine.
+        {agentName} {L("needs Codex authentication on")}
+        {hostName} {L("— run")}
+        <code>{L("codex login")}</code> on that machine.
       </>
     );
   }
   if (reason === "needs-auth" && !!harness && isNativeCursorHarness(harness)) {
     return (
       <>
-        {agentName} {L("needs Cursor login on")}{hostName} {L("— run")}<code>{L("cursor-agent login")}</code> on that
-        machine.
+        {agentName} {L("needs Cursor login on")}
+        {hostName} {L("— run")}
+        <code>{L("cursor-agent login")}</code> on that machine.
       </>
     );
   }
@@ -596,14 +598,17 @@ function harnessWarningMessage(
   if (reason === "version-too-low") {
     return (
       <>
-        {agentName} {L("has an outdated CLI on")}{hostName} {L("— run")}<code>{L("omni setup")}</code>, or upgrade the
-        CLI directly on that machine.
+        {agentName} {L("has an outdated CLI on")}
+        {hostName} {L("— run")}
+        <code>{L("omni setup")}</code>, or upgrade the CLI directly on that machine.
       </>
     );
   }
   return (
     <>
-      {agentName} {L("isn&apos;t configured on")}{hostName} {L("— run")}<code>{L("omni setup")}</code> on that machine.
+      {agentName} {L("isn&apos;t configured on")}
+      {hostName} {L("— run")}
+      <code>{L("omni setup")}</code> on that machine.
     </>
   );
 }
@@ -642,7 +647,8 @@ function HarnessSetupNotice({
       {featureEnabled ? (
         <>
           <span>
-            {agentName} {L("isn&apos;t ready on")}{hostName}.
+            {agentName} {L("isn&apos;t ready on")}
+            {hostName}.
           </span>
           {/* Compact bordered chip — small enough to sit on the sentence's line
               (h-5, text-xs), so it reads as part of the notice. */}
@@ -652,7 +658,8 @@ function HarnessSetupNotice({
             className="inline-flex h-5 shrink-0 items-center rounded-md border border-amber-300 px-2 text-xs font-medium text-amber-700 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:border-amber-500/40 dark:text-amber-400 dark:hover:bg-amber-500/20"
             onClick={onSetup}
           >
-            {L("Set up")}{agentName}
+            {L("Set up")}
+            {agentName}
           </button>
         </>
       ) : (
@@ -1402,9 +1409,13 @@ function HarnessConfigModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" data-testid="new-chat-landing-config-modal">
         <DialogHeader>
-          <DialogTitle>{L("Configure")}{agent.display_name}</DialogTitle>
+          <DialogTitle>
+            {L("Configure")}
+            {agent.display_name}
+          </DialogTitle>
           <DialogDescription className="sr-only">
-            {L("Configure how")}{agent.display_name} runs for this session.
+            {L("Configure how")}
+            {agent.display_name} runs for this session.
           </DialogDescription>
         </DialogHeader>
 
@@ -1413,7 +1424,10 @@ function HarnessConfigModal({
           that have no Model dropdown to fold it into (Codex, bundle agents, …).
           Claude offers it as a Model option instead, so it's excluded here. */}
           {smartRoutingEligible && !hasPermission && (
-            <ConfigRow label={L("Smart Routing")} description={L("Auto-pick the model per turn by task")}>
+            <ConfigRow
+              label={L("Smart Routing")}
+              description={L("Auto-pick the model per turn by task")}
+            >
               <div className="flex h-8 items-center justify-end">
                 <Switch
                   size="sm"
@@ -1494,7 +1508,10 @@ function HarnessConfigModal({
                 </Select>
               </ConfigRow>
 
-              <ConfigRow label={L("Permissions")} description={L("What the agent can do without asking")}>
+              <ConfigRow
+                label={L("Permissions")}
+                description={L("What the agent can do without asking")}
+              >
                 <DescribedSelect
                   value={draftPermission}
                   onValueChange={setDraftPermission}
@@ -1530,7 +1547,9 @@ function HarnessConfigModal({
                     </SelectItem>
                   ))}
                   {modelsLoading && (
-                    <div className="px-2.5 py-1 text-xs text-muted-foreground">{L("Loading models…")}</div>
+                    <div className="px-2.5 py-1 text-xs text-muted-foreground">
+                      {L("Loading models…")}
+                    </div>
                   )}
                   {!modelsLoading && modelOptions.length === 0 && (
                     <div className="px-2.5 py-1 text-xs text-muted-foreground">
@@ -1544,7 +1563,10 @@ function HarnessConfigModal({
 
           {hasApproval && (
             <>
-              <ConfigRow label={L("Approval")} description={L("What the agent can do without asking")}>
+              <ConfigRow
+                label={L("Approval")}
+                description={L("What the agent can do without asking")}
+              >
                 <DescribedSelect
                   // Codex adds the DANGEROUS full-bypass as a 4th option; when
                   // armed the select shows it (draftBypass wins over the preset).
@@ -3460,7 +3482,10 @@ export function NewChatLandingScreen() {
                           data-testid="new-chat-landing-config-gear"
                         >
                           <SettingsIcon className="size-4" />
-                          <span className="sr-only">{L("Configure")}{selectedAgent.display_name}</span>
+                          <span className="sr-only">
+                            {L("Configure")}
+                            {selectedAgent.display_name}
+                          </span>
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent
@@ -3831,7 +3856,9 @@ export function NewChatLandingScreen() {
                         }
                       />
                     ) : (
-                      <p className="p-3 text-xs text-muted-foreground">{L("Select a host first.")}</p>
+                      <p className="p-3 text-xs text-muted-foreground">
+                        {L("Select a host first.")}
+                      </p>
                     )}
                   </PopoverContent>
                 </Popover>
