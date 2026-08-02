@@ -311,7 +311,7 @@ export function FolderTree({
       return (
         <p className="px-2 py-1 text-destructive text-xs">
           {L("Search failed:")}
-          {searchError instanceof Error ? searchError.message : "Unknown error"}
+          {searchError instanceof Error ? searchError.message : L("Unknown error")}
         </p>
       );
     }
@@ -338,7 +338,7 @@ export function FolderTree({
             className="cursor-pointer underline hover:text-foreground"
             onClick={() => onShowHidden?.()}
           >
-            Show hidden files
+            {L("Show hidden files")}
           </button>
         </p>
       );
@@ -389,7 +389,7 @@ export function FolderTree({
   if (visibleTree.length === 0) {
     return (
       <p className="px-2 py-1 text-muted-foreground text-xs">
-        All files are hidden — click the eye icon to reveal them.
+        {L("All files are hidden — click the eye icon to reveal them.")}
       </p>
     );
   }
@@ -709,7 +709,7 @@ function TreeNodeRow({
               style={{ paddingLeft: `${indentFor(depth + 1)}px` }}
             >
               <IndentGuides depth={depth + 1} />
-              Loading…
+              {L("Loading…")}
             </li>
           )}
           {!lazyLoading && childNodes.length === 0 && rawChildNodes.length > 0 && (
@@ -718,7 +718,7 @@ function TreeNodeRow({
               style={{ paddingLeft: `${indentFor(depth + 1)}px` }}
             >
               <IndentGuides depth={depth + 1} />
-              All files are hidden — click the eye icon to reveal them.
+              {L("All files are hidden — click the eye icon to reveal them.")}
             </li>
           )}
           {childNodes.map((child) => (

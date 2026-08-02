@@ -280,7 +280,7 @@ function SessionItemsList({ sessionId }: { sessionId: string }) {
       ))}
       {hasNextPage && (
         <div ref={sentinelRef} className="py-2 text-center text-muted-foreground text-xs">
-          {isFetchingNextPage ? "Loading more…" : ""}
+          {isFetchingNextPage ? L("Loading more…") : ""}
         </div>
       )}
     </div>

@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { L } from "@/i18n";
 
 // Sentinel Select values for the Model row. Radix requires a non-empty value,
 // so the two "no explicit model" choices ride on reserved tokens rather than
@@ -29,8 +30,8 @@ export const CLAUDE_NATIVE_EFFORTS: { value: string; label: string }[] = [
   { value: "low", label: "Low" },
   { value: "medium", label: "Medium" },
   { value: "high", label: "High" },
-  { value: "xhigh", label: "xHigh" },
-  { value: "max", label: "Max" },
+  { value: "xhigh", label: L("xHigh") },
+  { value: "max", label: L("Max") },
 ];
 
 /**

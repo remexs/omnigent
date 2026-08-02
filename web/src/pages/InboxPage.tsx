@@ -195,10 +195,11 @@ export function InboxPage() {
         {(items.length > 0 || commentInbox.items.length > 0) && (
           <span className="text-sm text-muted-foreground">
             {[
-              items.length > 0 && (items.length === 1 ? "1 approval" : `${items.length} approvals`),
+              items.length > 0 &&
+                (items.length === 1 ? L("1 approval") : `${items.length} approvals`),
               commentInbox.items.length > 0 &&
                 (commentInbox.items.length === 1
-                  ? "1 comment"
+                  ? L("1 comment")
                   : `${commentInbox.items.length} comments`),
             ]
               .filter(Boolean)
@@ -226,7 +227,7 @@ export function InboxPage() {
               commentInbox.retryFailed();
             }}
           >
-            Retry
+            {L("Retry")}
           </Button>
         </div>
       )}
@@ -234,7 +235,7 @@ export function InboxPage() {
       {assembling && items.length === 0 && commentInbox.items.length === 0 && (
         <div className="flex items-center gap-2 py-12 text-sm text-muted-foreground">
           <Loader2Icon className="size-4 animate-spin" />
-          Loading inbox…
+          {L("Loading inbox…")}
         </div>
       )}
 
@@ -246,7 +247,9 @@ export function InboxPage() {
             <InboxIcon className="size-8 text-muted-foreground/50" />
             <p className="text-sm font-medium">{L("Nothing waiting on you")}</p>
             <p className="text-xs text-muted-foreground">
-              When an agent needs your input or someone comments on a file, it will show up here.
+              {L(
+                "When an agent needs your input or someone comments on a file, it will show up here.",
+              )}
             </p>
           </div>
         )}
@@ -309,7 +312,7 @@ export function InboxPage() {
                   </span>
                   <Button asChild variant="ghost" size="sm" className="text-xs">
                     <Link to={`/c/${item.row.id}`}>
-                      Open session
+                      {L("Open session")}
                       <ArrowRightIcon className="ml-1 size-3.5" />
                     </Link>
                   </Button>
@@ -342,7 +345,7 @@ export function InboxPage() {
           const comment = item.comment;
           // Single-user mode stores no author; mirror CommentsPanel's
           // "You" fallback (the only human in that mode is the viewer).
-          const author = comment.created_by ?? "You";
+          const author = comment.created_by ?? L("You");
           const sessionTitle = conversationDisplayLabel(item.row);
           return (
             <div
@@ -379,7 +382,7 @@ export function InboxPage() {
                       <Link
                         to={`/c/${item.row.id}?file=${encodeURIComponent(comment.path)}&comment=${encodeURIComponent(comment.id)}`}
                       >
-                        Open file
+                        {L("Open file")}
                         <ArrowRightIcon className="ml-1 size-3.5" />
                       </Link>
                     </Button>
@@ -401,7 +404,7 @@ export function InboxPage() {
         {assembling && (items.length > 0 || commentInbox.items.length > 0) && (
           <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
             <Loader2Icon className="size-3.5 animate-spin" />
-            Checking remaining sessions…
+            {L("Checking remaining sessions…")}
           </div>
         )}
       </div>

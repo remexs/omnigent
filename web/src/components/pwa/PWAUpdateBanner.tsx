@@ -31,10 +31,10 @@ export function PWAUpdateBanner() {
         {L("A new version of Omnigent is available.")}
       </span>
       <Button size="sm" onClick={reload}>
-        Reload
+        {L("Reload")}
       </Button>
       <Button size="sm" variant="ghost" onClick={dismiss}>
-        Dismiss
+        {L("Dismiss")}
       </Button>
     </div>
   );

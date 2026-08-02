@@ -456,10 +456,10 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
           onClick={handleToggleDesignMode}
           disabled={!viewActive}
           aria-pressed={designMode}
-          aria-label={designMode ? "Exit design mode" : "Enter design mode"}
+          aria-label={designMode ? L("Exit design mode") : L("Enter design mode")}
           title={
             designMode
-              ? "Click an element in the page, then describe what to change"
+              ? L("Click an element in the page, then describe what to change")
               : "Design mode: point at an element to prompt about it"
           }
           className={cn(
@@ -478,7 +478,7 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
         <div ref={containerRef} className="min-h-0 min-w-0 flex-1" />
       ) : (
         <div className="flex min-h-0 flex-1 items-center justify-center bg-card px-6 py-8 text-center text-muted-foreground text-sm">
-          Enter a URL above to get started — the agent will open pages here too.
+          {L("Enter a URL above to get started — the agent will open pages here too.")}
         </div>
       )}
     </div>

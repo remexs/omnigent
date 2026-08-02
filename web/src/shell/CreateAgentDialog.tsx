@@ -221,7 +221,7 @@ export function CreateAgentDialog({
               htmlFor="create-agent-description"
               className="text-xs font-medium text-muted-foreground"
             >
-              Description
+              {L("Description")}
             </label>
             <Input
               id="create-agent-description"
@@ -276,7 +276,7 @@ export function CreateAgentDialog({
               htmlFor="create-agent-instructions"
               className="text-xs font-medium text-muted-foreground"
             >
-              System instructions
+              {L("System instructions")}
             </label>
             <Textarea
               id="create-agent-instructions"
@@ -301,7 +301,7 @@ export function CreateAgentDialog({
                 className="h-6 gap-1 px-2 text-xs text-muted-foreground"
               >
                 <PlusIcon className="size-3" />
-                Add server
+                {L("Add server")}
               </Button>
             </div>
             {mcpEntries.map((entry) => (
@@ -317,10 +317,10 @@ export function CreateAgentDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => handleOpenChange(false)}>
-            Cancel
+            {L("Cancel")}
           </Button>
           <Button data-testid="create-agent-submit" onClick={handleSubmit} disabled={!canSubmit}>
-            Create
+            {L("Create")}
           </Button>
         </DialogFooter>
       </DialogContent>

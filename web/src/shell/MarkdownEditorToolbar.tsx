@@ -105,7 +105,7 @@ function TableBtn({ editor }: { editor: Editor | null }) {
         onMouseLeave={() => setHovered({ rows: 0, cols: 0 })}
       >
         <p className="mb-1.5 text-xs text-muted-foreground">
-          {hovered.rows > 0 ? `${hovered.rows} × ${hovered.cols} table` : "Insert table"}
+          {hovered.rows > 0 ? `${hovered.rows} × ${hovered.cols} table` : L("Insert table")}
         </p>
         <div className="flex flex-col gap-0.5">
           {Array.from({ length: MAX }, (_, rowIndex) => (
@@ -331,21 +331,21 @@ export function ToolbarPlugin({
   // dead "Retry" — fall through to "Saved" instead.
   const saveStatus = saveDisabled
     ? {
-        label: "Offline",
-        title: "Runner offline — your changes will save when it reconnects",
+        label: L("Offline"),
+        title: L("Runner offline — your changes will save when it reconnects"),
         tone: "offline" as const,
       }
     : saveError && isDirty
-      ? { label: "Retry", title: "Save failed — click to retry", tone: "error" as const }
+      ? { label: "Retry", title: L("Save failed — click to retry"), tone: "error" as const }
       : isSaving
-        ? { label: "Saving…", title: "Saving…", tone: "pending" as const }
+        ? { label: L("Saving…"), title: L("Saving…"), tone: "pending" as const }
         : isDirty
           ? {
-              label: "Unsaved",
-              title: "Unsaved changes — ⌘S to save now",
+              label: L("Unsaved"),
+              title: L("Unsaved changes — ⌘S to save now"),
               tone: "pending" as const,
             }
-          : { label: "Saved", title: "All changes saved", tone: "saved" as const };
+          : { label: L("Saved"), title: L("All changes saved"), tone: "saved" as const };
   // Clickable only when there are unsaved edits and a write can land: never
   // while offline, mid-conflict, or when there's nothing to persist.
   const saveClickable = !saveDisabled && !hasExternalUpdate && isDirty;

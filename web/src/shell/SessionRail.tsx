@@ -91,7 +91,7 @@ function TerminalsCard({ terminals, onExpand }: TerminalsCardProps) {
         <CardAction>
           <button
             type="button"
-            aria-label={collapsed ? "Expand terminals" : "Collapse terminals"}
+            aria-label={collapsed ? L("Expand terminals") : L("Collapse terminals")}
             aria-expanded={!collapsed}
             className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             onClick={() => setCollapsed((v) => !v)}
@@ -155,7 +155,7 @@ function ExecutionLogsCard({ childSessions, onExpand }: ExecutionLogsCardProps) 
         <CardAction>
           <button
             type="button"
-            aria-label={collapsed ? "Expand execution logs" : "Collapse execution logs"}
+            aria-label={collapsed ? L("Expand execution logs") : L("Collapse execution logs")}
             aria-expanded={!collapsed}
             className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             onClick={() => setCollapsed((v) => !v)}

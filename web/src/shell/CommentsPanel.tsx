@@ -174,7 +174,7 @@ export function CommentsPanel({
             onClick={onAddressAll}
           >
             <WandSparklesIcon className="size-3.5" />
-            Address All
+            {L("Address All")}
           </Button>
         )}
       </div>
@@ -195,7 +195,7 @@ export function CommentsPanel({
               )}
               onClick={() => setTab(t)}
             >
-              {t === "open" ? "Open" : "Addressed"}
+              {t === "open" ? "Open" : L("Addressed")}
               {count > 0 && (
                 <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] tabular-nums">
                   {count}
@@ -208,7 +208,7 @@ export function CommentsPanel({
 
       {!canEdit && (
         <div className="shrink-0 border-b border-border px-3 py-2 text-xs text-muted-foreground">
-          You have read-only access to this session.
+          {L("You have read-only access to this session.")}
         </div>
       )}
 
@@ -259,7 +259,7 @@ export function CommentsPanel({
                   if (pendingBodyRef) pendingBodyRef.current = "";
                 }}
               >
-                Add Comment
+                {L("Add Comment")}
               </Button>
             </div>
           ) : null)}
@@ -268,7 +268,7 @@ export function CommentsPanel({
         {tab === "open" ? (
           comments.length === 0 ? (
             <div className="flex items-center justify-center p-8 text-xs text-muted-foreground">
-              No open comments.
+              {L("No open comments.")}
             </div>
           ) : (
             <div className="space-y-2 p-3">
@@ -293,7 +293,7 @@ export function CommentsPanel({
           )
         ) : addressedComments.length === 0 ? (
           <div className="flex items-center justify-center p-8 text-xs text-muted-foreground">
-            No addressed comments.
+            {L("No addressed comments.")}
           </div>
         ) : (
           <div className="space-y-2 p-3">
@@ -383,7 +383,7 @@ function CommentCard({
     if (!editing) setEditBody(c.body);
   }, [c.id, c.body, editing]);
 
-  const statusLabel = c.status === "addressed" ? "Addressed" : null;
+  const statusLabel = c.status === "addressed" ? L("Addressed") : null;
 
   function startEdit() {
     setEditBody(c.body);
@@ -432,10 +432,10 @@ function CommentCard({
           />
           <div className="flex gap-1.5">
             <Button type="button" size="xs" disabled={!editBody.trim()} onClick={saveEdit}>
-              Save
+              {L("Save")}
             </Button>
             <Button type="button" size="xs" variant="ghost" onClick={() => setEditing(false)}>
-              Cancel
+              {L("Cancel")}
             </Button>
           </div>
         </div>
@@ -460,7 +460,7 @@ function CommentCard({
                 setExpanded((v) => !v);
               }}
             >
-              {expanded ? "Show less" : "Show more"}
+              {expanded ? L("Show less") : L("Show more")}
             </button>
           )}
         </div>
@@ -481,10 +481,10 @@ function CommentCard({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="truncate text-[11px] text-muted-foreground">
-                      {c.created_by ?? "You"}
+                      {c.created_by ?? L("You")}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent>{c.created_by ?? "You"}</TooltipContent>
+                  <TooltipContent>{c.created_by ?? L("You")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -508,7 +508,7 @@ function CommentCard({
                     startEdit();
                   }}
                 >
-                  Edit
+                  {L("Edit")}
                 </button>
               )}
               {onDelete && (
@@ -520,7 +520,7 @@ function CommentCard({
                     onDelete();
                   }}
                 >
-                  Delete
+                  {L("Delete")}
                 </button>
               )}
               {onCopyLink && (

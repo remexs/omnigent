@@ -75,7 +75,7 @@ export function HarnessSetupDialog({
   // credential the UI can actually write.
   const installable = harnessInstallableOnHost(info, harness, host);
   const authable = harnessAuthableOnHost(info, harness, host);
-  const name = agentName ?? harness ?? "this agent";
+  const name = agentName ?? harness ?? L("this agent");
 
   // Auth is a SECOND step: gate the credential form until the binary is
   // present, so the checklist runs Install → Set up auth in order. Without this,
@@ -262,7 +262,7 @@ function SetupStepRow({
           {step.kind === "install" && installing ? (
             <span className="text-xs text-muted-foreground" data-testid="harness-setup-installing">
               {L("Installing on")}
-              {host?.name} — this can take a few minutes for larger agents.
+              {host?.name} {L("— this can take a few minutes for larger agents.")}
             </span>
           ) : (
             detail && <span className="text-xs text-muted-foreground">{detail}</span>
@@ -279,7 +279,7 @@ function SetupStepRow({
             data-testid="harness-setup-install"
             onClick={() => onInstall(step.harness)}
           >
-            Install
+            {L("Install")}
           </Button>
         ) : isAuthForm ? (
           <Button
@@ -290,7 +290,7 @@ function SetupStepRow({
             aria-expanded={formOpen}
             onClick={() => setFormOpen((v) => !v)}
           >
-            {formOpen ? "Cancel" : "Set up auth"}
+            {formOpen ? "Cancel" : L("Set up auth")}
           </Button>
         ) : authPending ? (
           // Installed first: the credential form unlocks once the binary lands.
@@ -301,7 +301,7 @@ function SetupStepRow({
             data-testid="harness-setup-add-credential"
             title={L("Install first, then set up authentication")}
           >
-            Set up auth
+            {L("Set up auth")}
           </Button>
         ) : step.command ? (
           <CopyCommand command={step.command} />
@@ -340,9 +340,9 @@ function CopyCommand({ command }: { command: string }) {
         void copyText(command)
           .then(() => {
             setCopied(true);
-            showToast("Copied to clipboard.");
+            showToast(L("Copied to clipboard."));
           })
-          .catch(() => showToast("Couldn't copy — select and copy manually.", { duration: 0 }));
+          .catch(() => showToast(L("Couldn't copy — select and copy manually."), { duration: 0 }));
       }}
     >
       <span>{command}</span>

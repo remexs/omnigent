@@ -42,7 +42,7 @@ export function CommandGoalDialog({
     event.preventDefault();
     const trimmed = condition.trim();
     if (!trimmed) {
-      setError("Goal condition cannot be empty.");
+      setError(L("Goal condition cannot be empty."));
       return;
     }
     onStartGoal(trimmed);
@@ -59,14 +59,16 @@ export function CommandGoalDialog({
               <span>{L("Goal")}</span>
             </DialogTitle>
             <DialogDescription>
-              {backendLabel} keeps working until this condition is met. Progress and completion
-              appear in the conversation.
+              {backendLabel}{" "}
+              {L(
+                "keeps working until this condition is met. Progress and completion\n              appear in the conversation.",
+              )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground" htmlFor="goal-condition">
-              Completion condition
+              {L("Completion condition")}
             </label>
             <Textarea
               id="goal-condition"
@@ -86,7 +88,7 @@ export function CommandGoalDialog({
 
           <DialogFooter>
             <Button type="submit" disabled={readOnly} data-testid="goal-start">
-              Start goal
+              {L("Start goal")}
             </Button>
           </DialogFooter>
         </form>

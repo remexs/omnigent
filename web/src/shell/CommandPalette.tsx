@@ -124,42 +124,42 @@ export function CommandPalette({
     () => [
       {
         id: "new-chat",
-        label: "New chat",
+        label: L("New chat"),
         icon: SquarePenIcon,
         keywords: ["compose", "start", "new session"],
         run: () => navigate("/"),
       },
       {
         id: "go-inbox",
-        label: "Go to Inbox",
+        label: L("Go to Inbox"),
         icon: InboxIcon,
         keywords: ["notifications", "comments", "needs response"],
         run: () => navigate("/inbox"),
       },
       {
         id: "go-tasks",
-        label: "Go to Automations",
+        label: L("Go to Automations"),
         icon: CalendarClockIcon,
         keywords: ["scheduled", "recurring", "cron", "automation", "schedule"],
         run: () => navigate("/tasks"),
       },
       {
         id: "go-settings",
-        label: "Go to Settings",
+        label: L("Go to Settings"),
         icon: SettingsIcon,
         keywords: ["preferences", "configuration", "account"],
         run: () => navigate("/settings"),
       },
       {
         id: "toggle-left-sidebar",
-        label: "Toggle conversations sidebar",
+        label: L("Toggle conversations sidebar"),
         icon: PanelLeftIcon,
         keywords: ["panel", "left", "sessions list"],
         run: onToggleLeftSidebar,
       },
       {
         id: "toggle-right-sidebar",
-        label: "Toggle workspace sidebar",
+        label: L("Toggle workspace sidebar"),
         icon: PanelRightIcon,
         keywords: ["panel", "right", "files", "terminal"],
         run: onToggleRightSidebar,
@@ -236,7 +236,7 @@ export function CommandPalette({
           />
           <CommandList>
             <CommandEmpty>
-              {isFetching && debouncedQuery ? "Searching…" : "No results found"}
+              {isFetching && debouncedQuery ? L("Searching…") : L("No results found")}
             </CommandEmpty>
             {sessions.length > 0 && (
               <CommandGroup heading={L("Sessions")}>

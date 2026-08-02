@@ -58,7 +58,7 @@ export function SystemMessageView({ message }: SystemMessageViewProps) {
         >
           <Icon className="size-3.5 shrink-0" />
           <span>
-            <strong className="font-semibold">{L("System:")}</strong> {message.label}
+            <strong className="font-semibold">{L("System:")}</strong> {L(message.label)}
           </span>
           <ChevronRightIcon
             className={cn("size-3.5 shrink-0 transition-transform", open && "rotate-90")}
@@ -68,7 +68,7 @@ export function SystemMessageView({ message }: SystemMessageViewProps) {
         <div className="flex items-center gap-1.5 px-1.5 py-0.5">
           <Icon className="size-3.5 shrink-0" />
           <span>
-            <strong className="font-semibold">{L("System:")}</strong> {message.label}
+            <strong className="font-semibold">{L("System:")}</strong> {L(message.label)}
           </span>
         </div>
       )}

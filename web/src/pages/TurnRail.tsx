@@ -8,6 +8,7 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from "re
 import { cn } from "@/lib/utils";
 import { scrollToUserMessage } from "@/hooks/useUserMessageNav";
 import { useChatStore } from "@/store/chatStore";
+import { L } from "@/i18n";
 
 /** One rail tick: a user turn plus a preview of the reply it drew. */
 export interface Turn {
@@ -391,7 +392,7 @@ export function TurnRail({
         {hovered && (
           <>
             <p className="line-clamp-2 text-[0.8125rem] font-medium text-foreground">
-              {hovered.userText || "(no text)"}
+              {hovered.userText || L("(no text)")}
             </p>
             {hovered.responsePreview && (
               <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">

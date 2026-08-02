@@ -251,12 +251,12 @@ export function ApprovalCard({
   const isExternalUrl = typeof url === "string" && url.length > 0 && !url.startsWith("/approve/");
   const askUserQuestionTitle =
     policyName.startsWith("agy_") || phase.startsWith("agy_")
-      ? "Antigravity needs your input"
+      ? L("Antigravity needs your input")
       : policyName.startsWith("codex_") || phase.startsWith("codex_")
-        ? "Codex needs input"
+        ? L("Codex needs input")
         : policyName.startsWith("cursor_") || phase.startsWith("cursor_")
-          ? "Cursor has questions"
-          : "Claude has questions";
+          ? L("Cursor has questions")
+          : L("Claude has questions");
 
   // Hide the raw JSON preview for AskUserQuestion (the form already
   // renders the questions + options structurally) and for option-
@@ -292,12 +292,12 @@ export function ApprovalCard({
     <div className="flex flex-wrap gap-2 pt-1">
       <Button size="sm" onClick={() => submitBinary("accept")} disabled={!canApprove}>
         <CheckIcon className="mr-1 size-3.5" />
-        Approve
+        {L("Approve")}
       </Button>
       {allowAllEdits && (
         <Button size="sm" variant="outline" onClick={submitAllowAllEdits} disabled={!canApprove}>
           <CheckIcon className="mr-1 size-3.5" />
-          Accept & allow all edits
+          {L("Accept & allow all edits")}
         </Button>
       )}
       {rememberTarget && (
@@ -316,7 +316,7 @@ export function ApprovalCard({
       )}
       <Button size="sm" variant="outline" onClick={() => submitBinary("decline")}>
         <XIcon className="mr-1 size-3.5" />
-        Reject
+        {L("Reject")}
       </Button>
     </div>
   );
@@ -324,7 +324,7 @@ export function ApprovalCard({
     <div className="flex flex-wrap items-center gap-2 pt-1" data-testid="codex-command-actions">
       <Button size="sm" onClick={() => submitBinary("accept")} disabled={!canApprove}>
         <CheckIcon className="mr-1 size-3.5" />
-        Approve
+        {L("Approve")}
       </Button>
       {execPolicyAmendment && (
         <Button
@@ -334,12 +334,12 @@ export function ApprovalCard({
           disabled={!canApprove}
         >
           <CheckIcon className="mr-1 size-3.5" />
-          Approve and remember
+          {L("Approve and remember")}
         </Button>
       )}
       <Button size="sm" variant="outline" onClick={() => submitBinary("decline")}>
         <XIcon className="mr-1 size-3.5" />
-        Reject
+        {L("Reject")}
       </Button>
     </div>
   );
@@ -376,7 +376,7 @@ export function ApprovalCard({
         : null;
 
     let icon = <XIcon className="size-4 text-destructive" />;
-    let label = isExitPlanMode ? "Plan rejected" : "Rejected";
+    let label = isExitPlanMode ? L("Plan rejected") : L("Rejected");
     if (autoResolved) {
       // Card was cleared by the chat store when the gated tool's
       // function_call_output arrived without a UI verdict —
@@ -397,15 +397,17 @@ export function ApprovalCard({
       label = "Approved and remembered";
     } else if (acceptedAllEdits) {
       icon = <CheckIcon className="size-4 text-success" />;
-      label = isExitPlanMode ? "Plan approved · auto mode" : "Approved · auto-accepting edits";
+      label = isExitPlanMode
+        ? L("Plan approved · auto mode")
+        : L("Approved · auto-accepting edits");
     } else if (acceptedRemember) {
       icon = <CheckIcon className="size-4 text-success" />;
       label = rememberTarget
         ? `Approved · won't ask again for ${rememberTarget}`
-        : "Approved · won't ask again";
+        : L("Approved · won't ask again");
     } else if (accepted) {
       icon = <CheckIcon className="size-4 text-success" />;
-      label = isExitPlanMode ? "Plan approved" : "Approved";
+      label = isExitPlanMode ? L("Plan approved") : L("Approved");
     }
 
     return (
@@ -474,14 +476,14 @@ export function ApprovalCard({
           <MessageCircleQuestionMark className="size-4 text-yellow-600 dark:text-yellow-400" />
         )}
         {isCodexCommandApproval
-          ? "Command approval"
+          ? L("Command approval")
           : isExitPlanMode
-            ? "Plan review"
+            ? L("Plan review")
             : isAskUserQuestion
               ? askUserQuestionTitle
               : isMultiChoice
-                ? "Choose an option"
-                : "Approval required"}
+                ? L("Choose an option")
+                : L("Approval required")}
         {policyName && !isAskUserQuestion && !isExitPlanMode && (
           <span className="text-muted-foreground text-xs">· {policyName}</span>
         )}
@@ -492,7 +494,7 @@ export function ApprovalCard({
       <AlertDescription className="flex flex-col gap-2">
         {!canApprove && (
           <span className="text-xs text-muted-foreground" role="note">
-            Only the session owner or a delegated approver can approve. You can still reject.
+            {L("Only the session owner or a delegated approver can approve. You can still reject.")}
           </span>
         )}
         {isExitPlanMode ? (
@@ -541,7 +543,7 @@ export function ApprovalCard({
                 <Button size="sm" asChild>
                   <a href={url!} target="_blank" rel="noopener noreferrer">
                     <ExternalLinkIcon className="mr-1 size-3.5" />
-                    Open approval page
+                    {L("Open approval page")}
                   </a>
                 </Button>
               </div>

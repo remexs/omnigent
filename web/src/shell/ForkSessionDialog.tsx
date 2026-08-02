@@ -280,7 +280,7 @@ export function ForkSessionForm({
     )?.display_name ??
     sourceAgentBaseName ??
     sourceAgentName ??
-    "the original agent";
+    L("the original agent");
 
   // Eagerly prefetch harness/description for session-discovered agents (those
   // with harness=null and a sessionId). Without this, forkTargetCarriesHistory
@@ -509,7 +509,7 @@ export function ForkSessionForm({
       navigate(`/c/${fork.id}`);
     } catch (e) {
       // forkSession failed — nothing created, so inputs stay editable for a resubmit.
-      setError(e instanceof Error ? e.message : "Couldn't clone the session. Try again.");
+      setError(e instanceof Error ? e.message : L("Couldn't clone the session. Try again."));
     } finally {
       setSubmitting(false);
     }
@@ -517,7 +517,7 @@ export function ForkSessionForm({
 
   // Suggested name shown as the input placeholder; blank input → the server
   // applies this same "Fork of <source title>" default.
-  const namePlaceholder = defaultForkTitle(sourceTitle) || "Name the cloned session";
+  const namePlaceholder = defaultForkTitle(sourceTitle) || L("Name the cloned session");
 
   return (
     <>
@@ -532,7 +532,7 @@ export function ForkSessionForm({
             <span className="text-xs font-medium text-muted-foreground">{L("Host")}</span>
             {hosts === undefined ? (
               <p className="text-xs text-muted-foreground" data-testid="fork-session-no-hosts">
-                Loading hosts…
+                {L("Loading hosts…")}
               </p>
             ) : onlineHosts.length === 0 ? (
               // Nothing usable (no hosts, or all offline) — show the connect
@@ -598,7 +598,7 @@ export function ForkSessionForm({
                   ) : (
                     <ChevronDownIcon className="size-3.5" />
                   )}
-                  Connect another host from your terminal
+                  {L("Connect another host from your terminal")}
                 </button>
                 {showConnect && <ConnectHostInstructions serverUrl={serverUrl} />}
               </>
@@ -608,7 +608,7 @@ export function ForkSessionForm({
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="fork-session-agent" className="text-xs font-medium text-muted-foreground">
-            Agent
+            {L("Agent")}
           </label>
           <Select value={agentChoice} onValueChange={setAgentChoice}>
             <SelectTrigger
@@ -678,12 +678,12 @@ export function ForkSessionForm({
                   className="cursor-pointer underline decoration-dotted underline-offset-2"
                   data-testid="fork-session-reuse-dir-path"
                 >
-                  working directory
+                  {L("working directory")}
                 </button>
               </TooltipTrigger>
               <TooltipContent className="font-mono break-all">{effectiveWorkspace}</TooltipContent>
             </Tooltip>
-            . Open Advanced settings to change it.
+            {L(". Open Advanced settings to change it.")}
           </p>
         )}
 
@@ -698,11 +698,11 @@ export function ForkSessionForm({
             <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
             <span>
               {conflictingSessions.length === 1
-                ? "1 other agent is"
+                ? L("1 other agent is")
                 : `${conflictingSessions.length} other agents are`}{" "}
               {L("working in this directory, so writes may conflict. Name a")}{" "}
-              {usingSourceWorktree ? "different git branch" : "git branch"} under Advanced settings
-              to work in an isolated copy.
+              {usingSourceWorktree ? L("different git branch") : L("git branch")}{" "}
+              {L("under Advanced\n              settings to work in an isolated copy.")}
             </span>
           </p>
         )}
@@ -725,7 +725,7 @@ export function ForkSessionForm({
             ) : (
               <ChevronDownIcon className="size-3.5" />
             )}
-            Advanced settings
+            {L("Advanced settings")}
           </button>
 
           {showAdvanced && (
@@ -759,7 +759,7 @@ export function ForkSessionForm({
                 <>
                   <div className="flex flex-col gap-2">
                     <span className="text-xs font-medium text-muted-foreground">
-                      Working directory
+                      {L("Working directory")}
                     </span>
                     {selectedHostId ? (
                       <>
@@ -802,7 +802,7 @@ export function ForkSessionForm({
                       </>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        Select a host to choose a directory.
+                        {L("Select a host to choose a directory.")}
                       </p>
                     )}
                   </div>
@@ -848,7 +848,7 @@ export function ForkSessionForm({
 
       <DialogFooter>
         <Button variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancel
+          {L("Cancel")}
         </Button>
         <Button
           data-testid="fork-session-submit"
@@ -857,11 +857,11 @@ export function ForkSessionForm({
         >
           {submitting
             ? isCodingSource
-              ? "Starting…"
-              : "Cloning…"
+              ? L("Starting…")
+              : L("Cloning…")
             : isCodingSource
-              ? "Clone & start"
-              : "Clone"}
+              ? L("Clone & start")
+              : L("Clone")}
         </Button>
       </DialogFooter>
     </>
@@ -912,10 +912,12 @@ export function ForkSessionDialog({
   // for screen readers). Coding sources also start on a picked host/directory.
   const cloneDescription = `${
     truncated
-      ? "Copies this session's history up to the selected response into a new session you own — messages after it aren't carried over"
-      : "Copies this session's history into a new session you own"
+      ? L(
+          "Copies this session's history up to the selected response into a new session you own — messages after it aren't carried over",
+        )
+      : L("Copies this session's history into a new session you own")
   }${
-    sourceWorkspace ? ", then starts it on the host and directory you pick" : ""
+    sourceWorkspace ? L(", then starts it on the host and directory you pick") : ""
   }. Comments aren't copied, and changes in the clone won't affect the original.`;
 
   return (
@@ -926,7 +928,7 @@ export function ForkSessionDialog({
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-1.5">
-            {truncated ? "Fork from this response" : "Clone session"}
+            {truncated ? L("Fork from this response") : L("Clone session")}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button

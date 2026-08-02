@@ -83,7 +83,7 @@ export function ModelEffortFields({
             <SelectItem value={MODEL_SELECT_DEFAULT}>{L("Default")}</SelectItem>
             {modelOptions.map((m) => (
               <SelectItem key={m.id} value={m.id}>
-                {m.label}
+                {L(m.label)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -104,7 +104,7 @@ export function ModelEffortFields({
             <SelectItem value={EFFORT_SELECT_NONE}>{L("Default")}</SelectItem>
             {CLAUDE_NATIVE_EFFORTS.map((e) => (
               <SelectItem key={e.value} value={e.value}>
-                {e.label}
+                {L(e.label)}
               </SelectItem>
             ))}
           </SelectContent>

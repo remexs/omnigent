@@ -305,8 +305,8 @@ function ImageViewer({ data, path }: { data: FileContentResponse; path: string }
   const body = errored ? (
     <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
       {data.truncated
-        ? "Image is too large to preview (truncated by the server)."
-        : "Unable to render image."}
+        ? L("Image is too large to preview (truncated by the server).")
+        : L("Unable to render image.")}
     </div>
   ) : (
     <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-4">
@@ -661,7 +661,7 @@ export function CodeViewer({
   if (fileQuery.isLoading) {
     return (
       <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-        Loading…
+        {L("Loading…")}
       </div>
     );
   }
@@ -681,7 +681,7 @@ export function CodeViewer({
       <Suspense
         fallback={
           <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-            Loading…
+            {L("Loading…")}
           </div>
         }
       >
@@ -700,7 +700,7 @@ export function CodeViewer({
       <Suspense
         fallback={
           <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-            Loading 3D preview…
+            {L("Loading 3D preview…")}
           </div>
         }
       >
@@ -711,7 +711,7 @@ export function CodeViewer({
   if (fileQuery.data?.encoding === "base64" || isBinaryPath(path)) {
     return (
       <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-        Preview not available for binary files.
+        {L("Preview not available for binary files.")}
       </div>
     );
   }
@@ -772,7 +772,7 @@ export function CodeViewer({
       <Suspense
         fallback={
           <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-            Loading…
+            {L("Loading…")}
           </div>
         }
       >
@@ -850,7 +850,7 @@ export function CodeViewer({
             {searchQuery.trim()
               ? matches.length > 0
                 ? `${safeMatchIdx + 1} / ${matches.length}`
-                : "No results"
+                : L("No results")
               : ""}
           </span>
           <button
@@ -1049,7 +1049,7 @@ export function CodeViewer({
               }}
             >
               <MessageSquarePlusIcon className="size-3.5" />
-              Add comment
+              {L("Add comment")}
             </button>
             {canAttachToAgent && (
               <button
@@ -1076,7 +1076,7 @@ export function CodeViewer({
                 }}
               >
                 <AtSignIcon className="size-3.5" />
-                Attach to agent
+                {L("Attach to agent")}
               </button>
             )}
           </div>,

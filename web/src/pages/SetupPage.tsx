@@ -48,7 +48,7 @@ export function SetupPage() {
     setError(null);
 
     if (password !== confirm) {
-      setError("Passwords don't match.");
+      setError(L("Passwords don't match."));
       return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
@@ -78,15 +78,16 @@ export function SetupPage() {
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">{L("Create the admin account")}</h1>
           <p className="text-sm text-muted-foreground">
-            First run — pick the username and password for this server's admin. You can invite
-            others once you're in.
+            {L(
+              "First run — pick the username and password for this server's admin. You can invite\n            others once you're in.",
+            )}
           </p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="setup-username" className="text-sm font-medium leading-none">
-              Username
+              {L("Username")}
             </label>
             <Input
               id="setup-username"
@@ -102,13 +103,13 @@ export function SetupPage() {
               )}
             />
             <p className="text-xs text-muted-foreground">
-              Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.
+              {L("Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.")}
             </p>
           </div>
 
           <div className="space-y-1.5">
             <label htmlFor="setup-password" className="text-sm font-medium leading-none">
-              Password
+              {L("Password")}
             </label>
             <Input
               id="setup-password"
@@ -124,7 +125,7 @@ export function SetupPage() {
 
           <div className="space-y-1.5">
             <label htmlFor="setup-confirm" className="text-sm font-medium leading-none">
-              Confirm password
+              {L("Confirm password")}
             </label>
             <Input
               id="setup-confirm"
@@ -152,7 +153,7 @@ export function SetupPage() {
             className="w-full"
             disabled={submitting || password.length < MIN_PASSWORD_LENGTH || username.length === 0}
           >
-            {submitting ? "Creating…" : "Create admin"}
+            {submitting ? L("Creating…") : L("Create admin")}
           </Button>
         </form>
       </div>

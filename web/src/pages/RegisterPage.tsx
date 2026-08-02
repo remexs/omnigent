@@ -52,7 +52,7 @@ export function RegisterPage() {
     setError(null);
 
     if (password !== confirm) {
-      setError("Passwords don't match.");
+      setError(L("Passwords don't match."));
       return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
@@ -84,7 +84,7 @@ export function RegisterPage() {
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">{L("Create your account")}</h1>
           <p className="text-sm text-muted-foreground">
-            You were invited to join this Omnigent server.
+            {L("You were invited to join this Omnigent server.")}
           </p>
         </div>
 
@@ -93,14 +93,15 @@ export function RegisterPage() {
             role="alert"
             className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
           >
-            This page needs an invite token in the URL — make sure you opened the link your admin
-            sent you.
+            {L(
+              "This page needs an invite token in the URL — make sure you opened the link your admin\n            sent you.",
+            )}
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="register-username" className="text-sm font-medium leading-none">
-                Username
+                {L("Username")}
               </label>
               <Input
                 id="register-username"
@@ -116,13 +117,13 @@ export function RegisterPage() {
                 )}
               />
               <p className="text-xs text-muted-foreground">
-                Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.
+                {L("Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.")}
               </p>
             </div>
 
             <div className="space-y-1.5">
               <label htmlFor="register-password" className="text-sm font-medium leading-none">
-                Password
+                {L("Password")}
               </label>
               <Input
                 id="register-password"
@@ -138,7 +139,7 @@ export function RegisterPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="register-confirm" className="text-sm font-medium leading-none">
-                Confirm password
+                {L("Confirm password")}
               </label>
               <Input
                 id="register-confirm"
@@ -168,7 +169,7 @@ export function RegisterPage() {
                 submitting || password.length < MIN_PASSWORD_LENGTH || username.length === 0
               }
             >
-              {submitting ? "Creating…" : "Create account"}
+              {submitting ? L("Creating…") : L("Create account")}
             </Button>
           </form>
         )}

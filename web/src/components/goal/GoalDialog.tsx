@@ -64,7 +64,7 @@ function GoalSummary({ loading, goal }: GoalSummaryProps) {
   if (!goal) {
     return (
       <p data-testid="goal-empty" className="text-sm text-muted-foreground">
-        No goal set.
+        {L("No goal set.")}
       </p>
     );
   }
@@ -137,7 +137,7 @@ function GoalEditor({
     <>
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground" htmlFor="goal-objective">
-          Objective
+          {L("Objective")}
         </label>
         <Textarea
           id="goal-objective"
@@ -201,7 +201,7 @@ function GoalEditor({
 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground" htmlFor="goal-token-budget">
-          Token budget
+          {L("Token budget")}
         </label>
         <Input
           id="goal-token-budget"
@@ -325,7 +325,7 @@ function GoalActions({
         loading={clearing}
         data-testid="goal-clear"
       >
-        Clear
+        {L("Clear")}
       </Button>
       {showPause && (
         <Button
@@ -337,7 +337,7 @@ function GoalActions({
           data-testid="goal-pause"
         >
           <PauseCircleIcon className="size-3.5" />
-          Pause
+          {L("Pause")}
         </Button>
       )}
       {showResume && (
@@ -350,7 +350,7 @@ function GoalActions({
           data-testid="goal-resume"
         >
           <PlayCircleIcon className="size-3.5" />
-          Resume
+          {L("Resume")}
         </Button>
       )}
       <Button
@@ -360,7 +360,7 @@ function GoalActions({
         loading={saving}
         data-testid="goal-save"
       >
-        {hasGoal ? "Update goal" : "Set goal"}
+        {hasGoal ? L("Update goal") : L("Set goal")}
       </Button>
     </DialogFooter>
   );
@@ -433,7 +433,7 @@ function useGoalDialogState({
     if (!conversationId) return;
     const trimmedObjective = objective.trim();
     if (!trimmedObjective) {
-      setError("Goal objective cannot be empty.");
+      setError(L("Goal objective cannot be empty."));
       return;
     }
     let parsedBudget: number | null;

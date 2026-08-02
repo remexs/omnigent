@@ -110,7 +110,7 @@ export function TitleBarServerPicker({
           <DropdownMenuSeparator />
           <DropdownMenuItem className="gap-2" onSelect={() => openServerSetup()}>
             <PlusIcon className="size-4 shrink-0" />
-            Connect to new server…
+            {L("Connect to new server…")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

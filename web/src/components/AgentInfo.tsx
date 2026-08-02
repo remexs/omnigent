@@ -127,7 +127,7 @@ export function McpServerList({
                   className="flex items-center gap-1 self-end rounded px-2 py-1 text-xs text-destructive hover:bg-destructive/10"
                 >
                   <TrashIcon className="size-3" />
-                  Remove
+                  {L("Remove")}
                 </button>
               </div>
             </PopoverContent>
@@ -185,8 +185,8 @@ function formatTokenCount(tokens: number): string {
 const MODEL_TOKEN_ROWS: readonly { key: keyof ModelUsage; label: string }[] = [
   { key: "inputTokens", label: "Input" },
   { key: "outputTokens", label: "Output" },
-  { key: "cacheReadInputTokens", label: "Cache read" },
-  { key: "cacheCreationInputTokens", label: "Cache write" },
+  { key: "cacheReadInputTokens", label: L("Cache read") },
+  { key: "cacheCreationInputTokens", label: L("Cache write") },
   { key: "totalTokens", label: "Total" },
 ];
 
@@ -213,7 +213,7 @@ function ModelUsageBreakdown({ usageByModel }: { usageByModel: Record<string, Mo
       <summary className="cursor-pointer select-none list-none">
         <SectionLabel>
           <span className="inline-flex items-center gap-1">
-            Token usage
+            {L("Token usage")}
             <span className="text-[9px]">{isOpen ? "▼" : "▶"}</span>
           </span>
         </SectionLabel>
@@ -420,17 +420,17 @@ function AddPolicyDialog({
                         onClick={() => handleSelect(r.handler)}
                         className="flex flex-col gap-0.5 px-2.5 py-2 text-left hover:bg-muted"
                       >
-                        <span className="text-sm">{r.name}</span>
+                        <span className="text-sm">{L(r.name)}</span>
                         {r.description && (
                           <span className="line-clamp-2 text-[11px] text-muted-foreground">
-                            {r.description}
+                            {L(r.description)}
                           </span>
                         )}
                       </button>
                     ))}
                     {filtered.length === 0 && (
                       <p className="py-2 text-center text-xs text-muted-foreground">
-                        No policies match your filter.
+                        {L("No policies match your filter.")}
                       </p>
                     )}
                   </div>
@@ -440,7 +440,7 @@ function AddPolicyDialog({
           {entry && (
             <div className="flex flex-col gap-1 rounded border border-border bg-muted/50 px-2.5 py-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{entry.name}</span>
+                <span className="text-sm font-medium">{L(entry.name)}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -451,11 +451,11 @@ function AddPolicyDialog({
                   }}
                   className="text-[11px] text-muted-foreground hover:text-foreground"
                 >
-                  Change
+                  {L("Change")}
                 </button>
               </div>
               {entry.description && (
-                <p className="text-xs text-muted-foreground">{entry.description}</p>
+                <p className="text-xs text-muted-foreground">{L(entry.description)}</p>
               )}
             </div>
           )}
@@ -494,7 +494,7 @@ function AddPolicyDialog({
                     </label>
                     {prop?.description && (
                       <p className="break-words text-[11px] text-muted-foreground">
-                        {prop.description}
+                        {L(prop.description)}
                       </p>
                     )}
                     {prop?.type === "boolean" ? (
@@ -639,7 +639,7 @@ function AddPolicyDialog({
               }}
               className="rounded px-3 py-1.5 text-xs hover:bg-muted"
             >
-              Cancel
+              {L("Cancel")}
             </button>
             <button
               type="button"
@@ -647,7 +647,7 @@ function AddPolicyDialog({
               disabled={!selected || addPolicy.isPending}
               className="rounded bg-primary px-3 py-1.5 text-xs text-primary-foreground disabled:opacity-50"
             >
-              {addPolicy.isPending ? "Adding..." : "Add"}
+              {addPolicy.isPending ? L("Adding...") : L("Add")}
             </button>
           </div>
         </div>
@@ -843,7 +843,7 @@ function McpServerManagerDialog({
         {dirty && (
           <div className="flex items-center gap-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-700 dark:text-yellow-400">
             <AlertTriangleIcon className="size-4 shrink-0" />
-            Restart the session to apply your changes.
+            {L("Restart the session to apply your changes.")}
           </div>
         )}
         <div className="grid gap-4 pt-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -898,15 +898,15 @@ function McpServerManagerDialog({
             {form.originalName && (
               <Button type="button" variant="ghost" size="sm" onClick={resetForm}>
                 <PlusIcon className="size-3.5" />
-                New server
+                {L("New server")}
               </Button>
             )}
           </div>
 
           <div className="flex min-w-0 flex-col gap-2">
-            <SectionLabel>{form.originalName ? "Edit Server" : "New Server"}</SectionLabel>
+            <SectionLabel>{form.originalName ? L("Edit Server") : L("New Server")}</SectionLabel>
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-              Name
+              {L("Name")}
               <Input
                 value={form.name}
                 onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
@@ -915,7 +915,7 @@ function McpServerManagerDialog({
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-              Transport
+              {L("Transport")}
               <select
                 value={form.transport}
                 onChange={(e) =>
@@ -1004,7 +1004,7 @@ function McpServerManagerDialog({
             ) : (
               <>
                 <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                  Command
+                  {L("Command")}
                   <Input
                     value={form.command}
                     onChange={(e) => setForm((prev) => ({ ...prev, command: e.target.value }))}
@@ -1012,7 +1012,7 @@ function McpServerManagerDialog({
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                  Args
+                  {L("Args")}
                   <Textarea
                     value={form.argsText}
                     onChange={(e) => setForm((prev) => ({ ...prev, argsText: e.target.value }))}
@@ -1023,7 +1023,7 @@ function McpServerManagerDialog({
               </>
             )}
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-              Description
+              {L("Description")}
               <Input
                 value={form.description}
                 onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
@@ -1041,7 +1041,7 @@ function McpServerManagerDialog({
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="ghost" size="sm" onClick={resetForm}>
                 <XIcon className="size-3.5" />
-                Clear
+                {L("Clear")}
               </Button>
               <Button
                 type="button"
@@ -1050,7 +1050,7 @@ function McpServerManagerDialog({
                 disabled={saving || validateMcpForm(form) !== null}
               >
                 <SaveIcon className="size-3.5" />
-                {saving ? "Saving..." : "Save"}
+                {saving ? L("Saving...") : "Save"}
               </Button>
             </div>
           </div>
@@ -1136,7 +1136,7 @@ function McpServersSection({
       {mcpDirty && (
         <p className="flex items-center gap-1 text-xs text-yellow-700 dark:text-yellow-400">
           <AlertTriangleIcon className="size-3 shrink-0" />
-          Restart to apply changes
+          {L("Restart to apply changes")}
         </p>
       )}
       {servers.length > 0 ? (
@@ -1222,7 +1222,7 @@ function SessionPoliciesSection({ sessionId }: { sessionId: string }) {
                       className="flex items-center gap-1 self-end rounded px-2 py-1 text-xs text-destructive hover:bg-destructive/10"
                     >
                       <TrashIcon className="size-3" />
-                      Remove
+                      {L("Remove")}
                     </button>
                   </div>
                 </PopoverContent>
@@ -1386,7 +1386,7 @@ export function AgentInfoContent({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label={sessionIdCopied ? "Copied session ID" : "Copy session ID"}
+              aria-label={sessionIdCopied ? L("Copied session ID") : L("Copy session ID")}
               data-testid="agent-info-copy-session-id"
               onClick={copySessionId}
               className="shrink-0"

@@ -280,8 +280,8 @@ export function PdfViewer({
   if (errored) {
     const body = centered(
       data.truncated
-        ? "PDF is too large to preview (truncated by the server)."
-        : "Unable to render PDF.",
+        ? L("PDF is too large to preview (truncated by the server).")
+        : L("Unable to render PDF."),
     );
     if (!data.truncated) return body;
     return (
@@ -384,7 +384,7 @@ export function PdfViewer({
             }}
           >
             <MessageSquarePlusIcon className="size-3.5" />
-            Add comment
+            {L("Add comment")}
           </button>,
           getEmbedRoot() ?? document.body,
         )}

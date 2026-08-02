@@ -77,7 +77,7 @@ export function AddAgentDialog({
     if (selectedAgent === null) return;
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Enter a name for the agent.");
+      setError(L("Enter a name for the agent."));
       return;
     }
     const title = `${UI_ADDED_TITLE_PREFIX}:${selectedAgent.name}:${trimmed}`;
@@ -97,7 +97,7 @@ export function AddAgentDialog({
       handleOpenChange(false);
       navigate(`/c/${session.id}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't add the agent. Try again.");
+      setError(e instanceof Error ? e.message : L("Couldn't add the agent. Try again."));
     } finally {
       setSubmitting(false);
     }
@@ -139,7 +139,7 @@ export function AddAgentDialog({
           {selectedAgent !== null && (
             <div className="flex flex-col gap-1.5">
               <label htmlFor="add-agent-name" className="text-xs font-medium text-muted-foreground">
-                Name
+                {L("Name")}
               </label>
               {/* Raw input matching NewChatDialog's "Name" field for a
                   consistent look (rounded-md + border-tint focus, no
@@ -165,14 +165,14 @@ export function AddAgentDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => handleOpenChange(false)} disabled={submitting}>
-            Cancel
+            {L("Cancel")}
           </Button>
           <Button
             data-testid="add-agent-submit"
             onClick={handleAdd}
             disabled={selectedAgent === null || !name.trim() || submitting}
           >
-            {submitting ? "Adding…" : "Add"}
+            {submitting ? L("Adding…") : "Add"}
           </Button>
         </DialogFooter>
       </DialogContent>

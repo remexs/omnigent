@@ -263,7 +263,7 @@ export function HtmlCommentViewer({
             }}
           >
             <MessageSquarePlusIcon className="size-3.5" />
-            Add comment
+            {L("Add comment")}
           </button>,
           getEmbedRoot() ?? document.body,
         )}

@@ -449,7 +449,7 @@ export function WorkspacePicker({
       setCreateError(null);
       navigateTo(created);
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Failed to create folder");
+      setCreateError(err instanceof Error ? err.message : L("Failed to create folder"));
     }
   }
 
@@ -504,9 +504,9 @@ export function WorkspacePicker({
         <button
           type="button"
           onClick={() => setShowHidden((v) => !v)}
-          aria-label={showHidden ? "Hide hidden" : "Show hidden"}
+          aria-label={showHidden ? L("Hide hidden") : L("Show hidden")}
           aria-pressed={showHidden}
-          title={showHidden ? "Hide hidden" : "Show hidden"}
+          title={showHidden ? L("Hide hidden") : L("Show hidden")}
           className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           data-testid="workspace-picker-show-hidden"
         >
@@ -534,7 +534,7 @@ export function WorkspacePicker({
             data-testid="workspace-picker-select"
           >
             <CheckIcon className="size-3.5" />
-            Select
+            {L("Select")}
           </Button>
         )}
         {onClose && (
@@ -622,9 +622,10 @@ export function WorkspacePicker({
         >
           <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
           <span>
-            {occupiedCount === 1 ? "1 other agent is" : `${occupiedCount} other agents are`} working
-            in this directory. Write operations may conflict — name a git branch to work in an
-            isolated copy.
+            {occupiedCount === 1 ? L("1 other agent is") : `${occupiedCount} other agents are`}{" "}
+            {L(
+              "working in this directory. Write operations may conflict — name a git branch to work in\n            an isolated copy.",
+            )}
           </span>
         </div>
       )}
@@ -634,12 +635,12 @@ export function WorkspacePicker({
         )}
         {error !== null && error !== undefined && !isLoading && (
           <div className="px-3 py-3 text-xs text-destructive" data-testid="workspace-picker-error">
-            {error instanceof Error ? error.message : "Failed to load directory"}
+            {error instanceof Error ? error.message : L("Failed to load directory")}
           </div>
         )}
         {!isLoading && error === null && entries.length === 0 && (
           <div className="px-3 py-3 text-xs text-muted-foreground">
-            {activeFilter !== null ? "No matching entries" : "(empty directory)"}
+            {activeFilter !== null ? L("No matching entries") : L("(empty directory)")}
           </div>
         )}
         {entries.map((entry) => {
@@ -673,7 +674,7 @@ export function WorkspacePicker({
             className="px-3 py-2 text-xs text-muted-foreground"
             data-testid="workspace-picker-truncated"
           >
-            Too many entries to list fully — type a path above to jump directly.
+            {L("Too many entries to list fully — type a path above to jump directly.")}
           </div>
         )}
       </div>

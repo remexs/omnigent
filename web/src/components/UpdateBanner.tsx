@@ -153,7 +153,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
         <div className="min-w-0 flex-1">
           {visibleStatus.state === "available" && (
             <p className="font-medium text-foreground">
-              Omnigent {visibleStatus.info?.version ?? "update"} is available
+              Omnigent {visibleStatus.info?.version ?? "update"} {L("is available")}
             </p>
           )}
           {visibleStatus.state === "downloading" && (
@@ -172,11 +172,11 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           {visibleStatus.state === "downloaded" && (
             <>
               <p className="font-medium text-foreground">
-                Omnigent {visibleStatus.info?.version ?? "update"} is ready to install
+                Omnigent {visibleStatus.info?.version ?? "update"} {L("is ready to install")}
               </p>
               {autoInstall && (
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Installs automatically on next quit.
+                  {L("Installs automatically on next quit.")}
                 </p>
               )}
             </>
@@ -195,7 +195,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           {releaseNotes && visibleStatus.state !== "downloading" && (
             <details className="mt-1.5 text-xs text-muted-foreground">
               <summary className="cursor-pointer select-none text-foreground hover:underline">
-                Release notes
+                {L("Release notes")}
               </summary>
               <div className="mt-1 max-h-32 overflow-auto whitespace-pre-wrap">{releaseNotes}</div>
             </details>
@@ -208,7 +208,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
                 onClick={() => void onDownload()}
                 loading={busyAction === "download"}
               >
-                Update now
+                {L("Update now")}
               </Button>
               <Button
                 variant="outline"
@@ -217,7 +217,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
                 loading={busyAction === "skip"}
                 disabled={!version}
               >
-                Skip this version
+                {L("Skip this version")}
               </Button>
             </div>
           )}
@@ -225,7 +225,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           {visibleStatus.state === "downloaded" && (
             <div className="mt-3 flex items-center gap-2">
               <Button size="sm" onClick={() => void onInstall()} loading={busyAction === "install"}>
-                Restart to update
+                {L("Restart to update")}
               </Button>
             </div>
           )}

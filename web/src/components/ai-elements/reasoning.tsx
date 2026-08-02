@@ -110,7 +110,7 @@ const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
     // the section stops streaming.
     return (
       <Shimmer as="span" duration={1.5}>
-        Thinking...
+        {L("Thinking...")}
       </Shimmer>
     );
   }

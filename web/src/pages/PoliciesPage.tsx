@@ -186,17 +186,17 @@ function AddDefaultPolicyDialog({
                         onClick={() => handleSelect(r.handler)}
                         className="flex flex-col gap-0.5 px-2.5 py-2 text-left hover:bg-muted"
                       >
-                        <span className="text-sm">{r.name}</span>
+                        <span className="text-sm">{L(r.name)}</span>
                         {r.description && (
                           <span className="line-clamp-2 text-[11px] text-muted-foreground">
-                            {r.description}
+                            {L(r.description)}
                           </span>
                         )}
                       </button>
                     ))}
                     {filtered.length === 0 && (
                       <p className="py-2 text-center text-xs text-muted-foreground">
-                        No policies match your filter.
+                        {L("No policies match your filter.")}
                       </p>
                     )}
                   </div>
@@ -206,7 +206,7 @@ function AddDefaultPolicyDialog({
           {entry && (
             <div className="flex flex-col gap-1 rounded border border-border bg-muted/50 px-2.5 py-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{entry.name}</span>
+                <span className="text-sm font-medium">{L(entry.name)}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -217,11 +217,11 @@ function AddDefaultPolicyDialog({
                   }}
                   className="text-[11px] text-muted-foreground hover:text-foreground"
                 >
-                  Change
+                  {L("Change")}
                 </button>
               </div>
               {entry.description && (
-                <p className="text-xs text-muted-foreground">{entry.description}</p>
+                <p className="text-xs text-muted-foreground">{L(entry.description)}</p>
               )}
             </div>
           )}
@@ -260,7 +260,7 @@ function AddDefaultPolicyDialog({
                     </label>
                     {prop?.description && (
                       <p className="break-words text-[11px] text-muted-foreground">
-                        {prop.description}
+                        {L(prop.description)}
                       </p>
                     )}
                     {prop?.type === "boolean" ? (
@@ -405,7 +405,7 @@ function AddDefaultPolicyDialog({
               }}
               className="rounded px-3 py-1.5 text-xs hover:bg-muted"
             >
-              Cancel
+              {L("Cancel")}
             </button>
             <button
               type="button"
@@ -413,7 +413,7 @@ function AddDefaultPolicyDialog({
               disabled={!selected || addPolicy.isPending}
               className="rounded bg-primary px-3 py-1.5 text-xs text-primary-foreground disabled:opacity-50"
             >
-              {addPolicy.isPending ? "Adding..." : "Add"}
+              {addPolicy.isPending ? L("Adding...") : L("Add")}
             </button>
           </div>
         </div>
@@ -463,7 +463,7 @@ export function PoliciesPage() {
   if (!isSingleUser && meIsAdmin === null) {
     return (
       <div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
-        Loading...
+        {L("Loading...")}
       </div>
     );
   }
@@ -473,7 +473,7 @@ export function PoliciesPage() {
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
         <h1 className="mb-2 text-2xl font-semibold">{L("Global Policies")}</h1>
         <p className="text-sm text-muted-foreground">
-          You don't have permission to manage global policies.
+          {L("You don't have permission to manage global policies.")}
         </p>
       </PageScroll>
     );
@@ -501,11 +501,11 @@ export function PoliciesPage() {
         <div>
           <h1 className="text-2xl font-semibold">{L("Global Policies")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Global policies applied to all sessions.
+            {L("Global policies applied to all sessions.")}
           </p>
         </div>
         <Button onClick={() => setAddOpen(true)}>
-          <PlusIcon /> Add policy
+          <PlusIcon /> {L("Add policy")}
         </Button>
       </div>
 
@@ -528,12 +528,12 @@ export function PoliciesPage() {
                         <span className="text-sm font-medium">{p.name}</span>
                         {p.source === "config" && (
                           <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                            Config
+                            {L("Config")}
                           </span>
                         )}
                         {!p.enabled && p.source !== "config" && (
                           <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                            Disabled
+                            {L("Disabled")}
                           </span>
                         )}
                       </div>
@@ -577,7 +577,7 @@ export function PoliciesPage() {
                 {hasParams && (
                   <div className="ml-6.5 mt-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2">
                     <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
-                      Parameters
+                      {L("Parameters")}
                     </span>
                     <div className="mt-1 flex flex-col gap-0.5">
                       {Object.entries(params).map(([key, value]) => (
@@ -599,13 +599,13 @@ export function PoliciesPage() {
 
       {policies.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No global policies configured. Add one to apply it to all sessions.
+          {L("No global policies configured. Add one to apply it to all sessions.")}
         </p>
       )}
 
       <div className="mt-3 flex items-center justify-end">
         <Button variant="ghost" size="sm" onClick={refresh}>
-          <RefreshCwIcon /> Refresh
+          <RefreshCwIcon /> {L("Refresh")}
         </Button>
       </div>
 
@@ -647,14 +647,14 @@ export function PoliciesPage() {
               onClick={() => setDeleteCandidate(null)}
               disabled={pendingAction}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => void onConfirmDelete()}
               disabled={pendingAction}
             >
-              {pendingAction ? "Removing..." : "Remove"}
+              {pendingAction ? L("Removing...") : "Remove"}
             </Button>
           </DialogFooter>
         </DialogContent>

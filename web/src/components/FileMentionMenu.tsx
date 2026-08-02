@@ -49,7 +49,7 @@ export function FileMentionMenu({
     <div className="absolute bottom-full left-0 z-10 mb-2 flex items-end gap-2">
       <div className="w-80 max-w-[calc(100vw-2rem)] shrink-0 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
         <div className="flex items-center justify-between gap-2 px-2 pb-0.5 pt-1.5 text-[11px] font-medium text-muted-foreground">
-          <span className="truncate">{currentDir ? `/${currentDir}` : "Workspace"}</span>
+          <span className="truncate">{currentDir ? `/${currentDir}` : L("Workspace")}</span>
           <span className="shrink-0 text-[10px]">{L("↵ open · ⇥ attach")}</span>
         </div>
         {entries.length === 0 && loading ? (

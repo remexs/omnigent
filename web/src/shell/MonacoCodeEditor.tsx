@@ -44,6 +44,7 @@ import type { monaco } from "./monacoSetup";
 import { useMonacoCommentLayer, type CodeEditorInstance } from "./useMonacoCommentLayer";
 import { attachEditorScrollRestore } from "./useScrollRestore";
 import "./monacoCodeEditor.css";
+import { L } from "@/i18n";
 
 type EditorOptions = EditorProps["options"];
 
@@ -489,38 +490,38 @@ function MonacoCodeEditorInner({
           <div className="flex items-center gap-2 border-b border-border bg-warning/10 px-4 py-1.5 text-xs text-foreground shrink-0">
             <AlertTriangleIcon className="size-3.5 shrink-0 text-warning" />
             <span className="flex-1">
-              This file was modified externally while you were editing.
+              {L("This file was modified externally while you were editing.")}
             </span>
             <button
               type="button"
               className="rounded px-2 py-0.5 font-medium hover:bg-muted transition-colors"
               onClick={dismissExternalUpdate}
             >
-              Keep mine
+              {L("Keep mine")}
             </button>
             <button
               type="button"
               className="rounded bg-primary px-2 py-0.5 font-medium text-primary-foreground hover:opacity-90 transition-opacity"
               onClick={discardAndApplyExternal}
             >
-              Load latest
+              {L("Load latest")}
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 border-b border-border bg-muted/50 px-4 py-1.5 text-xs text-muted-foreground shrink-0">
             <MessageSquareOffIcon className="size-3.5 shrink-0" />
-            Save your changes to enable commenting on selections.
+            {L("Save your changes to enable commenting on selections.")}
           </div>
         ))}
       <div className="relative min-h-0 flex-1">
         {loadError && (
           <div className="flex items-center justify-center p-8 text-destructive text-sm">
-            Failed to load the editor.
+            {L("Failed to load the editor.")}
           </div>
         )}
         {!loadError && !ready && (
           <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-            Loading…
+            {L("Loading…")}
           </div>
         )}
         {!loadError && ready && (

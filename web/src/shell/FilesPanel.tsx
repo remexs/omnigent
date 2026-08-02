@@ -84,12 +84,12 @@ function HiddenFilesToggle({
   hiddenCount: number;
 }) {
   const hasHidden = hiddenCount > 0 && !showHidden;
-  const ariaLabel = showHidden ? "Hide hidden files" : "Show hidden files";
+  const ariaLabel = showHidden ? L("Hide hidden files") : L("Show hidden files");
   const tooltipLabel = showHidden
-    ? "Hide hidden files"
+    ? L("Hide hidden files")
     : hasHidden
       ? `${hiddenCount} file${hiddenCount === 1 ? "" : "s"} in hidden directories. Click to show.`
-      : "Show hidden files";
+      : L("Show hidden files");
   const iconSize = size === "4" ? "size-4" : "size-3.5";
   return (
     <TooltipProvider>
@@ -120,9 +120,9 @@ function HiddenFilesToggle({
 // ---------------------------------------------------------------------------
 
 const SORT_OPTIONS: { value: ChangedSort; label: string; Icon: typeof ArrowDownAZIcon }[] = [
-  { value: "alpha", label: "Filename", Icon: ArrowDownAZIcon },
-  { value: "recent", label: "Last edited", Icon: FileClockIcon },
-  { value: "size", label: "Size", Icon: ArrowDownWideNarrowIcon },
+  { value: "alpha", label: L("Filename"), Icon: ArrowDownAZIcon },
+  { value: "recent", label: L("Last edited"), Icon: FileClockIcon },
+  { value: "size", label: L("Size"), Icon: ArrowDownWideNarrowIcon },
   { value: "type", label: "Type", Icon: FileTypeIcon },
 ];
 
@@ -199,7 +199,7 @@ function FileScopeSwitch({
         className={cn(pill, changedSelected ? activePill : idlePill)}
       >
         <ListIcon className="size-3.5 shrink-0" />
-        Changed
+        {L("Changed")}
         {count > 0 && (
           <span className="shrink-0 font-normal text-[11px] text-muted-foreground tabular-nums">
             {count}
@@ -216,7 +216,7 @@ function FileScopeSwitch({
         className={cn(pill, allSelected ? activePill : idlePill)}
       >
         <FolderTreeIcon className="size-3.5 shrink-0" />
-        All
+        {L("All")}
       </button>
     </div>
   );
@@ -398,11 +398,11 @@ export function FilesPanel({
                   className="flex shrink-0 items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
                 >
                   <MoonIcon className="size-3 shrink-0" />
-                  Asleep
+                  {L("Asleep")}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                Agent is asleep — files shown live from the host. Send a message to wake it.
+                {L("Agent is asleep — files shown live from the host. Send a message to wake it.")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -472,7 +472,7 @@ export function FilesPanel({
               </div>
               <button
                 type="button"
-                aria-label={showSearchFilters ? "Hide search filters" : "Show search filters"}
+                aria-label={showSearchFilters ? L("Hide search filters") : L("Show search filters")}
                 aria-expanded={showSearchFilters}
                 title={L("Files to include / exclude")}
                 className={cn(

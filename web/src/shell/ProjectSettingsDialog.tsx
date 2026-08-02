@@ -214,7 +214,7 @@ export function ProjectSettingsDialog({
   const harnessEntries = useMemo(() => agentList.filter(isNativeCodingAgent), [agentList]);
   const agentEntries = useMemo(() => agentList.filter((a) => !isNativeCodingAgent(a)), [agentList]);
   const selectedAgent = agentList.find((a) => a.id === agentId) ?? null;
-  const agentLabel = selectedAgent ? selectedAgent.display_name : "No default";
+  const agentLabel = selectedAgent ? selectedAgent.display_name : L("No default");
   // The host the agent picker's readiness badges check against (its config
   // hints show whether a harness is set up there). Null when no concrete host.
   const warningHost = onlineHosts.find((h) => h.host_id === browsableHostId) ?? null;
@@ -234,8 +234,10 @@ export function ProjectSettingsDialog({
           <DialogTitle>{L("Project settings")}</DialogTitle>
           <DialogDescription>
             {L("Defaults for new sessions in")}
-            <span className="font-medium">{projectName}</span>. Each is a starting point you can
-            change per session; leave a field blank for no default.
+            <span className="font-medium">{projectName}</span>
+            {L(
+              ". Each is a starting point you can\n            change per session; leave a field blank for no default.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -274,10 +276,10 @@ export function ProjectSettingsDialog({
             label={L("Working directory")}
             hint={
               hostId === NONE
-                ? "Pick a host first"
+                ? L("Pick a host first")
                 : browsableHostId
-                  ? "Browse the host or type a path"
-                  : "Absolute path on the host"
+                  ? L("Browse the host or type a path")
+                  : L("Absolute path on the host")
             }
             htmlFor="project-settings-workspace"
           >
@@ -289,7 +291,7 @@ export function ProjectSettingsDialog({
                 className="rounded-md border border-dashed px-3 py-2 text-muted-foreground text-sm"
                 data-testid="project-settings-workspace"
               >
-                Pick a host first
+                {L("Pick a host first")}
               </p>
             ) : browsableHostId ? (
               // A compact trigger showing the current path; clicking expands
@@ -311,7 +313,7 @@ export function ProjectSettingsDialog({
                   className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className={workspace ? "truncate" : "truncate text-muted-foreground"}>
-                    {workspace || "Browse…"}
+                    {workspace || L("Browse…")}
                   </span>
                   <ChevronDownIcon
                     className={`size-4 shrink-0 opacity-50 transition-transform ${
@@ -414,7 +416,7 @@ export function ProjectSettingsDialog({
                   className="h-auto p-0 text-muted-foreground text-xs hover:bg-transparent"
                   onClick={() => setAgentId(null)}
                 >
-                  Clear
+                  {L("Clear")}
                 </Button>
               )}
             </div>
@@ -443,14 +445,14 @@ export function ProjectSettingsDialog({
               onClick={() => onOpenChange(false)}
               disabled={updateConfig.isPending}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               type="submit"
               data-testid="project-settings-save"
               disabled={updateConfig.isPending || isLoading || loadFailed}
             >
-              {updateConfig.isPending ? "Saving…" : "Save"}
+              {updateConfig.isPending ? L("Saving…") : "Save"}
             </Button>
           </DialogFooter>
         </form>

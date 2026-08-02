@@ -25,7 +25,9 @@ function describe(state: SessionState): Visual {
   switch (state.kind) {
     case "awaiting": {
       const tooltip =
-        state.count === 1 ? "1 approval prompt waiting" : `${state.count} approval prompts waiting`;
+        state.count === 1
+          ? L("1 approval prompt waiting")
+          : `${state.count} approval prompts waiting`;
       return {
         kind: state.kind,
         ariaLabel: tooltip,
@@ -40,16 +42,16 @@ function describe(state: SessionState): Visual {
     case "running":
       return {
         kind: state.kind,
-        ariaLabel: "Session running",
-        tooltip: "Session running",
+        ariaLabel: L("Session running"),
+        tooltip: L("Session running"),
         render: () => <RunningDot className="size-2.5" />,
       };
     case "starting":
       // Same spinner as running — the session is coming up, not yet working.
       return {
         kind: state.kind,
-        ariaLabel: "Session starting up",
-        tooltip: "Session starting up",
+        ariaLabel: L("Session starting up"),
+        tooltip: L("Session starting up"),
         render: () => <RunningDot className="size-2.5" />,
       };
     case "unseen":
@@ -57,8 +59,8 @@ function describe(state: SessionState): Visual {
       // which is a grey spinner.
       return {
         kind: state.kind,
-        ariaLabel: "New messages",
-        tooltip: "New messages",
+        ariaLabel: L("New messages"),
+        tooltip: L("New messages"),
         render: () => <Dot tone="bg-brand-accent" />,
       };
   }

@@ -9,6 +9,7 @@
 import { ChevronRightIcon, SquareTerminalIcon } from "lucide-react";
 import { CodeBlock, CodeBlockHeader, CodeBlockTitle } from "@/components/ai-elements/code-block";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { L } from "@/i18n";
 
 interface TerminalCommandCardProps {
   kind: "input" | "output";
@@ -47,7 +48,7 @@ export function TerminalCommandCard({ kind, input, stdout, stderr }: TerminalCom
     >
       <SquareTerminalIcon className="size-3 shrink-0 text-emerald-500 dark:text-emerald-400" />
       <span className="min-w-0 flex-1 truncate font-mono text-muted-foreground/80">
-        {hasOutput ? "output" : "(no output)"}
+        {hasOutput ? "output" : L("(no output)")}
       </span>
       {hasOutput && (
         <ChevronRightIcon className="size-3 shrink-0 transition-transform group-data-[state=open]:rotate-90" />

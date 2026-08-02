@@ -299,7 +299,7 @@ function ArchivedToast() {
     <span>
       {L("View archived sessions in")}{" "}
       <Link to="/settings/archived" className="font-medium text-primary hover:underline">
-        Settings
+        {L("Settings")}
       </Link>
     </span>
   );
@@ -783,7 +783,7 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
                 }}
               >
                 <SquarePenIcon className="size-3.5 text-muted-foreground" />
-                New session
+                {L("New session")}
               </Link>
             </Button>
             {/* Keep Scheduled in the primary nav group with the same row treatment as New session. */}
@@ -802,7 +802,7 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
             >
               <Link to="/tasks" onClick={onNavClick}>
                 <ClockIcon className="size-3.5 text-muted-foreground" />
-                Automations
+                {L("Automations")}
               </Link>
             </Button>
             <Button
@@ -817,12 +817,12 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
             >
               <Link to="/inbox" onClick={onNavClick}>
                 <InboxIcon className="size-3.5 text-muted-foreground" />
-                Inbox
+                {L("Inbox")}
                 {inboxCount > 0 && (
                   <span
                     aria-label={
                       inboxCount === 1
-                        ? "1 inbox item waiting"
+                        ? L("1 inbox item waiting")
                         : `${inboxCount} inbox items waiting`
                     }
                     className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-warning/15 px-1 text-10 font-medium text-warning tabular-nums"
@@ -948,7 +948,7 @@ function InfiniteScrollSentinel({
       {isFetching ? (
         <>
           <Loader2Icon className="size-3 animate-spin" />
-          Loading…
+          {L("Loading…")}
         </>
       ) : (
         "Load more"
@@ -1081,7 +1081,7 @@ function ProjectFolder({
         selectedIds={selectedIds}
         onToggleSelected={onToggleSelected}
         onProjectAssigned={onProjectAssigned}
-        emptyMessage={loadingFirstPage ? undefined : "No sessions"}
+        emptyMessage={loadingFirstPage ? undefined : L("No sessions")}
         indentRows
         headerAction={
           <ProjectFolderActions projectName={name} projectId={projectId} onNavigate={onRowClick} />
@@ -1689,10 +1689,10 @@ function ConversationList({
   }
   const showShared = activeTab === "shared";
   const emptyMessage = searchQuery
-    ? "No matching conversations"
+    ? L("No matching conversations")
     : showShared
-      ? "No sessions shared with you"
-      : "No active sessions";
+      ? L("No sessions shared with you")
+      : L("No active sessions");
 
   // Archived sessions are surfaced on the Settings page, not here, so they
   // don't count toward the sidebar's empty-state threshold. Each project
@@ -1843,7 +1843,7 @@ function ConversationList({
                     {sections.projectGroups.length === 0 &&
                       !effectiveCollapsedSections.includes("Projects") && (
                         <p className="px-3 py-1.5 text-xs text-muted-foreground">
-                          No projects yet. Create one to group your sessions.
+                          {L("No projects yet. Create one to group your sessions.")}
                         </p>
                       )}
                   </SectionGroup>
@@ -2009,7 +2009,7 @@ function UngroupDropZone() {
       )}
     >
       <FolderMinusIcon className="size-3.5 shrink-0" />
-      Drop here to remove from project
+      {L("Drop here to remove from project")}
     </div>
   );
 }
@@ -2175,7 +2175,7 @@ function ProjectHeaderActions({
             (allExpanded ? (
               <DropdownMenuItem data-testid="revert-projects" onSelect={() => onRevert()}>
                 <Minimize2Icon className="size-3.5" />
-                Collapse to previous
+                {L("Collapse to previous")}
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem
@@ -2183,7 +2183,7 @@ function ProjectHeaderActions({
                 onSelect={() => onExpandAll(projectNames)}
               >
                 <Maximize2Icon className="size-3.5" />
-                Expand all
+                {L("Expand all")}
               </DropdownMenuItem>
             ))}
           {hasProjectSessions && (
@@ -2192,7 +2192,7 @@ function ProjectHeaderActions({
               onSelect={() => onEnterSelectionMode()}
             >
               <ListChecksIcon className="size-3.5" />
-              Select sessions
+              {L("Select sessions")}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
@@ -2510,7 +2510,7 @@ function ConversationMenuItems({
           }}
         >
           <ChevronLeftIcon className="size-3.5" />
-          Back
+          {L("Back")}
         </C.Item>
         <C.Separator />
         <ProjectPickerMenu
@@ -2534,7 +2534,7 @@ function ConversationMenuItems({
           onSelect={() => onTogglePinned(conversation.id)}
         >
           {isPinned ? <PinOffIcon className="size-3.5" /> : <PinIcon className="size-3.5" />}
-          {isPinned ? "Unpin" : "Pin"}
+          {isPinned ? L("Unpin") : "Pin"}
         </C.Item>
       )}
       {/* Single-user mode has no other users to share with — omit the item
@@ -2543,7 +2543,7 @@ function ConversationMenuItems({
         (isOwner && !sharingOff ? (
           <C.Item data-testid="share-conversation" onSelect={() => setShareOpen(true)}>
             <ShareIcon className="size-3.5" />
-            Share
+            {L("Share")}
           </C.Item>
         ) : (
           <Tooltip>
@@ -2551,7 +2551,7 @@ function ConversationMenuItems({
               <div>
                 <C.Item data-testid="share-conversation" disabled>
                   <ShareIcon className="size-3.5" />
-                  Share
+                  {L("Share")}
                 </C.Item>
               </div>
             </TooltipTrigger>
@@ -2559,15 +2559,15 @@ function ConversationMenuItems({
                 reason when both apply. */}
             <TooltipContent side="left">
               {sharingOff
-                ? "Sharing has been disabled for this Omnigent server."
-                : "Only the session owner can share this session"}
+                ? L("Sharing has been disabled for this Omnigent server.")
+                : L("Only the session owner can share this session")}
             </TooltipContent>
           </Tooltip>
         ))}
       {isOwner ? (
         <C.Item data-testid="rename-conversation" onSelect={() => setIsEditing(true)}>
           <PencilIcon className="size-3.5" />
-          Rename
+          {L("Rename")}
         </C.Item>
       ) : (
         <Tooltip>
@@ -2575,12 +2575,12 @@ function ConversationMenuItems({
             <div>
               <C.Item data-testid="rename-conversation" disabled>
                 <PencilIcon className="size-3.5" />
-                Rename
+                {L("Rename")}
               </C.Item>
             </div>
           </TooltipTrigger>
           <TooltipContent side="left">
-            Only the session owner can rename this session
+            {L("Only the session owner can rename this session")}
           </TooltipContent>
         </Tooltip>
       )}
@@ -2596,7 +2596,7 @@ function ConversationMenuItems({
           }}
         >
           <MailIcon className="size-3.5" />
-          Mark as unread
+          {L("Mark as unread")}
         </C.Item>
       )}
       {/* Projects are a My-sessions-only tool, so filing is owner-only — a
@@ -2617,13 +2617,13 @@ function ConversationMenuItems({
             <FolderInputIcon className="size-3.5" />
             {/* "Add to project" until the session is filed, then "Move
                 session" to switch or remove it. */}
-            {currentProject ? "Move session" : "Add to project"}
+            {currentProject ? L("Move session") : L("Add to project")}
           </C.Item>
         ) : (
           <C.Sub>
             <C.SubTrigger data-testid="move-to-project" className="whitespace-nowrap">
               <FolderInputIcon className="size-3.5" />
-              {currentProject ? "Move session" : "Add to project"}
+              {currentProject ? L("Move session") : L("Add to project")}
             </C.SubTrigger>
             <C.SubContent className="w-56 p-1 [&_[role=menuitem]]:text-xs">
               {/* A native submenu flyout — no separate popover layer, so no
@@ -2658,7 +2658,7 @@ function ConversationMenuItems({
             }}
           >
             <CircleStopIcon className="size-3.5" />
-            Stop session
+            {L("Stop session")}
           </C.Item>
         ) : (
           <Tooltip>
@@ -2666,12 +2666,12 @@ function ConversationMenuItems({
               <div>
                 <C.Item data-testid="stop-conversation" disabled>
                   <CircleStopIcon className="size-3.5" />
-                  Stop session
+                  {L("Stop session")}
                 </C.Item>
               </div>
             </TooltipTrigger>
             <TooltipContent side="left">
-              Only the session owner can stop this session
+              {L("Only the session owner can stop this session")}
             </TooltipContent>
           </Tooltip>
         ))}
@@ -2682,7 +2682,7 @@ function ConversationMenuItems({
           ) : (
             <ArchiveIcon className="size-3.5" />
           )}
-          {isArchived ? "Unarchive" : "Archive"}
+          {isArchived ? L("Unarchive") : "Archive"}
         </C.Item>
       ) : (
         <Tooltip>
@@ -2694,13 +2694,13 @@ function ConversationMenuItems({
                 ) : (
                   <ArchiveIcon className="size-3.5" />
                 )}
-                {isArchived ? "Unarchive" : "Archive"}
+                {isArchived ? L("Unarchive") : "Archive"}
               </C.Item>
             </div>
           </TooltipTrigger>
           <TooltipContent side="left">
             {L("Only the session owner can")}
-            {isArchived ? "unarchive" : "archive"} this session
+            {isArchived ? "unarchive" : "archive"} {L("this session")}
           </TooltipContent>
         </Tooltip>
       )}
@@ -2711,7 +2711,7 @@ function ConversationMenuItems({
           onSelect={() => setDeleteOpen(true)}
         >
           <Trash2Icon className="size-3.5" />
-          Delete
+          {L("Delete")}
         </C.Item>
       ) : (
         <Tooltip>
@@ -2719,12 +2719,12 @@ function ConversationMenuItems({
             <div>
               <C.Item data-testid="delete-conversation" disabled>
                 <Trash2Icon className="size-3.5" />
-                Delete
+                {L("Delete")}
               </C.Item>
             </div>
           </TooltipTrigger>
           <TooltipContent side="left">
-            Only the session owner can delete this session
+            {L("Only the session owner can delete this session")}
           </TooltipContent>
         </Tooltip>
       )}
@@ -2741,7 +2741,7 @@ function SessionTooltipContent({
 }) {
   const host = conversation.host_id ? hostsById.get(conversation.host_id) : undefined;
   const locationLabel = !conversation.host_id
-    ? "Local machine"
+    ? L("Local machine")
     : host?.sandbox_provider
       ? sandboxOptionLabel(host.sandbox_provider)
       : (host?.name ?? conversation.host_id);
@@ -3324,7 +3324,7 @@ function ConversationRow({
               type="button"
               variant="ghost"
               size="icon-xs"
-              aria-label={isPinned ? "Unpin conversation" : "Pin conversation"}
+              aria-label={isPinned ? L("Unpin conversation") : L("Pin conversation")}
               data-testid="quick-pin-conversation"
               className={cn(
                 // Desktop-only quick affordance: hidden on mobile (the kebab's
@@ -3417,8 +3417,8 @@ function ConversationRow({
           <DialogHeader>
             <DialogTitle>{L("Delete conversation?")}</DialogTitle>
             <DialogDescription>
-              <span className="font-medium break-all">{label}</span> and all of its history will be
-              removed. This cannot be undone.
+              <span className="font-medium break-all">{label}</span>{" "}
+              {L("and all of its history will be\n              removed. This cannot be undone.")}
             </DialogDescription>
           </DialogHeader>
           {gitBranch !== null && (
@@ -3454,7 +3454,7 @@ function ConversationRow({
               onClick={() => setDeleteOpen(false)}
               disabled={del.isPending}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               type="button"
@@ -3462,7 +3462,7 @@ function ConversationRow({
               onClick={confirmDelete}
               disabled={del.isPending}
             >
-              Delete
+              {L("Delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3479,17 +3479,17 @@ function ConversationRow({
             <DialogTitle>{L("Stop session?")}</DialogTitle>
             <DialogDescription>
               {L("This terminates the running session for")}
-              <span className="font-medium">{label}</span> and stops its runner. The conversation
-              and its history are kept.
+              <span className="font-medium">{label}</span>{" "}
+              {L("and stops its runner. The conversation\n              and its history are kept.")}
             </DialogDescription>
           </DialogHeader>
           {stopSession.isError && (
             <p className="text-sm text-destructive" role="alert">
-              Couldn't stop the session
+              {L("Couldn't stop the session")}
               {stopSession.error instanceof Error && stopSession.error.message
                 ? `: ${stopSession.error.message}`
-                : " — it may still be running"}
-              . Try again in a moment.
+                : L(" — it may still be running")}
+              {L(". Try again in a moment.")}
             </p>
           )}
           <DialogFooter>
@@ -3499,7 +3499,7 @@ function ConversationRow({
               onClick={() => setStopOpen(false)}
               disabled={stopSession.isPending}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               type="button"
@@ -3509,7 +3509,7 @@ function ConversationRow({
               }
               disabled={stopSession.isPending}
             >
-              Stop session
+              {L("Stop session")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3600,7 +3600,7 @@ function DeletingRow({
           <span className="font-medium">{label}</span>
         </span>
         <Button type="button" variant="ghost" size="sm" className="h-6 px-1.5" onClick={onRetry}>
-          Retry
+          {L("Retry")}
         </Button>
         <Button
           type="button"
@@ -3767,7 +3767,7 @@ function ProjectFolderMenu({
               }}
             >
               <SquarePenIcon className="size-3.5" />
-              New session
+              {L("New session")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -3778,11 +3778,11 @@ function ProjectFolderMenu({
             }}
           >
             <PencilIcon className="size-3.5" />
-            Rename project
+            {L("Rename project")}
           </DropdownMenuItem>
           <DropdownMenuItem data-testid="project-settings" onSelect={() => setSettingsOpen(true)}>
             <Settings2Icon className="size-3.5" />
-            Project settings
+            {L("Project settings")}
           </DropdownMenuItem>
           <DropdownMenuItem
             data-testid="delete-project"
@@ -3790,7 +3790,7 @@ function ProjectFolderMenu({
             onSelect={() => setDeleteOpen(true)}
           >
             <Trash2Icon className="size-3.5" />
-            Delete project
+            {L("Delete project")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -3840,14 +3840,14 @@ function ProjectFolderMenu({
                 onClick={() => setRenameOpen(false)}
                 disabled={renameProject.isPending}
               >
-                Cancel
+                {L("Cancel")}
               </Button>
               <Button
                 type="submit"
                 data-testid="rename-project-confirm"
                 disabled={renameProject.isPending || renameValue.trim() === ""}
               >
-                {renameProject.isPending ? "Renaming…" : "Rename"}
+                {renameProject.isPending ? L("Renaming…") : "Rename"}
               </Button>
             </DialogFooter>
           </form>
@@ -3872,8 +3872,10 @@ function ProjectFolderMenu({
                 {projectName}
               </span>{" "}
               {L("and archives")}
-              <span className="font-medium">{L("all of its sessions")}</span>. Their history is
-              kept. You can find and restore them anytime from Settings.
+              <span className="font-medium">{L("all of its sessions")}</span>
+              {L(
+                ". Their history is\n              kept. You can find and restore them anytime from Settings.",
+              )}
             </DialogDescription>
           </DialogHeader>
           {deleteProject.isError && (
@@ -3888,7 +3890,7 @@ function ProjectFolderMenu({
               onClick={() => setDeleteOpen(false)}
               disabled={deleteProject.isPending}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               type="button"
@@ -3906,7 +3908,7 @@ function ProjectFolderMenu({
                 );
               }}
             >
-              {deleteProject.isPending ? "Deleting…" : "Delete project"}
+              {deleteProject.isPending ? L("Deleting…") : L("Delete project")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -4290,7 +4292,7 @@ function BulkActionBar({
 
         {(bulkArchive.isError || bulkDelete.isError) && (
           <p className="text-xs text-destructive" role="alert">
-            Some actions failed. Retry or dismiss.
+            {L("Some actions failed. Retry or dismiss.")}
           </p>
         )}
       </div>
@@ -4303,13 +4305,14 @@ function BulkActionBar({
               {ownedSelected.length} {L("session(s)?")}
             </DialogTitle>
             <DialogDescription>
-              This will permanently delete the selected sessions and all their history. This cannot
-              be undone.
+              {L(
+                "This will permanently delete the selected sessions and all their history. This cannot\n              be undone.",
+              )}
             </DialogDescription>
           </DialogHeader>
           <p className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/5 p-3 text-xs text-muted-foreground">
             <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0 text-warning" />
-            Branches are not cleaned up. Use single-session delete for branch surgery.
+            {L("Branches are not cleaned up. Use single-session delete for branch surgery.")}
           </p>
           <DialogFooter className="border-t-0 bg-transparent">
             <Button
@@ -4318,7 +4321,7 @@ function BulkActionBar({
               onClick={() => setConfirmDeleteOpen(false)}
               disabled={bulkDelete.isPending}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               type="button"

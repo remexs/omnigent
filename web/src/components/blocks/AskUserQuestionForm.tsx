@@ -358,7 +358,7 @@ export function AskUserQuestionForm({
           data-testid="ask-user-question-prev"
         >
           <ChevronLeftIcon className="mr-1 size-3.5" />
-          Prev
+          {L("Prev")}
         </Button>
         {!isLast && (
           <Button
@@ -367,7 +367,7 @@ export function AskUserQuestionForm({
             onClick={() => setCurrentIndex((i) => i + 1)}
             data-testid="ask-user-question-next"
           >
-            Next
+            {L("Next")}
             <ChevronRightIcon className="ml-1 size-3.5" />
           </Button>
         )}
@@ -379,12 +379,12 @@ export function AskUserQuestionForm({
             data-testid="ask-user-question-submit"
           >
             <CheckIcon className="mr-1 size-3.5" />
-            Submit
+            {L("Submit")}
           </Button>
         )}
         <Button size="sm" variant="outline" onClick={onReject} className="ml-auto">
           <XIcon className="mr-1 size-3.5" />
-          Cancel
+          {L("Cancel")}
         </Button>
       </div>
     </div>

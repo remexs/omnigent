@@ -389,7 +389,7 @@ function ChatCodeBlockWrapToggle({ wrap, onToggle }: { wrap: boolean; onToggle: 
       className={cn(CODE_BLOCK_OVERLAY_BUTTON_CLASS, wrap && "text-foreground")}
       onClick={onToggle}
       size="icon-sm"
-      title={wrap ? "Disable word wrap" : "Enable word wrap"}
+      title={wrap ? L("Disable word wrap") : L("Enable word wrap")}
       type="button"
       variant="ghost"
     >

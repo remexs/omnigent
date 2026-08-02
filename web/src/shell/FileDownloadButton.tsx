@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { downloadWorkspaceFile } from "@/hooks/useFileContent";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { L } from "@/i18n";
 
 interface FileDownloadButtonProps {
   /** Session ID used to fetch file content. */
@@ -82,7 +83,7 @@ export function FileDownloadButton({ conversationId, path }: FileDownloadButtonP
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {downloadError ? "Download failed" : "Download"}
+        {downloadError ? L("Download failed") : "Download"}
       </TooltipContent>
     </Tooltip>
   );

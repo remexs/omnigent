@@ -183,7 +183,7 @@ function OutputView({ output }: { output: NotebookOutput }) {
       )}
       {suppressedHtml && (
         <div className="text-xs text-muted-foreground italic px-2 pt-1">
-          Rich HTML output hidden — showing plain text.
+          {L("Rich HTML output hidden — showing plain text.")}
         </div>
       )}
       {plain !== undefined && <AnsiText text={plain} />}
@@ -231,7 +231,7 @@ export function NotebookPreview({
           {error}
         </div>
         <div className="mt-1 text-muted-foreground">
-          Switch to the source view to inspect the raw file.
+          {L("Switch to the source view to inspect the raw file.")}
         </div>
       </div>
     );

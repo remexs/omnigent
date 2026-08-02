@@ -241,7 +241,7 @@ export function ResumeWithDirectoryDialog({
       handleOpenChange(false);
       onBound?.();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't start the session. Try again.");
+      setError(e instanceof Error ? e.message : L("Couldn't start the session. Try again."));
     } finally {
       setSubmitting(false);
     }
@@ -269,7 +269,7 @@ export function ResumeWithDirectoryDialog({
 
         {sourceLoading || !hostsLoaded ? (
           <p className="text-xs text-muted-foreground" data-testid="resume-dir-loading">
-            Loading the original session's directory…
+            {L("Loading the original session's directory…")}
           </p>
         ) : showCliFallback ? (
           <div className="flex flex-col gap-2" data-testid="resume-dir-cli-fallback">
@@ -348,7 +348,7 @@ export function ResumeWithDirectoryDialog({
                       <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
                       <span>
                         {conflictingSessions.length === 1
-                          ? "1 other agent is"
+                          ? L("1 other agent is")
                           : `${conflictingSessions.length} other agents are`}{" "}
                         working in this directory. Write operations may conflict. Name a git branch
                         below to work in an isolated copy.
@@ -370,7 +370,7 @@ export function ResumeWithDirectoryDialog({
                 </>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Select a host to choose a directory.
+                  {L("Select a host to choose a directory.")}
                 </p>
               )}
             </div>
@@ -423,7 +423,7 @@ export function ResumeWithDirectoryDialog({
                 disabled={!selectedHostId || !workspaceValid || submitting}
                 onClick={handleBind}
               >
-                {submitting ? "Starting…" : "Start session"}
+                {submitting ? L("Starting…") : L("Start session")}
               </Button>
             </DialogFooter>
           </>

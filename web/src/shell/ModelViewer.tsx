@@ -26,6 +26,7 @@ import {
   modelViewerTheme,
 } from "./codeViewerHelpers";
 import { TruncatedBanner } from "./TruncatedBanner";
+import { L } from "@/i18n";
 
 // What parseModel produces: the object to add to the scene, plus a handle to
 // the STL default material when we created one. The material handle lets the
@@ -374,8 +375,8 @@ export function ModelViewer({ data, path }: { data: FileContentResponse; path: s
 
   const filename = path.split("/").pop() ?? path;
   const errorMessage = data.truncated
-    ? "Model is too large to preview (truncated by the server)."
-    : "Unable to render 3D model.";
+    ? L("Model is too large to preview (truncated by the server).")
+    : L("Unable to render 3D model.");
 
   const content = (
     // The container is ALWAYS mounted so its ref stays live — the error is an

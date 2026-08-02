@@ -85,24 +85,24 @@ export function settingsNavGroups(
   isSingleUser = false,
 ): SettingsNavGroup[] {
   const general: SettingsNavItem[] = [
-    { id: "appearance", label: "Appearance", icon: PaletteIcon },
-    { id: "git", label: "Git", icon: GitBranchIcon },
-    { id: "shortcuts", label: "Keyboard shortcuts", icon: KeyboardIcon, hideOnMobile: true },
+    { id: "appearance", label: L("Appearance"), icon: PaletteIcon },
+    { id: "git", label: L("Git"), icon: GitBranchIcon },
+    { id: "shortcuts", label: L("Keyboard shortcuts"), icon: KeyboardIcon, hideOnMobile: true },
   ];
   if (hasAuthSession) {
     // Account leads the group when present — it's the most-visited section
     // on a deploy with sign-in.
-    general.unshift({ id: "account", label: "Account", icon: UserCogIcon });
+    general.unshift({ id: "account", label: L("Account"), icon: UserCogIcon });
   }
   const groups: SettingsNavGroup[] = [];
   // Desktop (Local CLI) leads when present — it's the shell-specific section a
   // desktop user is most likely here to change.
   if (isDesktop) {
     groups.push({
-      title: "Desktop",
+      title: L("Desktop"),
       items: [
-        { id: "cli", label: "Local CLI", icon: TerminalIcon },
-        { id: "updates", label: "Updates", icon: DownloadIcon },
+        { id: "cli", label: L("Local CLI"), icon: TerminalIcon },
+        { id: "updates", label: L("Updates"), icon: DownloadIcon },
       ],
     });
   }
@@ -120,14 +120,14 @@ export function settingsNavGroups(
     // so drop both from the nav there. Policies stays: global policies apply
     // to a solo user's own sessions too.
     const adminItems: SettingsNavItem[] = [];
-    if (!isSingleUser) adminItems.push({ id: "members", label: "Members", icon: UsersIcon });
-    adminItems.push({ id: "policies", label: "Policies", icon: ShieldCheckIcon });
-    if (!isSingleUser) adminItems.push({ id: "sharing", label: "Sharing", icon: Share2Icon });
+    if (!isSingleUser) adminItems.push({ id: "members", label: L("Members"), icon: UsersIcon });
+    adminItems.push({ id: "policies", label: L("Policies"), icon: ShieldCheckIcon });
+    if (!isSingleUser) adminItems.push({ id: "sharing", label: L("Sharing"), icon: Share2Icon });
     groups.push({ title: "Admin", items: adminItems });
   }
   groups.push({
-    title: "Archived",
-    items: [{ id: "archived", label: "Archived sessions", icon: ArchiveIcon }],
+    title: L("Archived"),
+    items: [{ id: "archived", label: L("Archived sessions"), icon: ArchiveIcon }],
   });
   return groups;
 }
@@ -227,7 +227,7 @@ export function SettingsSidebarBody({
           (persistent card), so dropping it changes nothing there. */}
           <Link to={settingsReturnPath}>
             <ArrowLeftIcon className="size-4" />
-            Back to Omnigent
+            {L("Back to Omnigent")}
           </Link>
         </Button>
         <Tooltip>

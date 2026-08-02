@@ -383,8 +383,8 @@ export function isMacPlatform(): boolean {
  */
 export function selectionHintText(isMac: boolean): string {
   return isMac
-    ? "Hold ⌥ and drag to select · ⌘C to copy"
-    : "Hold Shift and drag to select · right-click to copy";
+    ? L("Hold ⌥ and drag to select · ⌘C to copy")
+    : L("Hold Shift and drag to select · right-click to copy");
 }
 
 function StatusOverlay({
@@ -408,7 +408,7 @@ function StatusOverlay({
       {state.kind === "connecting" && (
         <span className="flex items-center gap-2">
           <Loader2Icon className="size-4 animate-spin" />
-          Connecting…
+          {L("Connecting…")}
         </span>
       )}
       {state.kind === "closed" && reconnectPending && (
@@ -416,7 +416,7 @@ function StatusOverlay({
         // dead-end message, so a transient drop never reads as fatal.
         <span data-testid="terminal-reconnecting" className="flex items-center gap-2">
           <Loader2Icon className="size-4 animate-spin" />
-          Reconnecting…
+          {L("Reconnecting…")}
         </span>
       )}
       {state.kind === "closed" && !reconnectPending && (
@@ -434,7 +434,7 @@ function StatusOverlay({
               disabled={resumePending}
               className="border-zinc-500/50 bg-zinc-100 text-zinc-950 hover:bg-white"
             >
-              {resumePending ? "Resuming…" : "Resume session"}
+              {resumePending ? L("Resuming…") : L("Resume session")}
             </Button>
           )}
           {resumeError && (

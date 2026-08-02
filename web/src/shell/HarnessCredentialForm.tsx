@@ -134,9 +134,9 @@ export function HarnessCredentialForm({
               data-testid="harness-credential-login-copy"
               onClick={() => {
                 void copyText(command)
-                  .then(() => showToast("Copied to clipboard."))
+                  .then(() => showToast(L("Copied to clipboard.")))
                   .catch(() =>
-                    showToast("Couldn't copy — select and copy manually.", { duration: 0 }),
+                    showToast(L("Couldn't copy — select and copy manually."), { duration: 0 }),
                   );
               }}
             >
@@ -276,7 +276,7 @@ function SaveButton({
       data-testid={testId}
       className="shrink-0"
     >
-      Save
+      {L("Save")}
     </Button>
   );
 }
@@ -312,10 +312,10 @@ function AdoptRow({
     >
       <span className="flex-1 text-xs">
         {L("Found")}
-        <code className="font-mono">{detected.source}</code> on this host.
+        <code className="font-mono">{detected.source}</code> {L("on this host.")}
       </span>
       <Button type="button" size="sm" loading={busy} onClick={onUse}>
-        Use it
+        {L("Use it")}
       </Button>
     </div>
   );

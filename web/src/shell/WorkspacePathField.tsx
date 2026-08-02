@@ -299,7 +299,7 @@ export function WorkspacePathField({
           {filteredRecent.length > 0 && (
             <>
               <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Recent
+                {L("Recent")}
               </div>
               {filteredRecent.map((path, i) => (
                 <PathRow
@@ -315,7 +315,7 @@ export function WorkspacePathField({
           {matches.length > 0 && (
             <>
               <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Matches
+                {L("Matches")}
               </div>
               {matches.map((path, j) => (
                 <PathRow
@@ -331,7 +331,7 @@ export function WorkspacePathField({
                   className="px-3 py-2 text-xs text-muted-foreground"
                   data-testid="workspace-match-overflow"
                 >
-                  +{hiddenMatchCount} more — keep typing to narrow
+                  +{hiddenMatchCount} {L("more — keep typing to narrow")}
                 </div>
               )}
             </>

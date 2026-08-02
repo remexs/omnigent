@@ -214,7 +214,7 @@ export function ToolCard({
           title={L("Parameters")}
           text={inputJson}
           copyText={inputJson}
-          copyLabel="Copy parameters"
+          copyLabel={L("Copy parameters")}
         />
         {formattedOutput !== null && <OutputSection output={formattedOutput} />}
         {formattedOutput === null && state === "input-available" && (
@@ -437,7 +437,7 @@ function OutputSection({ output }: { output: string }) {
           title={L("Output")}
           text={preview.text}
           copyText={output}
-          copyLabel="Copy output"
+          copyLabel={L("Copy output")}
         />
         {canExpand && !isExpanded && (
           <div className="pointer-events-none absolute inset-x-px bottom-px h-16 rounded-b-md bg-gradient-to-t from-background to-transparent" />
@@ -446,7 +446,7 @@ function OutputSection({ output }: { output: string }) {
       {canExpand && (
         <div className="flex flex-col gap-2 rounded-md border bg-muted/30 px-3 py-2 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between">
           <span className="min-w-0">
-            {isExpanded ? "Showing full output" : "Previewing output"} (
+            {isExpanded ? L("Showing full output") : L("Previewing output")} (
             {formatOutputStats(isExpanded ? preview : collapsedPreview)})
           </span>
           <Button
@@ -461,7 +461,7 @@ function OutputSection({ output }: { output: string }) {
             ) : (
               <Maximize2Icon className="size-3" />
             )}
-            {isExpanded ? "Collapse" : "Expand"}
+            {isExpanded ? L("Collapse") : L("Expand")}
           </Button>
         </div>
       )}
@@ -475,7 +475,7 @@ function ToolPendingOutput({ duration }: { duration: number | undefined }) {
       <div className="flex items-center gap-2 text-muted-foreground text-sm">
         <Loader2Icon className="size-4 animate-spin text-info" />
         <span>
-          Waiting for output
+          {L("Waiting for output")}
           {duration !== undefined ? ` for ${formatToolDuration(duration)}` : ""}
         </span>
       </div>
@@ -544,7 +544,7 @@ function CopyTextButton({ text, label }: CopyTextButtonProps) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          aria-label={isCopied ? "Copied" : label}
+          aria-label={isCopied ? L("Copied") : label}
           className="size-6 text-muted-foreground"
           onClick={copyToClipboard}
           size="icon-xs"
@@ -554,7 +554,7 @@ function CopyTextButton({ text, label }: CopyTextButtonProps) {
           <Icon className="size-3.5" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>{isCopied ? "Copied" : label}</TooltipContent>
+      <TooltipContent>{isCopied ? L("Copied") : label}</TooltipContent>
     </Tooltip>
   );
 }

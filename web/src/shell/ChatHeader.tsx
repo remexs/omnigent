@@ -301,7 +301,7 @@ export function ChatHeader({
                   className="gap-2.5 px-2.5 py-2 text-base"
                 >
                   <ShareIcon className="size-4" />
-                  Share
+                  {L("Share")}
                 </DropdownMenuItem>
               )}
               {hasAgentInfo && (
@@ -311,7 +311,7 @@ export function ChatHeader({
                   className="gap-2.5 px-2.5 py-2 text-base"
                 >
                   <InfoIcon className="size-4" />
-                  Agent info
+                  {L("Agent info")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -339,7 +339,7 @@ export function ChatHeader({
                   <span className="flex size-4 shrink-0 items-center justify-center">
                     <UserPlusIcon />
                   </span>
-                  Share
+                  {L("Share")}
                 </Button>
               </span>
             </TooltipTrigger>
@@ -357,7 +357,7 @@ export function ChatHeader({
             <span className="flex size-4 shrink-0 items-center justify-center">
               <UserPlusIcon />
             </span>
-            Share
+            {L("Share")}
           </Button>
         ) : null}
         {conversationId && hasRailContent && (
@@ -367,7 +367,7 @@ export function ChatHeader({
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label={rightPanelOpen ? "Collapse right panel" : "Expand right panel"}
+                aria-label={rightPanelOpen ? L("Collapse right panel") : L("Expand right panel")}
                 onClick={onToggleRightPanel}
                 className="hidden md:inline-flex text-muted-foreground hover:text-foreground"
               >
@@ -379,7 +379,7 @@ export function ChatHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {rightPanelOpen ? "Collapse right panel" : "Expand right panel"}
+              {rightPanelOpen ? L("Collapse right panel") : L("Expand right panel")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -421,7 +421,7 @@ export function ChatHeader({
                     className="gap-2.5 px-2.5 py-2 text-base"
                   >
                     <FileIcon className="size-4" />
-                    Files
+                    {L("Files")}
                     {mobileMenu.changedCount > 0 && (
                       <span
                         className={cn(TAB_BADGE_BASE, "ml-auto bg-muted text-muted-foreground")}
@@ -439,7 +439,7 @@ export function ChatHeader({
                   className="gap-2.5 px-2.5 py-2 text-base"
                 >
                   <BotIcon className="size-4" />
-                  Agents
+                  {L("Agents")}
                   <span
                     className={cn(
                       TAB_BADGE_BASE,
@@ -464,7 +464,7 @@ export function ChatHeader({
                     className="gap-2.5 px-2.5 py-2 text-base"
                   >
                     <TerminalIcon className="size-4" />
-                    Shells
+                    {L("Shells")}
                     {mobileMenu.terminalsLength > 0 && (
                       <span
                         className={cn(TAB_BADGE_BASE, "ml-auto bg-muted text-muted-foreground")}
@@ -480,7 +480,7 @@ export function ChatHeader({
                     className="gap-2.5 px-2.5 py-2 text-base"
                   >
                     <ListTodoIcon className="size-4" />
-                    Tasks
+                    {L("Tasks")}
                     <span className={cn(TAB_BADGE_BASE, "ml-auto bg-muted text-muted-foreground")}>
                       {mobileMenu.todosCompleted}/{mobileMenu.todosTotal}
                     </span>
@@ -492,7 +492,7 @@ export function ChatHeader({
                     className="gap-2.5 px-2.5 py-2 text-base"
                   >
                     <ListIcon className="size-4" />
-                    Logs
+                    {L("Logs")}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

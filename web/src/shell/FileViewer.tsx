@@ -850,8 +850,8 @@ function FileViewerBody({
     const modeOptions: ToolbarOption[] = [
       {
         key: "md-preview",
-        label: "Preview",
-        tooltip: "Rendered preview",
+        label: L("Preview"),
+        tooltip: L("Rendered preview"),
         icon: <EyeIcon className="size-4" />,
         active: viewMode === "preview",
         onSelect: () => switchTo("preview"),
@@ -866,8 +866,8 @@ function FileViewerBody({
       },
       {
         key: "md-source",
-        label: "Source",
-        tooltip: "Raw Markdown source",
+        label: L("Source"),
+        tooltip: L("Raw Markdown source"),
         icon: <CodeIcon className="size-4" />,
         active: viewMode === "source",
         onSelect: () => switchTo("source"),
@@ -877,7 +877,7 @@ function FileViewerBody({
     toolbarActions.push({
       key: "md-view-mode",
       label: `View mode: ${activeMode.label}`,
-      tooltip: "View mode",
+      tooltip: L("View mode"),
       icon: activeMode.icon,
       options: modeOptions,
     });
@@ -886,7 +886,7 @@ function FileViewerBody({
     // preview ↔ source.
     toolbarActions.push({
       key: "preview",
-      label: viewMode === "preview" ? "View source" : "View preview",
+      label: viewMode === "preview" ? L("View source") : L("View preview"),
       icon:
         viewMode === "preview" ? <CodeIcon className="size-4" /> : <EyeIcon className="size-4" />,
       // Write the absolute target keyed off the RESOLVED viewMode, not the raw
@@ -905,7 +905,7 @@ function FileViewerBody({
   if (lang === "html" && fileQuery.data && viewMode !== "diff") {
     toolbarActions.push({
       key: "open-new-tab",
-      label: "Open in new tab",
+      label: L("Open in new tab"),
       icon: <SquareArrowOutUpRightIcon className="size-4" />,
       onSelect: openHtmlInNewTab,
     });
@@ -913,7 +913,7 @@ function FileViewerBody({
   // PDFs render through PdfViewer with text-layer comment anchors.
   toolbarActions.push({
     key: "comments",
-    label: commentsOpen ? "Hide comments" : "Show comments",
+    label: commentsOpen ? L("Hide comments") : L("Show comments"),
     icon: <MessageSquareTextIcon className="size-4" />,
     active: commentsOpen,
     onSelect: () => {
@@ -924,7 +924,7 @@ function FileViewerBody({
   if (!isPdf && isDiffAvailable) {
     toolbarActions.push({
       key: "diff",
-      label: viewMode === "diff" ? "Exit diff view" : "Show diff",
+      label: viewMode === "diff" ? L("Exit diff view") : L("Show diff"),
       icon: <FileDiffIcon className="size-4" />,
       active: viewMode === "diff",
       onSelect: () => guardDirty(() => setDiffActive((prev) => !prev)),
@@ -933,7 +933,7 @@ function FileViewerBody({
   if (viewMode === "diff" && splitToggleAvailable) {
     toolbarActions.push({
       key: "diff-layout",
-      label: diffLayout === "unified" ? "Split view" : "Unified view",
+      label: diffLayout === "unified" ? L("Split view") : L("Unified view"),
       icon:
         diffLayout === "unified" ? (
           <Columns2Icon className="size-4" />
@@ -952,7 +952,7 @@ function FileViewerBody({
   const settingsMenu: ToolbarOption[] = [
     {
       key: "search",
-      label: "Find in file",
+      label: L("Find in file"),
       icon: <SearchIcon className="size-4" />,
       active: false,
       onSelect: openSearch,
@@ -961,9 +961,9 @@ function FileViewerBody({
   if (!isDeletedFile && fileQuery.data) {
     settingsMenu.push({
       key: "download",
-      label: "Download file",
+      label: L("Download file"),
       tooltip: fileQuery.data.truncated
-        ? "Download (file was truncated — content may be incomplete)"
+        ? L("Download (file was truncated — content may be incomplete)")
         : "Download",
       icon: <DownloadIcon className="size-4" />,
       active: false,
@@ -973,8 +973,8 @@ function FileViewerBody({
   if (viewMode === "diff") {
     settingsMenu.push({
       key: "wrap-lines",
-      label: "Wrap lines",
-      tooltip: "Soft-wrap long lines (no horizontal scroll)",
+      label: L("Wrap lines"),
+      tooltip: L("Soft-wrap long lines (no horizontal scroll)"),
       icon: <WrapTextIcon className="size-4" />,
       active: wrapLines,
       keepOpen: true,
@@ -982,7 +982,7 @@ function FileViewerBody({
     });
     settingsMenu.push({
       key: "hide-whitespace",
-      label: "Hide whitespace changes",
+      label: L("Hide whitespace changes"),
       icon: hideWhitespace ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />,
       active: hideWhitespace,
       keepOpen: true,
@@ -993,15 +993,15 @@ function FileViewerBody({
   }
   toolbarActions.push({
     key: "view-settings",
-    label: "View settings",
-    tooltip: "View settings",
+    label: L("View settings"),
+    tooltip: L("View settings"),
     icon: <MoreHorizontalIcon className="size-4" />,
     menu: settingsMenu,
   });
   toolbarActions.push({
     key: "copy-link",
-    label: "Copy link to file",
-    tooltip: linkCopied ? "Copied!" : "Copy link",
+    label: L("Copy link to file"),
+    tooltip: linkCopied ? L("Copied!") : L("Copy link"),
     icon: linkCopied ? (
       <CheckIcon className="size-4 text-green-500" />
     ) : (
@@ -1213,7 +1213,7 @@ function FileViewerBody({
               aria-live="polite"
               title={
                 saveStatus === "offline"
-                  ? "Runner offline — your changes will save when it reconnects"
+                  ? L("Runner offline — your changes will save when it reconnects")
                   : undefined
               }
               className={cn(
@@ -1224,31 +1224,31 @@ function FileViewerBody({
               {saveStatus === "unsaved" && (
                 <>
                   <span className="size-1.5 rounded-full bg-muted-foreground/70" />
-                  Unsaved
+                  {L("Unsaved")}
                 </>
               )}
               {saveStatus === "saving" && (
                 <>
                   <Loader2Icon className="size-3 animate-spin" />
-                  Saving…
+                  {L("Saving…")}
                 </>
               )}
               {saveStatus === "saved" && (
                 <>
                   <CheckIcon className="size-3 text-green-500" />
-                  Saved
+                  {L("Saved")}
                 </>
               )}
               {saveStatus === "error" && (
                 <>
                   <AlertTriangleIcon className="size-3" />
-                  Save failed
+                  {L("Save failed")}
                 </>
               )}
               {saveStatus === "offline" && (
                 <>
                   <CloudOffIcon className="size-3" />
-                  Unsaved
+                  {L("Unsaved")}
                 </>
               )}
             </span>
@@ -1359,8 +1359,8 @@ function FileViewerBody({
               {isDiffAvailable && (
                 <span className="text-xs">
                   {L("Click")}
-                  <FileDiffIcon className="inline size-3.5 align-text-bottom" /> to view its
-                  previous content.
+                  <FileDiffIcon className="inline size-3.5 align-text-bottom" />{" "}
+                  {L("to view its\n                  previous content.")}
                 </span>
               )}
             </div>
@@ -1383,13 +1383,13 @@ function FileViewerBody({
             // present, pass the real before/after through (legitimate nulls and all).
             !diffQuery.data ? (
               <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-                Loading diff…
+                {L("Loading diff…")}
               </div>
             ) : (
               <Suspense
                 fallback={
                   <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-                    Loading diff…
+                    {L("Loading diff…")}
                   </div>
                 }
               >
@@ -1500,12 +1500,12 @@ function FileViewerBody({
           <DialogHeader>
             <DialogTitle>{L("Unsaved changes")}</DialogTitle>
             <DialogDescription>
-              Your edits will be lost if you leave without saving.
+              {L("Your edits will be lost if you leave without saving.")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPendingAction(null)}>
-              Keep editing
+              {L("Keep editing")}
             </Button>
             <Button
               variant="destructive"
@@ -1515,7 +1515,7 @@ function FileViewerBody({
                 setPendingAction(null);
               }}
             >
-              Discard changes
+              {L("Discard changes")}
             </Button>
           </DialogFooter>
         </DialogContent>

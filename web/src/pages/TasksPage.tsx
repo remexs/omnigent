@@ -36,9 +36,9 @@ import { L } from "@/i18n";
 type FilterTab = "all" | "active" | "paused";
 
 const FILTER_TABS: { value: FilterTab; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "active", label: "Active" },
-  { value: "paused", label: "Paused" },
+  { value: "all", label: L("All") },
+  { value: "active", label: L("Active") },
+  { value: "paused", label: L("Paused") },
 ];
 
 export function TasksPage() {
@@ -153,11 +153,11 @@ export function TasksPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold">{L("Automations")}</h1>
           <p className="text-sm text-muted-foreground">
-            Run agent sessions on a recurring schedule. Tasks fire on a connected host.
+            {L("Run agent sessions on a recurring schedule. Tasks fire on a connected host.")}
           </p>
         </div>
         <Button data-testid="new-task-button" className="shrink-0" onClick={openManual}>
-          New task
+          {L("New task")}
         </Button>
       </div>
 
@@ -207,13 +207,13 @@ export function TasksPage() {
           <TriangleAlertIcon className="size-4 shrink-0 text-destructive" />
           <span className="flex-1">{L("Couldn’t load automations.")}</span>
           <Button variant="outline" size="sm" onClick={() => void refetch()}>
-            Retry
+            {L("Retry")}
           </Button>
         </div>
       ) : isLoading ? (
         <div className="flex items-center gap-2 py-12 text-sm text-muted-foreground">
           <Loader2Icon className="size-4 animate-spin" />
-          Loading automations…
+          {L("Loading automations…")}
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
@@ -281,7 +281,7 @@ function EmptyState({
           <ClockIcon className="size-8 text-muted-foreground/50" />
           <p className="text-sm font-medium">{L("No automations yet")}</p>
           <p className="max-w-sm text-xs text-muted-foreground">
-            Create a task to run an agent session automatically on a recurring schedule.
+            {L("Create a task to run an agent session automatically on a recurring schedule.")}
           </p>
           {showSuggestions && (
             <SuggestionsSection
@@ -327,7 +327,7 @@ function SuggestionsSection({
               className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-normal transition-colors hover:bg-muted hover:text-foreground"
             >
               <Icon className={cn("size-4 shrink-0", s.iconClassName)} />
-              <span className="truncate">{s.title}</span>
+              <span className="truncate">{L(s.title)}</span>
             </button>
           );
         })}

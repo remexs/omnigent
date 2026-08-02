@@ -1,6 +1,7 @@
 import type { ConnectionState } from "@/components/blocks/TerminalSession";
 import type { TerminalInfo } from "@/hooks/useTerminals";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 /**
  * Derived per-terminal status shown in terminal selectors.
@@ -12,11 +13,11 @@ import { cn } from "@/lib/utils";
 export type TerminalStatus = "active" | "idle" | "connecting" | "error" | "closed";
 
 export const STATUS_CONFIG: Record<TerminalStatus, { label: string; className: string }> = {
-  active: { label: "Active", className: "bg-emerald-500" },
-  idle: { label: "Idle", className: "bg-muted-foreground/55" },
-  connecting: { label: "Connecting", className: "bg-amber-500 animate-pulse" },
+  active: { label: L("Active"), className: "bg-emerald-500" },
+  idle: { label: L("Idle"), className: "bg-muted-foreground/55" },
+  connecting: { label: L("Connecting"), className: "bg-amber-500 animate-pulse" },
   error: { label: "Error", className: "bg-red-500" },
-  closed: { label: "Closed", className: "bg-black dark:bg-white" },
+  closed: { label: L("Closed"), className: "bg-black dark:bg-white" },
 };
 
 /**

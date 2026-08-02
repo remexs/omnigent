@@ -21,6 +21,7 @@ import type { ActiveSelection } from "./codeViewerHelpers";
 import { commentDecorationKey, type CommentDecorationState } from "./TipTapCommentExtension";
 import { computeSelectionData } from "./TipTapEditorHelpers";
 import { getEmbedRoot } from "@/lib/host";
+import { L } from "@/i18n";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -241,7 +242,7 @@ export function MarkdownCommentPlugin({
       style={{ left: buttonPos.left, top: buttonPos.top, transform: "translateY(-100%)" }}
     >
       <MessageSquarePlusIcon className="size-3.5" />
-      Add comment
+      {L("Add comment")}
     </button>,
     getEmbedRoot() ?? document.body,
   );

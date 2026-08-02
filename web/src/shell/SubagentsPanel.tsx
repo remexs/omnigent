@@ -123,14 +123,14 @@ export function SubagentsPanel({ conversationId, rootSessionId }: SubagentsPanel
   if (isLoading && children.length === 0) {
     return (
       <div className="flex h-full flex-1 items-center justify-center px-4 py-8 text-center text-xs text-muted-foreground bg-card">
-        Loading…
+        {L("Loading…")}
       </div>
     );
   }
   if (error && children.length === 0) {
     return (
       <div className="flex h-full flex-1 items-center justify-center px-4 py-8 text-center text-xs text-muted-foreground bg-card">
-        Failed to load agents.
+        {L("Failed to load agents.")}
       </div>
     );
   }
@@ -142,7 +142,7 @@ export function SubagentsPanel({ conversationId, rootSessionId }: SubagentsPanel
         <Suspense
           fallback={
             <div className="flex h-full flex-1 items-center justify-center text-xs text-muted-foreground">
-              Loading graph…
+              {L("Loading graph…")}
             </div>
           }
         >
@@ -162,7 +162,7 @@ export function SubagentsPanel({ conversationId, rootSessionId }: SubagentsPanel
         className="hidden"
       >
         <PlusIcon className="size-3.5 shrink-0" />
-        Add agent
+        {L("Add agent")}
       </button>
       <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-1">
         <MainRow rootSessionId={rootSessionId} isActive={conversationId === rootSessionId} />
@@ -610,7 +610,7 @@ function SubagentRow({
             type="button"
             data-testid="subagent-collapse-toggle"
             aria-expanded={!collapsed}
-            aria-label={collapsed ? "Expand subagents" : "Collapse subagents"}
+            aria-label={collapsed ? L("Expand subagents") : L("Collapse subagents")}
             style={{ left: rowPaddingLeft(depth) - ROW_TOGGLE_SIZE_PX }}
             className="absolute top-2 z-10 flex size-4 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             onClick={(event) => {

@@ -24,26 +24,30 @@ const TIERS: { id: SharingMode; label: string; description: string }[] = [
   {
     id: "on",
     label: "On",
-    description:
+    description: L(
       "Anyone with manage access can share a session at any level (read, edit, or manage) and toggle public / workspace read.",
+    ),
   },
   {
     id: "read_only",
-    label: "Read only",
-    description:
+    label: L("Read only"),
+    description: L(
       "New shares are capped at read (view) access. Edit and manage grants are rejected.",
+    ),
   },
   {
     id: "restricted_read_only",
-    label: "Read only (restricted)",
-    description:
+    label: L("Read only (restricted)"),
+    description: L(
       "Read-only, and sessions whose working directory is a home directory or the filesystem root cannot be shared at all — not even read.",
+    ),
   },
   {
     id: "off",
     label: "Off",
-    description:
+    description: L(
       "Sharing is disabled. No new grants can be created and the Share control is hidden.",
+    ),
   },
 ];
 
@@ -72,7 +76,7 @@ export function SharingPage() {
   if (!isSingleUser && meIsAdmin === null) {
     return (
       <div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
-        Loading...
+        {L("Loading...")}
       </div>
     );
   }
@@ -82,7 +86,7 @@ export function SharingPage() {
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
         <h1 className="mb-2 text-2xl font-semibold">{L("Session sharing")}</h1>
         <p className="text-sm text-muted-foreground">
-          You don't have permission to manage session sharing.
+          {L("You don't have permission to manage session sharing.")}
         </p>
       </PageScroll>
     );
@@ -123,7 +127,7 @@ export function SharingPage() {
           <>
             {!editable && (
               <p className="mb-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                The sharing mode is managed by this deployment and can't be changed here.
+                {L("The sharing mode is managed by this deployment and can't be changed here.")}
               </p>
             )}
             <fieldset
@@ -173,7 +177,7 @@ export function SharingPage() {
                 </p>
                 {!publicEditable && (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Managed by this deployment and can't be changed here.
+                    {L("Managed by this deployment and can't be changed here.")}
                   </p>
                 )}
               </div>

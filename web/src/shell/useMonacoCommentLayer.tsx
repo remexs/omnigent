@@ -20,6 +20,7 @@ import type { ActiveSelection } from "./codeViewerHelpers";
 import { getEmbedRoot } from "@/lib/host";
 import { useChatStore } from "@/store/chatStore";
 import { nativeCodingAgentForHarness } from "@/lib/nativeCodingAgents";
+import { L } from "@/i18n";
 
 // The IStandaloneCodeEditor instance, derived from the onMount signature so we
 // don't deep-import Monaco's types here. The diff editor's getModifiedEditor()
@@ -331,7 +332,7 @@ export function useMonacoCommentLayer({
         className="flex items-center gap-1.5 rounded-md border border-border bg-popover backdrop-blur-xl backdrop-saturate-150 px-2.5 py-1 text-xs font-medium text-foreground shadow-md hover:bg-secondary transition-colors"
       >
         <MessageSquarePlusIcon className="size-3.5" />
-        Add comment
+        {L("Add comment")}
       </button>
       {canAttachToAgent && (
         <button
@@ -344,7 +345,7 @@ export function useMonacoCommentLayer({
           className="flex items-center gap-1.5 rounded-md border border-border bg-popover backdrop-blur-xl backdrop-saturate-150 px-2.5 py-1 text-xs font-medium text-foreground shadow-md hover:bg-secondary transition-colors"
         >
           <AtSignIcon className="size-3.5" />
-          Attach to agent
+          {L("Attach to agent")}
         </button>
       )}
     </div>,

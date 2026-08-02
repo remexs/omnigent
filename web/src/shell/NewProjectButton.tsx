@@ -62,7 +62,7 @@ export function NewProjectButton({ onCreated }: { onCreated: (name: string) => v
           <DialogHeader>
             <DialogTitle>{L("New project")}</DialogTitle>
             <DialogDescription>
-              Create an empty project, then file sessions into it from a session's menu.
+              {L("Create an empty project, then file sessions into it from a session's menu.")}
             </DialogDescription>
           </DialogHeader>
           <input
@@ -90,7 +90,7 @@ export function NewProjectButton({ onCreated }: { onCreated: (name: string) => v
               onClick={() => setOpen(false)}
               disabled={createProject.isPending}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               type="button"
@@ -98,7 +98,7 @@ export function NewProjectButton({ onCreated }: { onCreated: (name: string) => v
               disabled={createProject.isPending || name.trim() === ""}
               onClick={submit}
             >
-              {createProject.isPending ? "Creating…" : "Create"}
+              {createProject.isPending ? L("Creating…") : L("Create")}
             </Button>
           </DialogFooter>
         </DialogContent>

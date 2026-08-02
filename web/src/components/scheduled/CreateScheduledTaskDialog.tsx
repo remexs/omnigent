@@ -112,7 +112,7 @@ export function CreateScheduledTaskDialog({
     ? selectedAgent.display_name
     : isEdit && editingTask
       ? editingTask.agentId
-      : "Select agent";
+      : L("Select agent");
 
   function handleSelectAgent(agent: AvailableAgent) {
     setPickedAgentId(agent.id);
@@ -306,8 +306,8 @@ export function CreateScheduledTaskDialog({
           : err instanceof Error
             ? err.message
             : isEdit
-              ? "Couldn't update the automation."
-              : "Couldn't create the automation.",
+              ? L("Couldn't update the automation.")
+              : L("Couldn't create the automation."),
       );
     }
   }
@@ -326,11 +326,11 @@ export function CreateScheduledTaskDialog({
         onInteractOutside={guardDialogDismiss}
       >
         <DialogHeader className="shrink-0 px-6 pt-6 pb-0">
-          <DialogTitle>{isEdit ? "Edit automation" : "New automation"}</DialogTitle>
+          <DialogTitle>{isEdit ? L("Edit automation") : L("New automation")}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update this recurring agent session. It fires on a connected host."
-              : "Runs an agent session on a recurring schedule. Fires on a connected host."}
+              ? L("Update this recurring agent session. It fires on a connected host.")
+              : L("Runs an agent session on a recurring schedule. Fires on a connected host.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -423,7 +423,7 @@ export function CreateScheduledTaskDialog({
             )}
             {!showModelEffort && (
               <p className="text-[11px] text-muted-foreground">
-                Uses this agent&apos;s default model, effort, and permission settings
+                {L("Uses this agent&apos;s default model, effort, and permission settings")}
               </p>
             )}
           </div>
@@ -442,7 +442,7 @@ export function CreateScheduledTaskDialog({
                 onSelectOpenChange={handleSelectOpenChange}
               />
               <p className="mt-1.5 text-[11px] text-muted-foreground">
-                Leave on Default to use the agent&apos;s configured model and effort.
+                {L("Leave on Default to use the agent&apos;s configured model and effort.")}
               </p>
             </div>
           )}
@@ -457,7 +457,7 @@ export function CreateScheduledTaskDialog({
           />
           {scheduleUnsupported && (
             <p className="text-xs text-destructive" role="alert">
-              This schedule can&apos;t be edited in this form yet.
+              {L("This schedule can&apos;t be edited in this form yet.")}
             </p>
           )}
 
@@ -485,17 +485,17 @@ export function CreateScheduledTaskDialog({
               </SelectTrigger>
               <SelectContent position="popper" align="start">
                 <SelectItem value={UNSET_HOST} disabled={preservePinnedHost}>
-                  Resolve at fire time
+                  {L("Resolve at fire time")}
                 </SelectItem>
                 {hostOptions.map((host) => (
                   <SelectItem key={host.host_id} value={host.host_id}>
-                    {host.name} {host.status === "offline" ? "(offline)" : ""}
+                    {host.name} {host.status === "offline" ? L("(offline)") : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-[11px] text-muted-foreground">
-              Leave unset to run on your connected host when the task fires.
+              {L("Leave unset to run on your connected host when the task fires.")}
             </p>
           </div>
 
@@ -503,7 +503,7 @@ export function CreateScheduledTaskDialog({
             <div className="flex flex-col gap-1.5">
               <Label>{L("Workspace (optional)")}</Label>
               <p className="text-[11px] text-muted-foreground">
-                Defaults to the host&apos;s home directory. Pick a directory to pin it.
+                {L("Defaults to the host&apos;s home directory. Pick a directory to pin it.")}
               </p>
               <div className="h-56 overflow-hidden rounded-md border border-border">
                 <WorkspacePicker
@@ -524,7 +524,7 @@ export function CreateScheduledTaskDialog({
               data-testid="workspace-without-host-error"
             >
               <TriangleAlertIcon className="size-3.5 shrink-0" />
-              Pick a host before pinning a workspace.
+              {L("Pick a host before pinning a workspace.")}
             </p>
           )}
 
@@ -542,7 +542,7 @@ export function CreateScheduledTaskDialog({
 
         <DialogFooter className="mx-0 mb-0 shrink-0 rounded-none border-t-0 bg-transparent px-6 py-4 sm:justify-end">
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            Cancel
+            {L("Cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -550,7 +550,7 @@ export function CreateScheduledTaskDialog({
             data-testid="create-scheduled-task-submit"
           >
             {mutationPending && <Loader2Icon className="mr-1 size-4 animate-spin" />}
-            {isEdit ? "Save changes" : "Create task"}
+            {isEdit ? L("Save changes") : L("Create task")}
           </Button>
         </DialogFooter>
       </DialogContent>

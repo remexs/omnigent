@@ -195,22 +195,26 @@ const SKILL_PILL_AGENTS = new Set(["polly", "debby"]);
 // session's terminal_launch_args. Keep in sync with `claude --help`.
 const CLAUDE_NATIVE_DEFAULT_PERMISSION_MODE = "default";
 const CLAUDE_NATIVE_PERMISSION_MODES: { value: string; label: string; description: string }[] = [
-  { value: "default", label: "Default", description: "Prompts before edits and commands" },
+  { value: "default", label: "Default", description: L("Prompts before edits and commands") },
   {
     value: "auto",
-    label: "Auto",
+    label: L("Auto"),
     description: "Auto-runs; a classifier blocks risky actions",
   },
   {
     value: "acceptEdits",
-    label: "Accept edits",
+    label: L("Accept edits"),
     description: "Auto-applies file edits; commands still prompt",
   },
-  { value: "plan", label: "Plan", description: "Plans only; makes no edits" },
-  { value: "dontAsk", label: "Don't ask", description: "Auto-denies anything not pre-approved" },
+  { value: "plan", label: L("Plan"), description: "Plans only; makes no edits" },
+  {
+    value: "dontAsk",
+    label: L("Don't ask"),
+    description: L("Auto-denies anything not pre-approved"),
+  },
   {
     value: "bypassPermissions",
-    label: "Bypass permissions",
+    label: L("Bypass permissions"),
     description: "Runs everything; no prompts or safety checks",
   },
 ];
@@ -232,13 +236,13 @@ const CURSOR_NATIVE_EXEC_MODES: {
   },
   {
     value: "auto-review",
-    label: "Auto-review",
+    label: L("Auto-review"),
     description: "Smart Auto: auto-runs safe tool calls and prompts for the rest",
     args: ["--auto-review"],
   },
   {
     value: "plan",
-    label: "Plan",
+    label: L("Plan"),
     description: "Read-only planning; analyzes and proposes plans, no edits",
     args: ["--mode", "plan"],
   },
@@ -250,8 +254,8 @@ const CURSOR_NATIVE_EXEC_MODES: {
   },
   {
     value: "yolo",
-    label: "Yolo",
-    description: "Runs everything without prompts or safety checks",
+    label: L("Yolo"),
+    description: L("Runs everything without prompts or safety checks"),
     args: ["--yolo"],
   },
 ];
@@ -278,13 +282,13 @@ const CODEX_NATIVE_APPROVAL_MODES: {
   },
   {
     value: "full-access",
-    label: "Full access",
-    description: "Edit any file and access the internet without approval",
+    label: L("Full access"),
+    description: L("Edit any file and access the internet without approval"),
     args: ["--sandbox", "danger-full-access", "--ask-for-approval", "never"],
   },
   {
     value: "read-only",
-    label: "Read only",
+    label: L("Read only"),
     description: "Read files only; approval required for edits, commands, or network",
     args: ["--sandbox", "read-only", "--ask-for-approval", "on-request"],
   },
@@ -306,8 +310,8 @@ const CODEX_NATIVE_BYPASS_SANDBOX_LABEL_KEY = "omnigent.codex_native.bypass_sand
 const CODEX_NATIVE_BYPASS_APPROVAL_VALUE = "bypass";
 const CODEX_NATIVE_BYPASS_APPROVAL_OPTION = {
   value: CODEX_NATIVE_BYPASS_APPROVAL_VALUE,
-  label: "Bypass approvals & sandbox",
-  description: "Runs Codex with no approval prompts and no command sandbox",
+  label: L("Bypass approvals & sandbox"),
+  description: L("Runs Codex with no approval prompts and no command sandbox"),
   args: [] as string[],
 };
 
@@ -377,10 +381,10 @@ export function ConnectHostInstructions({
         <Tabs defaultValue="local">
           <TabsList className="w-full">
             <TabsTrigger value="local" className="text-xs">
-              Local machine
+              {L("Local machine")}
             </TabsTrigger>
             <TabsTrigger value="lakebox" className="text-xs">
-              Databricks Lakebox
+              {L("Databricks Lakebox")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="local">
@@ -579,7 +583,7 @@ function harnessWarningMessage(
       <>
         {agentName} {L("needs Codex authentication on")}
         {hostName} {L("— run")}
-        <code>{L("codex login")}</code> on that machine.
+        <code>{L("codex login")}</code> {L("on that machine.")}
       </>
     );
   }
@@ -588,7 +592,7 @@ function harnessWarningMessage(
       <>
         {agentName} {L("needs Cursor login on")}
         {hostName} {L("— run")}
-        <code>{L("cursor-agent login")}</code> on that machine.
+        <code>{L("cursor-agent login")}</code> {L("on that machine.")}
       </>
     );
   }
@@ -600,7 +604,8 @@ function harnessWarningMessage(
       <>
         {agentName} {L("has an outdated CLI on")}
         {hostName} {L("— run")}
-        <code>{L("omni setup")}</code>, or upgrade the CLI directly on that machine.
+        <code>{L("omni setup")}</code>
+        {L(", or upgrade the CLI directly on that machine.")}
       </>
     );
   }
@@ -608,7 +613,7 @@ function harnessWarningMessage(
     <>
       {agentName} {L("isn&apos;t configured on")}
       {hostName} {L("— run")}
-      <code>{L("omni setup")}</code> on that machine.
+      <code>{L("omni setup")}</code> {L("on that machine.")}
     </>
   );
 }
@@ -1010,7 +1015,7 @@ export function AgentHarnessPicker({
       className="gap-2 rounded-sm px-2 py-1.5 text-13 text-muted-foreground"
     >
       <PlusIcon className="size-3.5" />
-      Create custom agent
+      {L("Create custom agent")}
     </DropdownMenuItem>
   ) : null;
   const hasCustomGroup = hasCustomAgents;
@@ -1088,7 +1093,7 @@ export function AgentHarnessPicker({
           <span
             className={cn("max-w-[12rem] truncate text-xs text-foreground", triggerLabelClassName)}
           >
-            {hasAgents ? agentLabel : "No agents"}
+            {hasAgents ? agentLabel : L("No agents")}
           </span>
           <ChevronDownIcon className="size-3.5 opacity-60" />
         </Button>
@@ -1415,7 +1420,7 @@ function HarnessConfigModal({
           </DialogTitle>
           <DialogDescription className="sr-only">
             {L("Configure how")}
-            {agent.display_name} runs for this session.
+            {agent.display_name} {L("runs for this session.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -1466,12 +1471,12 @@ function HarnessConfigModal({
                     ))}
                     {claudeModelsLoading && (
                       <div className="px-2.5 py-1 text-xs text-muted-foreground">
-                        Loading models…
+                        {L("Loading models…")}
                       </div>
                     )}
                     {!claudeModelsLoading && claudeModelOptions.length === 0 && (
                       <div className="px-2.5 py-1 text-xs text-muted-foreground">
-                        Models unavailable
+                        {L("Models unavailable")}
                       </div>
                     )}
                   </SelectContent>
@@ -1553,7 +1558,7 @@ function HarnessConfigModal({
                   )}
                   {!modelsLoading && modelOptions.length === 0 && (
                     <div className="px-2.5 py-1 text-xs text-muted-foreground">
-                      Models unavailable
+                      {L("Models unavailable")}
                     </div>
                   )}
                 </SelectContent>
@@ -1666,10 +1671,10 @@ function HarnessConfigModal({
             onClick={() => onOpenChange(false)}
             data-testid="new-chat-landing-config-cancel"
           >
-            Cancel
+            {L("Cancel")}
           </Button>
           <Button type="button" onClick={save} data-testid="new-chat-landing-config-save">
-            Save
+            {L("Save")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -2287,7 +2292,7 @@ export function NewChatLandingScreen() {
   const configSummary = useMemo((): { label: string; value: string }[] => {
     if (supportsPermissionMode) {
       const modelValue = routingOn
-        ? "Smart Routing"
+        ? L("Smart Routing")
         : (claudeModelOptions.find((m) => m.id === pickedModel)?.displayName ?? "Default");
       // Smart Routing freezes effort to the default (the router picks per turn),
       // so mirror the modal: show "Default" whenever routing is on or effort is
@@ -2302,13 +2307,13 @@ export function NewChatLandingScreen() {
       return [
         { label: "Model", value: modelValue },
         { label: "Effort", value: effortValue },
-        { label: "Permissions", value: permissionValue },
+        { label: L("Permissions"), value: permissionValue },
       ];
     }
     // Non-Claude routable agents surface Smart Routing as a standalone toggle,
     // so reflect it here when on (Claude folds it into Model above).
     const routingRow: { label: string; value: string }[] =
-      smartRoutingEligible && routingOn ? [{ label: "Smart Routing", value: "On" }] : [];
+      smartRoutingEligible && routingOn ? [{ label: L("Smart Routing"), value: "On" }] : [];
     if (supportsApprovalMode) {
       const isCodex = nativeCodingAgentForAvailableAgent(selectedAgent)?.harness === "codex-native";
       // Bypass is the most-permissive Approval choice, not a separate knob — so
@@ -2340,7 +2345,7 @@ export function NewChatLandingScreen() {
     if (selectedAgent?.harness != null && selectedAgent.harness in brainHarnessLabels) {
       const active = pickedHarness ?? selectedAgent.harness;
       return [
-        { label: "Agent Harness", value: brainHarnessLabels[active] ?? active },
+        { label: L("Agent Harness"), value: brainHarnessLabels[active] ?? active },
         ...routingRow,
       ];
     }
@@ -2796,25 +2801,25 @@ export function NewChatLandingScreen() {
   const submitDisabledReason = canSubmit
     ? null
     : sandboxSelected && !sandboxRepoValid
-      ? "Please enter a valid repository URL"
+      ? L("Please enter a valid repository URL")
       : !sandboxSelected && (!selectedHostId || !workspaceValid)
-        ? "Please choose a host and working directory"
+        ? L("Please choose a host and working directory")
         : message.trim().length === 0
-          ? "Enter a message to get started"
+          ? L("Enter a message to get started")
           : null;
 
   // Chip display labels.
   const workspaceLabel = workspaceTrimmed
     ? (workspaceTrimmed.split("/").filter(Boolean).pop() ?? workspaceTrimmed)
-    : "Working directory";
+    : L("Working directory");
   const hostLabel = connectingThisMachine
-    ? "Connecting…"
+    ? L("Connecting…")
     : sandboxSelected
       ? sandboxLabel
-      : (selectedHost?.name ?? (onlineHosts.length === 0 ? "No hosts" : "Select host"));
+      : (selectedHost?.name ?? (onlineHosts.length === 0 ? L("No hosts") : L("Select host")));
   // The chip shows just the branch (the "(existing)" distinction lives in the
   // popover's warning; appending it here only gets clipped by the chip's cap).
-  const worktreeLabel = branchName.trim() || "No worktree";
+  const worktreeLabel = branchName.trim() || L("No worktree");
   // Sandbox repository chip label: repo name (server's clone-dir rule)
   // plus the pinned branch, e.g. "repo#main"; placeholder when unset.
   const sandboxRepoName = deriveRepoName(sandboxRepoUrl);
@@ -2822,11 +2827,11 @@ export function NewChatLandingScreen() {
     ? sandboxRepoBranch.trim()
       ? `${sandboxRepoName}#${sandboxRepoBranch.trim()}`
       : sandboxRepoName
-    : "Repository";
+    : L("Repository");
   // The trigger label is just the agent name; the run-config knobs live in
   // the picker's per-entry submenu, so duplicating their values here would be
   // redundant.
-  const agentLabel = selectedAgent ? selectedAgent.display_name : "Select agent";
+  const agentLabel = selectedAgent ? selectedAgent.display_name : L("Select agent");
 
   // Wrap the harness setter so every explicit pick is persisted to
   // localStorage. The caller can pass an explicit `agentId` for the
@@ -3172,7 +3177,7 @@ export function NewChatLandingScreen() {
             <OttoEyes className="h-18 w-auto shrink-0" />
           )}
           <h1 className="min-w-0 break-words text-center text-3xl font-medium tracking-[-0.03em] text-foreground line-clamp-2 sm:text-left">
-            {selectedProject || "What should we do?"}
+            {selectedProject || L("What should we do?")}
           </h1>
         </div>
         <div className="relative flex w-full flex-col gap-3">
@@ -3316,7 +3321,9 @@ export function NewChatLandingScreen() {
               }}
               // Suppress the native placeholder when the overlay supplies its
               // own prompt text; aria-label preserves the accessible name.
-              placeholder={pillSkills.length > 0 ? "" : "Describe a task to start a new session…"}
+              placeholder={
+                pillSkills.length > 0 ? "" : L("Describe a task to start a new session…")
+              }
               aria-label={L("Describe a task to start a new session")}
               rows={1}
               autoFocus
@@ -3336,7 +3343,7 @@ export function NewChatLandingScreen() {
             {pillSkills.length > 0 && message.length === 0 && (
               <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-center gap-2">
                 <span className="font-['SF_Pro_Text',-apple-system,BlinkMacSystemFont,system-ui,sans-serif] text-sm leading-5 text-muted-foreground">
-                  Describe a task, or try a skill
+                  {L("Describe a task, or try a skill")}
                 </span>
                 <SkillPills skills={pillSkills} onPick={applySkillPill} />
               </div>
@@ -3401,12 +3408,12 @@ export function NewChatLandingScreen() {
                     ) : (
                       <FileTextIcon className="size-3 shrink-0" />
                     )}
-                    <span className="max-w-[140px] truncate">{file.name || "image.png"}</span>
+                    <span className="max-w-[140px] truncate">{file.name || L("image.png")}</span>
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
                       className="ml-0.5 rounded-full hover:text-foreground"
-                      aria-label={`Remove ${file.name || "image.png"}`}
+                      aria-label={`Remove ${file.name || L("image.png")}`}
                     >
                       <XIcon className="size-3" />
                     </button>
@@ -3549,7 +3556,7 @@ export function NewChatLandingScreen() {
                           type="submit"
                           size="icon"
                           disabled={!canSubmit}
-                          aria-label={creating ? "Starting session" : "Start session"}
+                          aria-label={creating ? L("Starting session") : L("Start session")}
                           aria-busy={creating}
                           data-testid="new-chat-landing-submit"
                           className="size-8 rounded-full bg-foreground text-card transition-opacity hover:opacity-80 disabled:opacity-50"
@@ -3665,7 +3672,7 @@ export function NewChatLandingScreen() {
                   )}
                   {allHosts.length === 0 && !showConnectThisMachine && (
                     <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                      No hosts connected yet.
+                      {L("No hosts connected yet.")}
                     </div>
                   )}
                   {onlineHosts.map((host) => (
@@ -3678,7 +3685,9 @@ export function NewChatLandingScreen() {
                     >
                       <HostOption
                         host={host}
-                        subtitle={host.host_id === thisMachineHostId ? "this machine" : undefined}
+                        subtitle={
+                          host.host_id === thisMachineHostId ? L("this machine") : undefined
+                        }
                       />
                     </DropdownMenuItem>
                   ))}
@@ -3701,8 +3710,8 @@ export function NewChatLandingScreen() {
                             host={host}
                             subtitle={
                               connectingThisMachine
-                                ? "connecting…"
-                                : "this machine · select to connect"
+                                ? L("connecting…")
+                                : L("this machine · select to connect")
                             }
                           />
                         </DropdownMenuItem>
@@ -3712,7 +3721,9 @@ export function NewChatLandingScreen() {
                       <DropdownMenuItem key={host.host_id} disabled className="text-xs">
                         <HostOption
                           host={host}
-                          subtitle={host.host_id === thisMachineHostId ? "this machine" : undefined}
+                          subtitle={
+                            host.host_id === thisMachineHostId ? L("this machine") : undefined
+                          }
                         />
                       </DropdownMenuItem>
                     );
@@ -3730,7 +3741,9 @@ export function NewChatLandingScreen() {
                     >
                       <MonitorIcon className="size-4 shrink-0 text-muted-foreground" />
                       <span className="text-xs">
-                        {connectingThisMachine ? "Connecting this machine…" : "Run on this machine"}
+                        {connectingThisMachine
+                          ? L("Connecting this machine…")
+                          : L("Run on this machine")}
                       </span>
                     </DropdownMenuItem>
                   )}
@@ -3744,7 +3757,7 @@ export function NewChatLandingScreen() {
                     className="gap-2 text-xs text-muted-foreground"
                   >
                     <PlusIcon className="size-3.5" />
-                    Connect new host
+                    {L("Connect new host")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -3963,7 +3976,7 @@ export function NewChatLandingScreen() {
                             data-testid="new-chat-landing-worktree-dropdown"
                           >
                             <span className="px-2 pt-1 pb-0.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-                              Existing worktrees
+                              {L("Existing worktrees")}
                             </span>
                             <ul className="flex flex-col gap-0.5">
                               {filteredWorktrees.map((w) => {
@@ -3989,7 +4002,7 @@ export function NewChatLandingScreen() {
                                       data-testid="new-chat-landing-worktree-option"
                                     >
                                       <span className="font-medium text-foreground">
-                                        {w.branch ?? "(detached)"}
+                                        {w.branch ?? L("(detached)")}
                                       </span>
                                       {/* Tail-truncated so the disambiguating
                                       folder shows, not a shared prefix; full
@@ -4027,7 +4040,7 @@ export function NewChatLandingScreen() {
                           className="text-xs text-amber-600 dark:text-amber-500"
                           data-testid="new-chat-landing-existing-worktree-warning"
                         >
-                          Starts in existing worktree, edit the name to create a new one.
+                          {L("Starts in existing worktree, edit the name to create a new one.")}
                         </p>
                       )}
                     </div>

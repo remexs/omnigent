@@ -165,7 +165,7 @@ function NewTabMenu({
               }}
             >
               <TerminalIcon className="size-4" />
-              Shell
+              {L("Shell")}
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               {declaredTerminals.map((name) => (
@@ -188,7 +188,7 @@ function NewTabMenu({
             disabled={create.isPending}
           >
             <TerminalIcon className="size-4" />
-            Shell
+            {L("Shell")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
@@ -414,7 +414,7 @@ function RailTerminalView({
   if (!terminal) {
     return (
       <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
-        Shell not available.
+        {L("Shell not available.")}
       </div>
     );
   }
@@ -705,7 +705,7 @@ export function WorkspacePanel({
               <WorkspaceTabTooltip label={L("Shells")}>
                 <TabsTrigger
                   value="terminals"
-                  aria-label={terminalsLength > 0 ? `Shells ${terminalsLength}` : "Shells"}
+                  aria-label={terminalsLength > 0 ? `Shells ${terminalsLength}` : L("Shells")}
                   className="size-8 shrink-0 rounded-md p-0 hover:bg-muted"
                 >
                   <SquareTerminalIcon className="size-4" />
@@ -798,12 +798,12 @@ export function WorkspacePanel({
             ≥500px flex-1 region absorbs the space instead, so the button still
             hugs the right. */}
         <WorkspaceTabTooltip
-          label={maximized ? "Exit full screen" : "Full screen"}
+          label={maximized ? L("Exit full screen") : L("Full screen")}
           className="ml-auto"
         >
           <button
             type="button"
-            aria-label={maximized ? "Exit full screen" : "Full screen"}
+            aria-label={maximized ? L("Exit full screen") : L("Full screen")}
             aria-pressed={maximized}
             onClick={onToggleMaximized}
             className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

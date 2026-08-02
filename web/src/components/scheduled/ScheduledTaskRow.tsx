@@ -91,7 +91,7 @@ export function ScheduledTaskRow({
               data-testid="task-paused-pill"
               className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
             >
-              Paused
+              {L("Paused")}
             </span>
           )}
         </span>
@@ -137,22 +137,22 @@ export function ScheduledTaskRow({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => onRunNow(task)} data-testid="task-run-now">
             <ZapIcon className="size-4" />
-            Run now
+            {L("Run now")}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onEdit(task)} data-testid="task-edit">
             <PencilIcon className="size-4" />
-            Edit
+            {L("Edit")}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onPauseToggle(task)} data-testid="task-pause-toggle">
             {paused ? (
               <>
                 <PlayIcon className="size-4" />
-                Resume
+                {L("Resume")}
               </>
             ) : (
               <>
                 <PauseIcon className="size-4" />
-                Pause
+                {L("Pause")}
               </>
             )}
           </DropdownMenuItem>
@@ -162,7 +162,7 @@ export function ScheduledTaskRow({
             data-testid="task-delete"
           >
             <Trash2Icon className="size-4" />
-            Delete
+            {L("Delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

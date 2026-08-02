@@ -8,6 +8,7 @@ import { isElectronShell } from "@/lib/nativeBridge";
 import { cn } from "@/lib/utils";
 import { MicIcon, SquareIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { L } from "@/i18n";
 
 // Local-only types; speech-input.tsx already augments Window globally.
 interface SpeechRecognitionLike {
@@ -190,9 +191,9 @@ export const ComposerMicButton = ({
       }
       // "no-speech" / "aborted" are routine (silence timeout, user stop).
       if (err === "not-allowed" || err === "service-not-allowed") {
-        setError("Microphone permission denied");
+        setError(L("Microphone permission denied"));
       } else if (err && err !== "no-speech" && err !== "aborted") {
-        setError("Dictation unavailable");
+        setError(L("Dictation unavailable"));
       }
       setIsListening(false);
     };
@@ -365,7 +366,7 @@ export const ComposerMicButton = ({
         },
         onError: () => {
           sessionRef.current = null;
-          setError("Dictation unavailable");
+          setError(L("Dictation unavailable"));
           setIsListening(false);
           onInterimRef.current?.("");
         },
@@ -376,10 +377,10 @@ export const ComposerMicButton = ({
     } catch (startError) {
       setError(
         startError instanceof DictationBusyError
-          ? "Dictation is busy — try again shortly"
+          ? L("Dictation is busy — try again shortly")
           : isPermissionError(startError)
-            ? "Microphone permission denied"
-            : "Dictation unavailable",
+            ? L("Microphone permission denied")
+            : L("Dictation unavailable"),
       );
       setIsListening(false);
     }

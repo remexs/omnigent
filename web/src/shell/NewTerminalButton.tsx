@@ -97,7 +97,7 @@ export function NewTerminalButton({
       >
         <PlusIcon className="size-3.5 shrink-0" />
         <span className="text-xs">
-          {create.isError ? `Failed: ${create.error.message}` : "New shell"}
+          {create.isError ? `Failed: ${create.error.message}` : L("New shell")}
         </span>
       </button>
     ) : (
@@ -122,7 +122,7 @@ export function NewTerminalButton({
         <Tooltip>
           <TooltipTrigger asChild>{child}</TooltipTrigger>
           <TooltipContent side="bottom">
-            {create.isError ? `Failed: ${create.error.message}` : "New shell"}
+            {create.isError ? `Failed: ${create.error.message}` : L("New shell")}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

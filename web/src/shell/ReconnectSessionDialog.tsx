@@ -8,6 +8,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CliCommandBlock } from "./CliCommandBlock";
 import { ForkSessionForm } from "./ForkSessionDialog";
+import { L } from "@/i18n";
 
 const CLAUDE_NATIVE_WRAPPER = "claude-code-native-ui";
 
@@ -146,7 +147,7 @@ export function ReconnectSessionDialog({
   const command = buildReconnectCommand({ conversationId, serverUrl, wrapper, state });
   // Titles mirror the unreachable banner's wording ("Host is offline —
   // click to reconnect" / "Agent disconnected — click to reconnect").
-  const title = isHostReconnect ? "Host is offline" : "Agent disconnected";
+  const title = isHostReconnect ? L("Host is offline") : L("Agent disconnected");
   const description = isHostReconnect
     ? isOwner
       ? HOST_OWNER_DESCRIPTION
@@ -172,10 +173,10 @@ export function ReconnectSessionDialog({
         >
           <TabsList className="w-full">
             <TabsTrigger value="reconnect" data-testid="reconnect-session-tab-reconnect">
-              Reconnect
+              {L("Reconnect")}
             </TabsTrigger>
             <TabsTrigger value="clone" data-testid="reconnect-session-tab-clone">
-              Clone
+              {L("Clone")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="reconnect" className="flex flex-col gap-4">

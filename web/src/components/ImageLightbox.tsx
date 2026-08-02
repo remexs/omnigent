@@ -63,7 +63,7 @@ export function ZoomableImage({ src, alt, className, ...imgProps }: ZoomableImag
   return (
     <button
       type="button"
-      aria-label={alt ? `Zoom image: ${alt}` : "Zoom image"}
+      aria-label={alt ? `Zoom image: ${alt}` : L("Zoom image")}
       className="m-0 inline-flex max-w-full cursor-zoom-in appearance-none border-0 bg-transparent p-0 leading-none"
       onClick={() => {
         if (src) open({ src, alt });
@@ -241,7 +241,7 @@ export function ImageLightboxProvider({ children }: { children: React.ReactNode 
             onInteractOutside={(e) => e.preventDefault()}
           >
             <DialogPrimitive.Title className="sr-only">
-              {image?.alt || "Image preview"}
+              {image?.alt || L("Image preview")}
             </DialogPrimitive.Title>
             {/* key by src so zoom/pan state resets when a new image opens. */}
             {image && <ZoomViewer key={image.src} image={image} />}

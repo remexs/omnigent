@@ -113,7 +113,7 @@ export function MembersPage() {
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
         <h1 className="mb-2 text-2xl font-semibold">{L("Members")}</h1>
         <p className="text-sm text-muted-foreground">
-          Member management is not available in single-user mode.
+          {L("Member management is not available in single-user mode.")}
         </p>
       </PageScroll>
     );
@@ -127,7 +127,7 @@ export function MembersPage() {
   if (meIsAdmin === null) {
     return (
       <div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
-        Loading…
+        {L("Loading…")}
       </div>
     );
   }
@@ -138,7 +138,7 @@ export function MembersPage() {
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
         <h1 className="mb-2 text-2xl font-semibold">{L("Members")}</h1>
         <p className="text-sm text-muted-foreground">
-          You don't have permission to manage members.
+          {L("You don't have permission to manage members.")}
         </p>
       </PageScroll>
     );
@@ -195,15 +195,16 @@ export function MembersPage() {
         there's nothing to invite here. */}
         {manageable && (
           <Button onClick={() => setShowCreateInvite(true)}>
-            <UserPlusIcon /> Invite member
+            <UserPlusIcon /> {L("Invite member")}
           </Button>
         )}
       </div>
 
       {!manageable && (
         <p className="mb-4 text-sm text-muted-foreground">
-          Users are provisioned automatically on first sign-in through your identity provider. This
-          list is read-only.
+          {L(
+            "Users are provisioned automatically on first sign-in through your identity provider. This\n          list is read-only.",
+          )}
         </p>
       )}
 
@@ -237,7 +238,7 @@ export function MembersPage() {
                     )}
                     {!u.has_password && (
                       <Badge variant="outline" className="ml-2">
-                        External
+                        {L("External")}
                       </Badge>
                     )}
                   </td>
@@ -261,7 +262,7 @@ export function MembersPage() {
                           onClick={() => void onResetPassword(u.id)}
                           disabled={pendingAction || !u.has_password}
                         >
-                          <KeyRoundIcon /> Reset
+                          <KeyRoundIcon /> {L("Reset")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -270,7 +271,7 @@ export function MembersPage() {
                           onClick={() => setDeleteCandidate(u.id)}
                           disabled={pendingAction || u.id === meId}
                         >
-                          <Trash2Icon /> Remove
+                          <Trash2Icon /> {L("Remove")}
                         </Button>
                       </div>
                     </td>
@@ -288,7 +289,7 @@ export function MembersPage() {
 
       <div className="mt-3 flex items-center justify-end">
         <Button variant="ghost" size="sm" onClick={() => void refresh()}>
-          <RefreshCwIcon /> Refresh
+          <RefreshCwIcon /> {L("Refresh")}
         </Button>
       </div>
 
@@ -316,7 +317,7 @@ export function MembersPage() {
               onChange={(e) => setInviteAsAdmin(e.target.checked)}
               disabled={pendingAction}
             />
-            Grant admin privileges
+            {L("Grant admin privileges")}
           </label>
           {actionError !== null && (
             <div
@@ -332,10 +333,10 @@ export function MembersPage() {
               onClick={() => setShowCreateInvite(false)}
               disabled={pendingAction}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button onClick={() => void onCreateInvite()} disabled={pendingAction}>
-              {pendingAction ? "Creating…" : "Create invite"}
+              {pendingAction ? L("Creating…") : L("Create invite")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -353,8 +354,10 @@ export function MembersPage() {
             <DialogTitle>{L("Invite URL")}</DialogTitle>
             <DialogDescription>
               {L("Send this URL to the new member. It expires in")}
-              {formatTtl(inviteResult?.expires_at)} and is single-use — once they redeem it, it
-              can't be used again. This URL is shown only once.
+              {formatTtl(inviteResult?.expires_at)}{" "}
+              {L(
+                "and is single-use — once they redeem it, it\n              can't be used again. This URL is shown only once.",
+              )}
             </DialogDescription>
           </DialogHeader>
           {inviteResult !== null && <CopyableValue value={rebaseUrl(inviteResult.register_url)} />}
@@ -425,14 +428,14 @@ export function MembersPage() {
               onClick={() => setDeleteCandidate(null)}
               disabled={pendingAction}
             >
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => void onConfirmDelete()}
               disabled={pendingAction}
             >
-              {pendingAction ? "Removing…" : "Remove"}
+              {pendingAction ? L("Removing…") : "Remove"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -468,7 +471,7 @@ function CopyableValue({ value }: { value: string }) {
         onFocus={(e) => e.currentTarget.select()}
       />
       <Button variant="outline" size="sm" onClick={() => void onCopy()} aria-label={L("Copy")}>
-        <CopyIcon /> {copied ? "Copied" : "Copy"}
+        <CopyIcon /> {copied ? L("Copied") : "Copy"}
       </Button>
     </div>
   );

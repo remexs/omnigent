@@ -253,15 +253,15 @@ function Section({
 }
 
 const themeCards: { mode: ThemeMode; label: string; icon: typeof SunIcon }[] = [
-  { mode: "system", label: "System", icon: LaptopMinimalIcon },
-  { mode: "light", label: "Light", icon: SunIcon },
-  { mode: "dark", label: "Dark", icon: MoonIcon },
+  { mode: "system", label: L("System"), icon: LaptopMinimalIcon },
+  { mode: "light", label: L("Light"), icon: SunIcon },
+  { mode: "dark", label: L("Dark"), icon: MoonIcon },
 ];
 
 const terminalThemeCards: { mode: TerminalThemeMode; label: string; icon: typeof SunIcon }[] = [
-  { mode: "auto", label: "Match app", icon: MonitorIcon },
-  { mode: "light", label: "Light", icon: SunIcon },
-  { mode: "dark", label: "Dark", icon: MoonIcon },
+  { mode: "auto", label: L("Match app"), icon: MonitorIcon },
+  { mode: "light", label: L("Light"), icon: SunIcon },
+  { mode: "dark", label: L("Dark"), icon: MoonIcon },
 ];
 
 const workspacePanelCards: {
@@ -269,8 +269,8 @@ const workspacePanelCards: {
   label: string;
   icon: typeof PanelRightIcon;
 }[] = [
-  { value: "open", label: "Open", icon: PanelRightIcon },
-  { value: "collapsed", label: "Collapsed", icon: PanelRightCloseIcon },
+  { value: "open", label: L("Open"), icon: PanelRightIcon },
+  { value: "collapsed", label: L("Collapsed"), icon: PanelRightCloseIcon },
 ];
 
 /**
@@ -473,7 +473,7 @@ function ModeControl() {
     <ThemeSubsection
       labelId={labelId}
       title={L("Mode")}
-      helper="Follow your system, or force light or dark."
+      helper={L("Follow your system, or force light or dark.")}
     >
       <CardRadioGroup<ThemeMode>
         labelledBy={labelId}
@@ -508,7 +508,7 @@ function TerminalThemeControl() {
     <ThemeSubsection
       labelId={labelId}
       title={L("Terminal theme")}
-      helper="Use a light or dark terminal, or match the app."
+      helper={L("Use a light or dark terminal, or match the app.")}
     >
       <CardRadioGroup<TerminalThemeMode>
         labelledBy={labelId}
@@ -542,7 +542,9 @@ function WorkspacePanelDefaultControl() {
     <ThemeSubsection
       labelId={labelId}
       title={L("Workspace panel")}
-      helper="Whether new chats open with the Files / Agents / Shells panel visible. Existing chats keep their last layout."
+      helper={L(
+        "Whether new chats open with the Files / Agents / Shells panel visible. Existing chats keep their last layout.",
+      )}
     >
       <CardRadioGroup<WorkspacePanelDefault>
         labelledBy={labelId}
@@ -609,7 +611,7 @@ function ColorThemeControl() {
   const selected =
     selection === "custom"
       ? {
-          label: "Custom",
+          label: L("Custom"),
           light: customSwatches.light,
           dark: customSwatches.dark,
         }
@@ -619,7 +621,7 @@ function ColorThemeControl() {
     <ThemeSubsection
       labelId={labelId}
       title={L("Color theme")}
-      helper="Choose a preset, then tune it across light and dark mode."
+      helper={L("Choose a preset, then tune it across light and dark mode.")}
     >
       <div className="overflow-hidden rounded-xl border bg-card/55 shadow-xs">
         <div className="flex flex-col gap-3 border-b bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -631,8 +633,10 @@ function ColorThemeControl() {
               <div className="text-sm font-medium">{L("Theme palette")}</div>
               <div className="truncate text-xs text-muted-foreground">
                 {selection === "custom"
-                  ? `Based on ${PALETTES.find((palette) => palette.id === customTheme.basePalette)?.label ?? "Omnigent"}`
-                  : selectedPalette?.blurb}
+                  ? `Based on ${PALETTES.find((palette) => palette.id === customTheme.basePalette)?.label ?? L("Omnigent")}`
+                  : selectedPalette?.blurb
+                    ? L(selectedPalette.blurb)
+                    : null}
               </div>
             </div>
           </div>
@@ -660,7 +664,7 @@ function ColorThemeControl() {
                   data-testid={`palette-${palette.id}`}
                 >
                   <PaletteChip swatch={isDark ? palette.dark : palette.light} />
-                  <span>{palette.label}</span>
+                  <span>{L(palette.label)}</span>
                 </SelectItem>
               ))}
               <SelectItem value="custom" data-testid="palette-custom">
@@ -688,7 +692,7 @@ function ColorThemeControl() {
             <div>
               <div className="text-sm font-medium">{L("Contrast")}</div>
               <div className="text-xs text-muted-foreground">
-                Separates text, borders, and surfaces.
+                {L("Separates text, borders, and surfaces.")}
               </div>
             </div>
             <div className="flex w-52 items-center gap-3">
@@ -716,7 +720,7 @@ function ColorThemeControl() {
             <div>
               <div className="text-sm font-medium">{L("Translucent sidebars")}</div>
               <div className="text-xs text-muted-foreground">
-                Lets the canvas show through the conversation and workspace rails.
+                {L("Lets the canvas show through the conversation and workspace rails.")}
               </div>
             </div>
             <Switch
@@ -793,11 +797,12 @@ function HideUnconfiguredHarnessesControl() {
     <div className="flex items-start justify-between gap-6">
       <div className="flex flex-col">
         <span id={labelId} className="text-sm font-medium">
-          Hide unconfigured harnesses
+          {L("Hide unconfigured harnesses")}
         </span>
         <span className="text-sm text-muted-foreground">
-          Only show harnesses that are set up on the selected host in the new-chat picker. Harnesses
-          needing a CLI install or sign-in are hidden instead of badged.
+          {L(
+            "Only show harnesses that are set up on the selected host in the new-chat picker. Harnesses needing a CLI install or sign-in are hidden instead of badged.",
+          )}
         </span>
       </div>
       <Switch
@@ -848,7 +853,7 @@ function LanguageSetting() {
           onClick={() => change("en")}
           data-testid="language-en"
         >
-          English
+          {L("English")}
         </Button>
       </div>
     </div>
@@ -929,7 +934,7 @@ function AppearanceSection() {
           <div className="flex flex-col gap-3">
             <span className="text-sm font-medium">{L("Theme")}</span>
             <p className="text-sm text-muted-foreground">
-              Theme is controlled by the host application.
+              {L("Theme is controlled by the host application.")}
             </p>
           </div>
         ) : (
@@ -961,20 +966,20 @@ function AppearanceSection() {
         <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" data-testid="reset-appearance-button">
-              Reset to defaults
+              {L("Reset to defaults")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{L("Reset appearance?")}</DialogTitle>
               <DialogDescription>
-                This will reset every appearance choice back to its default.
+                {L("This will reset every appearance choice back to its default.")}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline" size="sm">
-                  Cancel
+                  {L("Cancel")}
                 </Button>
               </DialogClose>
               <Button
@@ -983,7 +988,7 @@ function AppearanceSection() {
                 onClick={confirmResetAppearance}
                 data-testid="reset-appearance-confirm"
               >
-                Reset
+                {L("Reset")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1023,7 +1028,9 @@ function DefaultBaseBranchControl() {
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="text-sm font-medium">{L("Default base branch")}</span>
         <span className="text-sm text-muted-foreground">
-          Auto-filled as the base when you name a new worktree branch. Leave blank to not auto-fill.
+          {L(
+            "Auto-filled as the base when you name a new worktree branch. Leave blank to not auto-fill.",
+          )}
         </span>
       </div>
       <Input
@@ -1095,7 +1102,7 @@ function UiFontSizeControl() {
       <div className="flex flex-col">
         <span className="text-sm font-medium">{L("Interface font size")}</span>
         <span className="text-sm text-muted-foreground">
-          Scale text and spacing across the rest of the interface.
+          {L("Scale text and spacing across the rest of the interface.")}
         </span>
       </div>
       {/* One cohesive pill: [ −  | value px |  + ]. Segments share the pill
@@ -1174,7 +1181,7 @@ function UiFontFamilyControl() {
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="text-sm font-medium">{L("Font family")}</span>
         <span className="text-sm text-muted-foreground">
-          Use any font installed on this device. Leave blank for the system default.
+          {L("Use any font installed on this device. Leave blank for the system default.")}
         </span>
       </div>
       {/* Reset sits left of the input so the input is the rightmost element and
@@ -1190,7 +1197,7 @@ function UiFontFamilyControl() {
           className={cn("h-9", isDefault && "invisible")}
           onClick={() => update(UI_FONT_FAMILY_DEFAULT)}
         >
-          Reset
+          {L("Reset")}
         </Button>
         <Input
           type="text"
@@ -1259,7 +1266,7 @@ function UiCodeFontSizeControl() {
       <div className="flex flex-col">
         <span className="text-sm font-medium">{L("Code font size")}</span>
         <span className="text-sm text-muted-foreground">
-          Size of code in the editor and terminal.
+          {L("Size of code in the editor and terminal.")}
         </span>
       </div>
       {/* One cohesive pill: [ −  | value px |  + ] — same shell as the UI
@@ -1332,7 +1339,7 @@ function UiCodeFontFamilyControl() {
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="text-sm font-medium">{L("Code font family")}</span>
         <span className="text-sm text-muted-foreground">
-          Font for the code editor and terminal. Leave blank for the default.
+          {L("Font for the code editor and terminal. Leave blank for the default.")}
         </span>
       </div>
       {/* Reset sits left of the input so the input's right edge lines up flush
@@ -1352,7 +1359,7 @@ function UiCodeFontFamilyControl() {
           className={cn("h-9", isDefault && "invisible")}
           onClick={() => update(CODE_FONT_FAMILY_DEFAULT)}
         >
-          Reset
+          {L("Reset")}
         </Button>
         <Input
           type="text"
@@ -1466,14 +1473,14 @@ function LocalCliSection() {
             <span>
               {status.installed
                 ? `Found${status.version ? ` · ${status.version}` : ""}`
-                : "Not found"}
+                : L("Not found")}
             </span>
           </div>
 
           {status.path ? (
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {status.source === "configured" ? "Path (custom)" : "Path (auto-detected)"}
+                {status.source === "configured" ? L("Path (custom)") : L("Path (auto-detected)")}
               </span>
               <code className="block overflow-x-auto rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
                 {status.path}
@@ -1482,8 +1489,9 @@ function LocalCliSection() {
           ) : (
             <div className="flex flex-col gap-2">
               <p className="text-sm text-muted-foreground">
-                The Omnigent CLI wasn't found. Install it, then set its path from the connect
-                screen:
+                {L(
+                  "The Omnigent CLI wasn't found. Install it, then set its path from the connect\n                screen:",
+                )}
               </p>
               {status.installCommand && (
                 <code className="block overflow-x-auto rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
@@ -1502,7 +1510,7 @@ function LocalCliSection() {
           {status.source === "configured" && (
             <div>
               <Button variant="ghost" size="sm" disabled={busy} onClick={() => void onReset()}>
-                Reset to auto-detected
+                {L("Reset to auto-detected")}
               </Button>
             </div>
           )}
@@ -1543,7 +1551,7 @@ function UpdatesSection() {
       });
     const unsubscribe = bridge.onStatus((status) => {
       if (status.state === "error-security") {
-        setLastCheckError(status.lastError ?? "Security verification failed.");
+        setLastCheckError(status.lastError ?? L("Security verification failed."));
       } else if (status.state === "idle" && status.lastError) {
         setLastCheckError(status.lastError);
       } else if (
@@ -1630,7 +1638,7 @@ function UpdatesSection() {
                 {L("Install downloaded updates on next quit")}
               </span>
               <span className="text-xs text-muted-foreground">
-                Applies only after you choose to download an update.
+                {L("Applies only after you choose to download an update.")}
               </span>
             </div>
             <Switch
@@ -1643,7 +1651,7 @@ function UpdatesSection() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Button onClick={() => void onCheck()} loading={checking}>
-              Check for updates now
+              {L("Check for updates now")}
             </Button>
             {saving && <span className="text-xs text-muted-foreground">{L("Saving…")}</span>}
           </div>
@@ -1771,7 +1779,7 @@ function AccountSection() {
                 setPwOpen(true);
               }}
             >
-              <KeyRoundIcon className="size-4" /> Change password
+              <KeyRoundIcon className="size-4" /> {L("Change password")}
             </Button>
           )}
           <Button
@@ -1779,7 +1787,7 @@ function AccountSection() {
             className="w-full justify-start gap-2"
             onClick={() => void onSignOut()}
           >
-            <LogOutIcon className="size-4" /> Sign out
+            <LogOutIcon className="size-4" /> {L("Sign out")}
           </Button>
         </div>
       </div>
@@ -1796,8 +1804,8 @@ function AccountSection() {
             <DialogTitle>{L("Change password")}</DialogTitle>
             <DialogDescription>
               {pwDone
-                ? "Your password has been changed."
-                : "Enter your current password and choose a new one."}
+                ? L("Your password has been changed.")
+                : L("Enter your current password and choose a new one.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -1851,7 +1859,7 @@ function AccountSection() {
                     pwBusy || oldPw.length === 0 || newPw.length === 0 || confirmPw.length === 0
                   }
                 >
-                  {pwBusy ? "Changing…" : "Change password"}
+                  {pwBusy ? L("Changing…") : L("Change password")}
                 </Button>
               </DialogFooter>
             </form>
@@ -1970,7 +1978,7 @@ function ArchivedSection() {
       {items.length > 0 && (
         <div className="mb-4 flex items-center gap-2">
           <label htmlFor="archived-project-filter" className="text-sm text-muted-foreground">
-            Project
+            {L("Project")}
           </label>
           <Select
             value={projectToSelectValue(project)}
@@ -2006,7 +2014,7 @@ function ArchivedSection() {
         // Definitive empty only when there are no archived rows AND no further
         // pages to fetch.
         <p className="text-sm text-muted-foreground">
-          {project ? "No archived sessions in this project." : "No archived sessions."}
+          {project ? L("No archived sessions in this project.") : L("No archived sessions.")}
         </p>
       ) : (
         <>
@@ -2033,8 +2041,8 @@ function ArchivedSection() {
             // forward instead of dead-ending on the definitive empty state.
             <p className="text-sm text-muted-foreground">
               {project
-                ? "No archived sessions in this project on this page."
-                : "No archived sessions on this page."}
+                ? L("No archived sessions in this project on this page.")
+                : L("No archived sessions on this page.")}
             </p>
           )}
           {/* Keep the pager visible whenever more pages exist, independent of the
@@ -2050,7 +2058,7 @@ function ArchivedSection() {
                 disabled={listQuery.isFetchingNextPage}
                 onClick={() => void listQuery.fetchNextPage()}
               >
-                {listQuery.isFetchingNextPage ? "Loading…" : "Load more"}
+                {listQuery.isFetchingNextPage ? L("Loading…") : L("Load more")}
               </Button>
             </div>
           )}
@@ -2111,7 +2119,7 @@ function ArchivedRow({ conversation }: { conversation: Conversation }) {
           onClick={() => archive.mutate({ id: conversation.id, archived: false })}
         >
           <ArchiveRestoreIcon className="size-3.5" />
-          Unarchive
+          {L("Unarchive")}
         </Button>
       </div>
 
@@ -2120,13 +2128,13 @@ function ArchivedRow({ conversation }: { conversation: Conversation }) {
           <DialogHeader>
             <DialogTitle>{L("Delete session?")}</DialogTitle>
             <DialogDescription>
-              <span className="font-medium break-all">{label}</span> and all of its history will be
-              removed. This cannot be undone.
+              <span className="font-medium break-all">{label}</span>{" "}
+              {L("and all of its history will be\n              removed. This cannot be undone.")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteOpen(false)} disabled={del.isPending}>
-              Cancel
+              {L("Cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -2138,7 +2146,7 @@ function ArchivedRow({ conversation }: { conversation: Conversation }) {
                 setDeleteOpen(false);
               }}
             >
-              Delete
+              {L("Delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

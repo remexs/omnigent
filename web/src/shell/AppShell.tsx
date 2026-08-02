@@ -412,8 +412,8 @@ export function AppShell() {
   const shareDisabledReason = !shareDisabled
     ? undefined
     : isCurrentServerLocal()
-      ? "Sharing is unavailable from a local server."
-      : "Sharing has been disabled for this Omnigent server.";
+      ? L("Sharing is unavailable from a local server.")
+      : L("Sharing has been disabled for this Omnigent server.");
   // Any viewer can fork a shared session; top-level only (the server
   // rejects forking a sub-agent). Surfaced as ForkDialogContext.canFork —
   // the per-message "Fork from here" action is the only fork entry point.
@@ -1629,7 +1629,7 @@ export function AppShell() {
                 <DialogHeader>
                   <DialogTitle>{L("Agent")}</DialogTitle>
                   <DialogDescription className="sr-only">
-                    Tools and policies configured for the active agent.
+                    {L("Tools and policies configured for the active agent.")}
                   </DialogDescription>
                 </DialogHeader>
                 <AgentInfoContent agent={boundAgent} sessionId={conversationId} />

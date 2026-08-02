@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { L } from "@/i18n";
 
 /**
  * Code box with a copy-to-clipboard button — used by every "go run
@@ -59,7 +60,7 @@ export function CliCommandBlock({
         type="button"
         variant="ghost"
         size="icon-sm"
-        aria-label={copied ? "Copied" : "Copy command"}
+        aria-label={copied ? L("Copied") : L("Copy command")}
         data-testid={`${testIdPrefix}-copy`}
         onClick={copyCommand}
         className="shrink-0"

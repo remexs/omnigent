@@ -181,7 +181,7 @@ export function SmartRoutingCard({ arguments: args, output, state }: SmartRoutin
           </Shimmer>
         ) : (
           <span className="text-muted-foreground">
-            {failed ? "· unavailable" : `· sized ${recommendations!.size} ${taskNoun}`}
+            {failed ? L("· unavailable") : `· sized ${recommendations!.size} ${taskNoun}`}
           </span>
         )}
         {prettyOutput !== null && (
@@ -196,7 +196,7 @@ export function SmartRoutingCard({ arguments: args, output, state }: SmartRoutin
       </div>
       {failed ? (
         <p className="text-xs text-muted-foreground" data-testid="smart-routing-error">
-          {output ?? "No routing decision was recorded for this fan-out."}
+          {output ?? L("No routing decision was recorded for this fan-out.")}
         </p>
       ) : (
         tasks.map((task, i) => {

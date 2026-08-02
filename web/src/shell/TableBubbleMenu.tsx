@@ -689,7 +689,7 @@ export function TableHandles({
   const buildRowItems = (h: HandlePos): MenuItemDef[] => [
     {
       id: "insert-row-above",
-      label: "Insert row above",
+      label: L("Insert row above"),
       icon: <span className="text-[10px] font-bold">↑</span>,
       onClick: () => {
         setCursorToCell(editor, h.rowIndex, 0);
@@ -698,7 +698,7 @@ export function TableHandles({
     },
     {
       id: "insert-row-below",
-      label: "Insert row below",
+      label: L("Insert row below"),
       icon: <span className="text-[10px] font-bold">↓</span>,
       onClick: () => {
         setCursorToCell(editor, h.rowIndex, 0);
@@ -708,7 +708,7 @@ export function TableHandles({
     { id: "row-actions-separator", separator: true },
     {
       id: "delete-row",
-      label: "Delete row",
+      label: L("Delete row"),
       icon: <Trash2 className="size-3.5" />,
       destructive: true,
       onClick: () => {
@@ -722,7 +722,7 @@ export function TableHandles({
   const buildColItems = (h: HandlePos): MenuItemDef[] => [
     {
       id: "insert-column-before",
-      label: "Insert column before",
+      label: L("Insert column before"),
       icon: <span className="text-[10px] font-bold">←</span>,
       onClick: () => {
         setCursorToCell(editor, h.rowIndex, h.colIndex);
@@ -731,7 +731,7 @@ export function TableHandles({
     },
     {
       id: "insert-column-after",
-      label: "Insert column after",
+      label: L("Insert column after"),
       icon: <span className="text-[10px] font-bold">→</span>,
       onClick: () => {
         setCursorToCell(editor, h.rowIndex, h.colIndex);
@@ -741,7 +741,7 @@ export function TableHandles({
     { id: "column-actions-separator", separator: true },
     {
       id: "delete-column",
-      label: "Delete column",
+      label: L("Delete column"),
       icon: <Trash2 className="size-3.5" />,
       destructive: true,
       onClick: () => {
@@ -982,7 +982,7 @@ export function TableHandles({
           items={[
             {
               id: "delete-table",
-              label: "Delete table",
+              label: L("Delete table"),
               icon: <Trash2 className="size-3.5" />,
               destructive: true,
               onClick: () => {

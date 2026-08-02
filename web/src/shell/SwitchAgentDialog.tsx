@@ -133,7 +133,7 @@ export function SwitchAgentDialog({
       await queryClient.invalidateQueries({ queryKey: ["conversations"] });
       handleOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't switch the agent. Try again.");
+      setError(e instanceof Error ? e.message : L("Couldn't switch the agent. Try again."));
     } finally {
       setSubmitting(false);
     }
@@ -155,7 +155,7 @@ export function SwitchAgentDialog({
             htmlFor="switch-agent-select"
             className="text-xs font-medium text-muted-foreground"
           >
-            Agent
+            {L("Agent")}
           </label>
           <Select value={agentChoice || undefined} onValueChange={setAgentChoice}>
             <SelectTrigger
@@ -206,14 +206,14 @@ export function SwitchAgentDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => handleOpenChange(false)} disabled={submitting}>
-            Cancel
+            {L("Cancel")}
           </Button>
           <Button
             data-testid="switch-agent-submit"
             onClick={handleSwitch}
             disabled={submitting || agentChoice === NONE_CHOSEN}
           >
-            {submitting ? "Switching…" : "Switch"}
+            {submitting ? L("Switching…") : L("Switch")}
           </Button>
         </DialogFooter>
       </DialogContent>

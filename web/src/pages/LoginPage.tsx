@@ -73,9 +73,9 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(
     magicError === "expired"
-      ? "That sign-in link has expired. Enter your password to sign in."
+      ? L("That sign-in link has expired. Enter your password to sign in.")
       : magicError === "missing"
-        ? "That sign-in link is no longer valid. Enter your password to sign in."
+        ? L("That sign-in link is no longer valid. Enter your password to sign in.")
         : null,
   );
 
@@ -150,7 +150,7 @@ export function LoginPage() {
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="login-username" className="text-sm font-medium leading-none">
-              Username
+              {L("Username")}
             </label>
             <Input
               id="login-username"
@@ -169,7 +169,7 @@ export function LoginPage() {
 
           <div className="space-y-1.5">
             <label htmlFor="login-password" className="text-sm font-medium leading-none">
-              Password
+              {L("Password")}
             </label>
             <Input
               id="login-password"
@@ -192,7 +192,7 @@ export function LoginPage() {
           )}
 
           <Button type="submit" className="w-full" disabled={submitting || password.length === 0}>
-            {submitting ? "Signing in…" : "Sign in"}
+            {submitting ? L("Signing in…") : L("Sign in")}
           </Button>
         </form>
 
@@ -201,7 +201,7 @@ export function LoginPage() {
           auto-generated. A brand-new instance shows a Create-admin form instead of this one; the
           password can also be pre-seeded with{" "}
           <code className="rounded bg-muted px-1 py-0.5 font-mono">
-            OMNIGENT_ACCOUNTS_INIT_ADMIN_PASSWORD
+            {L("OMNIGENT_ACCOUNTS_INIT_ADMIN_PASSWORD")}
           </code>
           .
         </p>

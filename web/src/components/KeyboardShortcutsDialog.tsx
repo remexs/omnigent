@@ -38,12 +38,12 @@ const IS_MAC =
   /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent || "");
 
 /** Modifier label shown in menu hints (⌘ on macOS, Ctrl elsewhere). */
-export const MOD_KEY = IS_MAC ? "⌘" : "Ctrl";
+export const MOD_KEY = IS_MAC ? "⌘" : L("Ctrl");
 
 // Glyphs match the in-app tooltips (e.g. UserMessageNav's "⌘⌥↑").
 const ENTER = "↵";
 const SHIFT = "⇧";
-const ALT = IS_MAC ? "⌥" : "Alt";
+const ALT = IS_MAC ? "⌥" : L("Alt");
 const UP = "↑";
 const DOWN = "↓";
 
@@ -67,43 +67,43 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
   {
     title: "General",
     items: [
-      { label: "Open command palette", keys: [MOD_KEY, "K"] },
-      { label: "Show keyboard shortcuts", keys: [MOD_KEY, "/"] },
+      { label: L("Open command palette"), keys: [MOD_KEY, "K"] },
+      { label: L("Show keyboard shortcuts"), keys: [MOD_KEY, "/"] },
     ],
   },
   {
-    title: "In chats",
+    title: L("In chats"),
     items: [
-      { label: "Send message", keys: [ENTER] },
-      { label: "New line in message", keys: [SHIFT, ENTER] },
-      { label: "Recall previous prompt", keys: [UP] },
-      { label: "Recall next prompt", keys: [DOWN] },
-      { label: "Accept approval prompt", keys: [MOD_KEY, ENTER] },
-      { label: "Toggle voice dictation", keys: [MOD_KEY, ALT, "V"] },
-      { label: "Stop response", keys: ["Esc"] },
+      { label: L("Send message"), keys: [ENTER] },
+      { label: L("New line in message"), keys: [SHIFT, ENTER] },
+      { label: L("Recall previous prompt"), keys: [UP] },
+      { label: L("Recall next prompt"), keys: [DOWN] },
+      { label: L("Accept approval prompt"), keys: [MOD_KEY, ENTER] },
+      { label: L("Toggle voice dictation"), keys: [MOD_KEY, ALT, "V"] },
+      { label: L("Stop response"), keys: ["Esc"] },
     ],
   },
   {
-    title: "Navigation",
+    title: L("Navigation"),
     items: [
-      { label: "Previous session", keys: [MOD_KEY, UP] },
-      { label: "Next session", keys: [MOD_KEY, DOWN] },
+      { label: L("Previous session"), keys: [MOD_KEY, UP] },
+      { label: L("Next session"), keys: [MOD_KEY, DOWN] },
     ],
   },
   {
     title: "View",
     items: [
-      { label: "Toggle conversations sidebar", keys: [MOD_KEY, ALT, "["] },
-      { label: "Toggle workspace sidebar", keys: [MOD_KEY, ALT, "]"] },
+      { label: L("Toggle conversations sidebar"), keys: [MOD_KEY, ALT, "["] },
+      { label: L("Toggle workspace sidebar"), keys: [MOD_KEY, ALT, "]"] },
     ],
   },
   {
-    title: "Slash commands",
+    title: L("Slash commands"),
     note: "while the suggestions menu is open",
     items: [
-      { label: "Navigate suggestions", keys: [UP, DOWN] },
-      { label: "Apply highlighted command", keys: ["Tab"] },
-      { label: "Dismiss menu", keys: ["Esc"] },
+      { label: L("Navigate suggestions"), keys: [UP, DOWN] },
+      { label: L("Apply highlighted command"), keys: ["Tab"] },
+      { label: L("Dismiss menu"), keys: ["Esc"] },
     ],
   },
 ];
@@ -114,7 +114,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
 // native tab-switching. Shown in both, with the matching glyphs.
 function pinnedSessionShortcut(native: boolean): Shortcut {
   return {
-    label: "Jump to pinned session (1–10)",
+    label: L("Jump to pinned session (1–10)"),
     keys: native ? [MOD_KEY, "1…0"] : [MOD_KEY, ALT, "1…0"],
   };
 }
@@ -202,7 +202,7 @@ export function KeyboardShortcutsDialog() {
         <DialogHeader>
           <DialogTitle>{L("Keyboard shortcuts")}</DialogTitle>
           <DialogDescription className="sr-only">
-            The keyboard shortcuts available in the chat.
+            {L("The keyboard shortcuts available in the chat.")}
           </DialogDescription>
         </DialogHeader>
         <div className="max-h-[70vh] overflow-y-auto pr-1">

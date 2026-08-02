@@ -134,7 +134,11 @@ export function PreviewSearchBar({
         className="min-w-0 flex-1 bg-transparent text-xs outline-none"
       />
       <span className="shrink-0 text-xs text-muted-foreground">
-        {query.trim() ? (matchCount > 0 ? `${safeIndex + 1} / ${matchCount}` : "No results") : ""}
+        {query.trim()
+          ? matchCount > 0
+            ? `${safeIndex + 1} / ${matchCount}`
+            : L("No results")
+          : ""}
       </span>
       <button
         type="button"

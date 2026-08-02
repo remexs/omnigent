@@ -233,7 +233,7 @@ export function FlatFileList({
           className="cursor-pointer underline hover:text-foreground"
           onClick={onShowHidden}
         >
-          Click to show
+          {L("Click to show")}
         </button>
       </p>
     );
@@ -256,7 +256,7 @@ export function FlatFileList({
             className="cursor-pointer underline hover:text-foreground"
             onClick={onShowHidden}
           >
-            Click to show
+            {L("Click to show")}
           </button>
         </p>
       )}

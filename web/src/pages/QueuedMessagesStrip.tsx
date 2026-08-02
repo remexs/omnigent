@@ -106,7 +106,7 @@ function QueuedRow({
           onClick={() => onSteer(message.queueId)}
         >
           <CornerDownRightIcon className="size-3.5" aria-hidden="true" />
-          Steer
+          {L("Steer")}
         </button>
       ) : null}
       <button

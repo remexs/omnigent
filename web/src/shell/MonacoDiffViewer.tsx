@@ -28,6 +28,7 @@ import {
 import { useMonacoCommentLayer, type CodeEditorInstance } from "./useMonacoCommentLayer";
 import { attachEditorScrollRestore } from "./useScrollRestore";
 import "./monacoCodeEditor.css";
+import { L } from "@/i18n";
 
 interface MonacoDiffViewerProps {
   /** File content before this session (null = new file). */
@@ -210,12 +211,12 @@ export function MonacoDiffViewer({
       <div className="relative min-h-0 flex-1">
         {loadError && (
           <div className="flex items-center justify-center p-8 text-destructive text-sm">
-            Failed to load the diff.
+            {L("Failed to load the diff.")}
           </div>
         )}
         {!loadError && !ready && (
           <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
-            Loading diff…
+            {L("Loading diff…")}
           </div>
         )}
         {!loadError && ready && (

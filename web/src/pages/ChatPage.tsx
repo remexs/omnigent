@@ -1310,7 +1310,7 @@ function SelectionPopup({
         }}
       >
         <CornerUpLeftIcon className="size-3.5" />
-        Reply ↵
+        {L("Reply ↵")}
       </Button>
     </div>
   );
@@ -1742,7 +1742,7 @@ function MainAgentSurface({
                     <p className="text-muted-foreground text-base">
                       {agentsError
                         ? `Failed to load agents: ${agentsError instanceof Error ? agentsError.message : String(agentsError)}`
-                        : "Send a message to get started."}
+                        : L("Send a message to get started.")}
                     </p>
                   </div>
                 </ConversationEmptyState>
@@ -1902,7 +1902,7 @@ function HydratingPlaceholder() {
   return (
     <div className="flex flex-1 items-center justify-center gap-2 text-muted-foreground text-sm">
       <Loader2Icon className="size-4 animate-spin" />
-      Loading conversation…
+      {L("Loading conversation…")}
     </div>
   );
 }
@@ -1934,7 +1934,7 @@ function ConversationLoadError({
         </p>
         {/* Route to the home composer ("/"), which owns session creation. */}
         <Button type="button" variant="outline" onClick={() => navigate("/")}>
-          Start a new chat
+          {L("Start a new chat")}
         </Button>
       </div>
     </div>
@@ -2117,7 +2117,7 @@ function HistoryLoadingIndicator() {
       className="flex items-center justify-center gap-2 py-2 text-muted-foreground text-sm"
     >
       <Loader2Icon className="size-4 animate-spin" aria-hidden />
-      Loading earlier messages…
+      {L("Loading earlier messages…")}
     </div>
   );
 }
@@ -2577,7 +2577,7 @@ export function JumpToTopButton({
         ) : (
           <ArrowUpIcon className="size-3.5" aria-hidden />
         )}
-        {jumping ? "Loading history…" : "Jump to top"}
+        {jumping ? L("Loading history…") : L("Jump to top")}
       </Button>
     </div>
   );
@@ -2620,7 +2620,7 @@ export const WORKING_MESSAGES = [
 export function workingIndicatorLabel(bgCount: number, tick = 0): string {
   if (bgCount > 0) {
     return bgCount === 1
-      ? "1 background task still running"
+      ? L("1 background task still running")
       : `${bgCount} background tasks still running`;
   }
   return WORKING_MESSAGES[tick % WORKING_MESSAGES.length]!;
@@ -2785,8 +2785,8 @@ export function ConnectionIndicator({
         <WifiOffIcon className="size-3.5 shrink-0" />
         <span>
           {liveness.kind === "host_offline"
-            ? "Host is offline — click to reconnect"
-            : "Agent disconnected — click to reconnect"}
+            ? L("Host is offline — click to reconnect")
+            : L("Agent disconnected — click to reconnect")}
         </span>
       </button>
     );
@@ -2889,7 +2889,7 @@ export function RunnerStartingIndicator({ variant }: { variant: "hero" | "row" }
   if (sandboxLabel === undefined && !terminalSpinUp) {
     return null;
   }
-  const line = sandboxLabel !== undefined ? `${sandboxLabel}…` : "Starting up…";
+  const line = sandboxLabel !== undefined ? `${sandboxLabel}…` : L("Starting up…");
   // role=status + aria-live so assistive tech announces the transient wait;
   // the spinner glyph itself is decorative (aria-hidden).
   if (variant === "hero") {
@@ -2899,11 +2899,11 @@ export function RunnerStartingIndicator({ variant }: { variant: "hero" | "row" }
         role="status"
         aria-live="polite"
         icon={<Loader2Icon className="size-7 animate-spin" aria-hidden />}
-        title={sandboxLabel !== undefined ? `${sandboxLabel}…` : "Starting up…"}
+        title={sandboxLabel !== undefined ? `${sandboxLabel}…` : L("Starting up…")}
         description={
           sandboxLabel !== undefined
-            ? "Setting up your sandbox — this can take a minute."
-            : "This can take a few seconds."
+            ? L("Setting up your sandbox — this can take a minute.")
+            : L("This can take a few seconds.")
         }
       />
     );
@@ -3115,7 +3115,7 @@ function ConnectedTerminalFirstPill({
             aria-pressed={view === "terminal"}
             aria-label={L("Terminal")}
             disabled={!terminalsAvailable}
-            title={terminalStartingUp ? "Terminal is starting up…" : undefined}
+            title={terminalStartingUp ? L("Terminal is starting up…") : undefined}
             onClick={() => setView("terminal")}
             className={cn(
               "terminal-first-switcher-option flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50",
@@ -3164,7 +3164,7 @@ function CompactionLoadingIndicator() {
       <MessageContent>
         <div className="flex items-center gap-2 text-xs font-mono">
           <Shimmer as="span" duration={1.5}>
-            Compacting conversation…
+            {L("Compacting conversation…")}
           </Shimmer>
           {elapsed > 0 && <span className="text-muted-foreground">({elapsed}s)</span>}
         </div>
@@ -3757,7 +3757,7 @@ export function formatStatusModelLabel(
 function formatStatusEffortLabel(effort: string | null, raw = false): string | null {
   if (!effort) return null;
   if (raw) return effort;
-  return effort.toLowerCase() === "xhigh" ? "xHigh" : formatEffortLabel(effort);
+  return effort.toLowerCase() === "xhigh" ? L("xHigh") : formatEffortLabel(effort);
 }
 
 /**
@@ -4401,7 +4401,7 @@ export function Composer({
           .getState()
           .compact()
           .catch((err: unknown) => {
-            setCommandError(err instanceof Error ? err.message : "Compact failed");
+            setCommandError(err instanceof Error ? err.message : L("Compact failed"));
           });
         return true;
       case "/effort": {
@@ -4419,7 +4419,7 @@ export function Composer({
           .getState()
           .setEffort(level)
           .catch((err: unknown) => {
-            setCommandError(err instanceof Error ? err.message : "Failed to set effort");
+            setCommandError(err instanceof Error ? err.message : L("Failed to set effort"));
           });
         return true;
       }
@@ -4433,7 +4433,7 @@ export function Composer({
           const { sessionModelOverride, llmModel } = useChatStore.getState();
           const current = sessionModelOverride
             ? `${sessionModelOverride} (override)`
-            : (llmModel ?? "agent default");
+            : (llmModel ?? L("agent default"));
           setCommandError(`Model: ${current}\nUsage: /model <name> · /model default to reset`);
           return true;
         }
@@ -4450,7 +4450,7 @@ export function Composer({
           .getState()
           .setModel(clear ? null : target)
           .catch((err: unknown) => {
-            setCommandError(err instanceof Error ? err.message : "Failed to set model");
+            setCommandError(err instanceof Error ? err.message : L("Failed to set model"));
           });
         return true;
       }
@@ -4997,20 +4997,22 @@ export function Composer({
               readOnlyReason !== null
                 ? readOnlyReason
                 : isReadOnly
-                  ? "You have read-only access to this session"
+                  ? L("You have read-only access to this session")
                   : unreachable
-                    ? "Session offline — reconnect below to continue"
+                    ? L("Session offline — reconnect below to continue")
                     : hasPendingElicitation
-                      ? "Respond to the pending request above to continue"
+                      ? L("Respond to the pending request above to continue")
                       : disabled
-                        ? "Waiting for agents…"
+                        ? L("Waiting for agents…")
                         : isStreaming
-                          ? "Send a follow-up (queued) — Esc to stop"
+                          ? L("Send a follow-up (queued) — Esc to stop")
                           : sandboxAsleepHint
-                            ? "Current session's host is offline. Next message will resume the sandbox host which can take minutes"
+                            ? L(
+                                "Current session's host is offline. Next message will resume the sandbox host which can take minutes",
+                              )
                             : reconnectHint
-                              ? "Send a message to reconnect this session"
-                              : "Ask the agent anything…"
+                              ? L("Send a message to reconnect this session")
+                              : L("Ask the agent anything…")
             }
             rows={1}
             disabled={disabled || isReadOnly || unreachable || hasPendingElicitation}
@@ -5036,12 +5038,12 @@ export function Composer({
                 ) : (
                   <FileTextIcon className="size-3 shrink-0" />
                 )}
-                <span className="max-w-[140px] truncate">{file.name || "image.png"}</span>
+                <span className="max-w-[140px] truncate">{file.name || L("image.png")}</span>
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
                   className="ml-0.5 rounded-full hover:text-foreground"
-                  aria-label={`Remove ${file.name || "image.png"}`}
+                  aria-label={`Remove ${file.name || L("image.png")}`}
                 >
                   <XIcon className="size-3" />
                 </button>
@@ -5153,7 +5155,7 @@ export function Composer({
                     )}
                     disabled={isReadOnly || planModeBusy}
                     aria-pressed={codexPlanMode}
-                    aria-label={codexPlanMode ? "Exit Plan mode" : "Enter Plan mode"}
+                    aria-label={codexPlanMode ? L("Exit Plan mode") : L("Enter Plan mode")}
                     data-testid="codex-plan-mode-toggle"
                     data-active={codexPlanMode ? "true" : undefined}
                     onClick={() => void toggleCodexPlanMode()}
@@ -5167,7 +5169,7 @@ export function Composer({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {codexPlanMode ? "Exit Plan mode" : "Enter Plan mode"}
+                  {codexPlanMode ? L("Exit Plan mode") : L("Enter Plan mode")}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -5240,15 +5242,15 @@ export function Composer({
                   ? isReadOnly
                   : !hasDraft || disabled || isReadOnly || hasPendingElicitation
               }
-              title={showInterruptButton ? "Interrupt" : "Send"}
-              aria-label={showInterruptButton ? "Interrupt" : "Send"}
+              title={showInterruptButton ? L("Interrupt") : "Send"}
+              aria-label={showInterruptButton ? L("Interrupt") : "Send"}
             >
               {showInterruptButton ? (
                 <SquareIcon className="size-4 fill-current" />
               ) : (
                 <ArrowUpIcon className="size-4" />
               )}
-              <span className="sr-only">{showInterruptButton ? "Interrupt" : "Send"}</span>
+              <span className="sr-only">{showInterruptButton ? L("Interrupt") : "Send"}</span>
             </Button>
           </div>
         </div>
@@ -5756,7 +5758,9 @@ function SessionConfigModal({
             {harnessLabel ?? "session"}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Change how this session runs. Model, effort, and smart routing apply to the next turn.
+            {L(
+              "Change how this session runs. Model, effort, and smart routing apply to the next turn.",
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -5857,10 +5861,10 @@ function SessionConfigModal({
             onClick={() => onOpenChange(false)}
             data-testid="composer-config-cancel"
           >
-            Cancel
+            {L("Cancel")}
           </Button>
           <Button type="button" onClick={save} data-testid="composer-config-save">
-            Save
+            {L("Save")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -6005,9 +6009,12 @@ function useSessionConfigSummary({
   const routingOn = costRoutingEligible && costControlModeOverride === "on";
 
   const rows: { label: string; value: string }[] = [];
-  if (harnessLabel) rows.push({ label: "Harness", value: harnessLabel });
+  if (harnessLabel) rows.push({ label: L("Harness"), value: harnessLabel });
   if (showModels) {
-    rows.push({ label: "Model", value: routingOn ? "Smart Routing" : (modelLabel ?? "Default") });
+    rows.push({
+      label: "Model",
+      value: routingOn ? L("Smart Routing") : (modelLabel ?? "Default"),
+    });
   }
   // Suppress Effort while Smart Routing is on: the router picks the model and
   // its effort per turn, so a pinned effort doesn't apply and would mislead.
@@ -6018,7 +6025,7 @@ function useSessionConfigSummary({
   // Routable agents with no Model row surface Smart Routing as a standalone row;
   // those with a Model dropdown fold it into Model above (shown as the value).
   if (costRoutingEligible && !showModels && routingOn) {
-    rows.push({ label: "Smart Routing", value: "On" });
+    rows.push({ label: L("Smart Routing"), value: "On" });
   }
   return rows;
 }

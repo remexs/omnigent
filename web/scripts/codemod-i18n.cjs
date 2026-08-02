@@ -106,11 +106,15 @@ function processFile(file, dry) {
   }
 
   function visit(node) {
-    // 1. JSX text children.
+    // 1. JSX text children (single- or multi-line).
     if (ts.isJsxText(node)) {
       const raw = node.getText(sf);
       const text = raw.trim();
-      if (text && looksTranslatable(text) && !raw.includes("\n")) {
+      // Skip text that embeds expressions (JSX text nodes never do, but
+      // defensive: a stray brace/angle means we'd corrupt the tree). Only
+      // wrap clean English prose — no code-ish punctuation.
+      const safe = !/[{}<>?()[/\\=+*#@`]/.test(text);
+      if (text && safe && looksTranslatable(text)) {
         addEdit(node.getStart(sf), node.getEnd(), `{L("${escapeJsString(text)}")}`);
         stats.textNodes++;
       }

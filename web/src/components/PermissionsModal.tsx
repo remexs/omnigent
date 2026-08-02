@@ -153,12 +153,12 @@ export function PermissionsModal({
               {L("Sharing unavailable")}
             </DialogTitle>
             <DialogDescription>
-              Sharing has been disabled for this Omnigent server.
+              {L("Sharing has been disabled for this Omnigent server.")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Done
+              {L("Done")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -173,8 +173,8 @@ export function PermissionsModal({
           <DialogTitle className="flex items-center gap-2">{L("Share this session")}</DialogTitle>
           <DialogDescription>
             {sharingReadOnly
-              ? "This server allows read-only sharing — invite others to view this session."
-              : "Invite others to view or collaborate on this session."}
+              ? L("This server allows read-only sharing — invite others to view this session.")
+              : L("Invite others to view or collaborate on this session.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -206,10 +206,10 @@ export function PermissionsModal({
               {/* Column headers */}
               <div className="flex items-center gap-2 px-2 pb-0.5">
                 <span className="flex-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Name
+                  {L("Name")}
                 </span>
                 <span className="w-28 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Permission
+                  {L("Permission")}
                 </span>
                 <span className="size-7 shrink-0" aria-hidden="true" />
               </div>
@@ -234,13 +234,13 @@ export function PermissionsModal({
         <form onSubmit={handleGrant} className="flex items-end gap-2">
           <div className="flex-1">
             <label htmlFor="perm-user" className="text-xs font-medium text-muted-foreground">
-              User ID
+              {L("User ID")}
             </label>
             <AddUserField value={newUserId} onChange={setNewUserId} />
           </div>
           <div>
             <label htmlFor="perm-level" className="text-xs font-medium text-muted-foreground">
-              Level
+              {L("Level")}
             </label>
             <Select value={newLevel} onValueChange={setNewLevel}>
               <SelectTrigger className="mt-1 w-24">
@@ -258,13 +258,13 @@ export function PermissionsModal({
           </div>
           <Button type="submit" size="sm" disabled={!newUserId.trim() || grant.isPending}>
             <UserPlusIcon className="mr-1 size-3.5" />
-            Grant
+            {L("Grant")}
           </Button>
         </form>
 
         {canDelegateApprovals && !sharingReadOnly && (
           <p className="text-xs text-muted-foreground">
-            Approvers can authorize actions that use your session credentials.
+            {L("Approvers can authorize actions that use your session credentials.")}
           </p>
         )}
 
@@ -280,11 +280,11 @@ export function PermissionsModal({
               className="gap-1.5 text-primary"
             >
               <QrCodeIcon className="size-3.5" />
-              Open in mobile app
+              {L("Open in mobile app")}
             </Button>
           </div>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Done
+            {L("Done")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -521,7 +521,7 @@ function CopyLinkButton({ sessionId }: { sessionId: string }) {
   return (
     <Button variant="ghost" size="sm" onClick={handleCopy} className="gap-1.5 text-primary">
       {copied ? <CheckIcon className="size-3.5" /> : <LinkIcon className="size-3.5" />}
-      {copied ? "Copied!" : "Copy link"}
+      {copied ? L("Copied!") : L("Copy link")}
     </Button>
   );
 }
@@ -552,10 +552,10 @@ function QrCodeDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <QrCodeIcon className="size-4" />
-            Open in mobile app
+            {L("Open in mobile app")}
           </DialogTitle>
           <DialogDescription>
-            Scan with your phone's camera to open this session in the Omnigent app.
+            {L("Scan with your phone's camera to open this session in the Omnigent app.")}
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center">
@@ -574,7 +574,7 @@ function QrCodeDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {L("Close")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -49,7 +49,7 @@ export function ApprovePage() {
 
   useEffect(() => {
     if (!sessionId || !elicitationId) {
-      setState({ kind: "error", message: "Missing session or elicitation ID" });
+      setState({ kind: "error", message: L("Missing session or elicitation ID") });
       return;
     }
     let cancelled = false;
@@ -115,8 +115,9 @@ export function ApprovePage() {
         <Alert className="flex flex-col gap-2 border-muted py-4 px-5">
           <AlertTitle className="text-sm">{L("Elicitation resolved")}</AlertTitle>
           <AlertDescription className="text-xs">
-            This approval request is no longer pending. It may have been resolved, timed out, or
-            cancelled.
+            {L(
+              "This approval request is no longer pending. It may have been resolved, timed out, or\n            cancelled.",
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -134,12 +135,12 @@ export function ApprovePage() {
             {state.action === "accept" ? (
               <>
                 <CheckIcon className="size-4 text-success" />
-                Approved
+                {L("Approved")}
               </>
             ) : (
               <>
                 <XIcon className="size-4 text-destructive" />
-                Rejected
+                {L("Rejected")}
               </>
             )}
           </AlertTitle>
@@ -151,7 +152,7 @@ export function ApprovePage() {
         <Alert className="flex flex-col gap-3 py-4 px-5">
           <AlertTitle className="flex items-center gap-2 text-sm">
             <MessageCircleQuestionMark className="size-4 text-yellow-600 dark:text-yellow-400" />
-            Approval required
+            {L("Approval required")}
             {state.data.policy_name && (
               <span className="text-muted-foreground text-xs">· {state.data.policy_name}</span>
             )}
@@ -162,7 +163,9 @@ export function ApprovePage() {
           <AlertDescription className="flex flex-col gap-2">
             {state.data.can_approve === false && (
               <span className="text-xs text-muted-foreground" role="note">
-                Only the session owner or a delegated approver can approve. You can still reject.
+                {L(
+                  "Only the session owner or a delegated approver can approve. You can still reject.",
+                )}
               </span>
             )}
             <span>{state.data.message}</span>
@@ -178,11 +181,11 @@ export function ApprovePage() {
                 disabled={state.data.can_approve === false}
               >
                 <CheckIcon className="mr-1 size-3.5" />
-                Approve
+                {L("Approve")}
               </Button>
               <Button size="sm" variant="outline" onClick={() => void submit("decline")}>
                 <XIcon className="mr-1 size-3.5" />
-                Reject
+                {L("Reject")}
               </Button>
             </div>
           </AlertDescription>

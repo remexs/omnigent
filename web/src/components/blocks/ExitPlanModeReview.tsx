@@ -70,10 +70,10 @@ export function ExitPlanModeReview({
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => onReject(feedback)}>
               <XIcon className="mr-1 size-3.5" />
-              Reject plan
+              {L("Reject plan")}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setRejecting(false)}>
-              Cancel
+              {L("Cancel")}
             </Button>
           </div>
         </div>
@@ -81,15 +81,15 @@ export function ExitPlanModeReview({
         <div className="flex flex-wrap gap-2 pt-1">
           <Button size="sm" onClick={onAcceptAuto} disabled={!canApprove}>
             <ZapIcon className="mr-1 size-3.5" />
-            Yes, and use auto mode
+            {L("Yes, and use auto mode")}
           </Button>
           <Button size="sm" variant="outline" onClick={onAccept} disabled={!canApprove}>
             <CheckIcon className="mr-1 size-3.5" />
-            Yes, manually approve edits
+            {L("Yes, manually approve edits")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => setRejecting(true)}>
             <XIcon className="mr-1 size-3.5" />
-            Reject with feedback
+            {L("Reject with feedback")}
           </Button>
         </div>
       )}

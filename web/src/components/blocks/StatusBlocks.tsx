@@ -36,7 +36,7 @@ interface ErrorBannerProps {
  * panel even when the LLM error payload omits the message).
  */
 export function ErrorBanner({ message, source, code }: ErrorBannerProps) {
-  const display = message || code || "Unknown error";
+  const display = message || code || L("Unknown error");
   return (
     <Alert
       variant="destructive"
@@ -202,7 +202,7 @@ export function RoutingDecisionCard({
       <div className="flex items-center gap-1.5 text-xs">
         <BrainCircuitIcon className="size-3.5 shrink-0 text-muted-foreground" />
         <span className="font-medium">{L("Intelligent routing")}</span>
-        <span className="text-muted-foreground">{applied ? "· applied" : "· advisory"}</span>
+        <span className="text-muted-foreground">{applied ? L("· applied") : L("· advisory")}</span>
         <CollapsibleTrigger
           className="ml-auto cursor-pointer rounded p-0.5 text-muted-foreground hover:text-foreground"
           aria-label={L("Show raw routing verdict")}

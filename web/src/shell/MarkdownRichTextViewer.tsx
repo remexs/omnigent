@@ -497,7 +497,7 @@ function MarkdownRichTextViewerInner({
             className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             {isCopied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-            {isCopied ? "Copied!" : "Copy"}
+            {isCopied ? L("Copied!") : "Copy"}
           </button>
         )}
         <EditorContent
@@ -519,28 +519,28 @@ function MarkdownRichTextViewerInner({
             className="rounded px-2 py-0.5 font-medium hover:bg-muted transition-colors"
             onClick={dismissExternalUpdate}
           >
-            Keep mine
+            {L("Keep mine")}
           </button>
           <button
             type="button"
             className="rounded bg-primary px-2 py-0.5 font-medium text-primary-foreground hover:opacity-90 transition-opacity"
             onClick={discardAndApplyExternal}
           >
-            Load latest
+            {L("Load latest")}
           </button>
         </div>
       )}
       {canEdit && isDirty && !hasExternalUpdate && saveDisabled && (
         <div className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-1.5 border-t border-border bg-warning/10 px-4 py-1.5 text-xs text-foreground backdrop-blur-sm">
           <MessageSquareOffIcon className="size-3.5 shrink-0 text-warning" />
-          Runner offline — changes save and commenting resumes once it reconnects.
+          {L("Runner offline — changes save and commenting resumes once it reconnects.")}
         </div>
       )}
       {canEdit && isDirty && !hasExternalUpdate && !saveDisabled && (
         <div className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-1.5 border-t border-border bg-muted/50 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur-sm">
           <MessageSquareOffIcon className="size-3.5 shrink-0" />
-          {writeFile.isPending ? "Saving…" : "Unsaved changes —"} commenting is available once
-          saved.
+          {writeFile.isPending ? L("Saving…") : L("Unsaved changes —")}{" "}
+          {L("commenting is available once\n          saved.")}
         </div>
       )}
       <MarkdownCommentPlugin

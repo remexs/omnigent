@@ -15,7 +15,7 @@ export function NotFoundPage() {
       <div className="flex max-w-sm flex-col items-center gap-3 text-center">
         <h1 className="font-medium text-foreground text-lg">{L("Page not found")}</h1>
         <p className="text-muted-foreground text-sm">
-          The URL you followed doesn't match any route in this app.
+          {L("The URL you followed doesn't match any route in this app.")}
         </p>
         <Button asChild variant="outline">
           <Link to="/">{L("Back to home")}</Link>

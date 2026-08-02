@@ -40,10 +40,10 @@ import { L } from "@/i18n";
 // Presets only: "custom" is deferred (see file header) and is
 // deliberately absent from this list, so it's unreachable from the dropdown.
 const PRESET_OPTIONS: { value: SchedulePreset; label: string }[] = [
-  { value: "hourly", label: "Hourly" },
-  { value: "daily", label: "Daily" },
-  { value: "weekdays", label: "Weekdays" },
-  { value: "weekly", label: "Weekly" },
+  { value: "hourly", label: L("Hourly") },
+  { value: "daily", label: L("Daily") },
+  { value: "weekdays", label: L("Weekdays") },
+  { value: "weekly", label: L("Weekly") },
 ];
 
 const HOURS_12 = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -222,7 +222,7 @@ export function ScheduleFields({
         </div>
 
         <div className="flex w-full min-w-0 flex-col gap-1.5" data-testid="schedule-time-control">
-          <Label htmlFor="schedule-time">{isHourly ? "Minute" : "Time"}</Label>
+          <Label htmlFor="schedule-time">{isHourly ? L("Minute") : L("Time")}</Label>
           {isHourly ? (
             <Input
               ref={inputRef}
@@ -312,7 +312,7 @@ export function ScheduleFields({
                         selected={pickerParts.period === period}
                         onClick={() => applyPickerTime({ period })}
                       >
-                        {period}
+                        {L(period)}
                       </PickerCell>
                     ))}
                   </div>
@@ -380,7 +380,7 @@ function formatMinuteInput(minute: number): string {
 function formatTimeInput(hour: number, minute: number): string {
   if (!Number.isInteger(hour) || !Number.isInteger(minute)) return "";
   const parts = toPickerParts({ hour, minute });
-  return `${pad(parts.hour12)}:${pad(parts.minute)} ${parts.period}`;
+  return `${pad(parts.hour12)}:${pad(parts.minute)} ${L(parts.period)}`;
 }
 
 function toPickerParts(time: { hour: number; minute: number }): {
