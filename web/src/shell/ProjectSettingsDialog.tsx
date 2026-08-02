@@ -43,6 +43,7 @@ import type { ProjectConfig } from "@/lib/projectsApi";
 import { shouldGuardDialogDismiss } from "@/lib/dialogDismissGuard";
 import { AgentHarnessPicker } from "./NewChatDialog";
 import { isNavigablePath, WorkspacePicker } from "./WorkspacePicker";
+import { L } from "@/i18n";
 
 /** Select sentinel for "no default" — Radix Select can't hold an empty value. */
 const NONE = "__none__";
@@ -230,14 +231,14 @@ export function ProjectSettingsDialog({
         onInteractOutside={guardDialogDismiss}
       >
         <DialogHeader>
-          <DialogTitle>Project settings</DialogTitle>
+          <DialogTitle>{L("Project settings")}</DialogTitle>
           <DialogDescription>
-            Defaults for new sessions in <span className="font-medium">{projectName}</span>. Each is
+            {L("Defaults for new sessions in")}<span className="font-medium">{projectName}</span>. Each is
             a starting point you can change per session; leave a field blank for no default.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <Field label="Host" hint="Where new sessions run by default">
+          <Field label={L("Host")} hint={L("Where new sessions run by default")}>
             <Select
               value={hostId}
               onValueChange={setHostId}
@@ -245,10 +246,10 @@ export function ProjectSettingsDialog({
               disabled={isLoading}
             >
               <SelectTrigger className="w-full" data-testid="project-settings-host">
-                <SelectValue placeholder="No default" />
+                <SelectValue placeholder={L("No default")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>No default</SelectItem>
+                <SelectItem value={NONE}>{L("No default")}</SelectItem>
                 {managedSandboxesEnabled && (
                   <SelectItem value={SANDBOX_HOST_CHOICE}>
                     {sandboxOptionLabel(sandboxProvider)}
@@ -269,7 +270,7 @@ export function ProjectSettingsDialog({
           </Field>
 
           <Field
-            label="Working directory"
+            label={L("Working directory")}
             hint={
               hostId === NONE
                 ? "Pick a host first"
@@ -324,7 +325,7 @@ export function ProjectSettingsDialog({
                           click outside it. */}
                     <button
                       type="button"
-                      aria-label="Close directory browser"
+                      aria-label={L("Close directory browser")}
                       className="fixed inset-0 z-10 cursor-default"
                       onClick={() => setWorkspaceOpen(false)}
                     />
@@ -345,7 +346,7 @@ export function ProjectSettingsDialog({
                 id="project-settings-workspace"
                 data-testid="project-settings-workspace"
                 className="w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="/path/to/repo"
+                placeholder={L("/path/to/repo")}
                 value={workspace}
                 onChange={(e) => setWorkspace(e.target.value)}
                 disabled={isLoading}
@@ -354,8 +355,8 @@ export function ProjectSettingsDialog({
           </Field>
 
           <Field
-            label="Random worktree"
-            hint="Start each new session in a fresh randomly-named git worktree (vs. directly in the workspace)"
+            label={L("Random worktree")}
+            hint={L("Start each new session in a fresh randomly-named git worktree (vs. directly in the workspace)")}
           >
             <div className="flex sm:justify-end">
               <Switch
@@ -367,7 +368,7 @@ export function ProjectSettingsDialog({
             </div>
           </Field>
 
-          <Field label="Agent" hint="Default agent / harness for new sessions">
+          <Field label={L("Agent")} hint={L("Default agent / harness for new sessions")}>
             <div className="flex flex-col items-end gap-1" data-testid="project-settings-agent">
               <AgentHarnessPicker
                 agentEntries={agentEntries}

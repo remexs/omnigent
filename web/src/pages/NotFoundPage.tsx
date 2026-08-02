@@ -1,5 +1,6 @@
 import { Link } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
+import { L } from "@/i18n";
 
 /**
  * Generic 404 page for unmatched client routes. Reached via React
@@ -12,12 +13,12 @@ export function NotFoundPage() {
   return (
     <div className="flex flex-1 items-center justify-center px-6">
       <div className="flex max-w-sm flex-col items-center gap-3 text-center">
-        <h1 className="font-medium text-foreground text-lg">Page not found</h1>
+        <h1 className="font-medium text-foreground text-lg">{L("Page not found")}</h1>
         <p className="text-muted-foreground text-sm">
           The URL you followed doesn't match any route in this app.
         </p>
         <Button asChild variant="outline">
-          <Link to="/">Back to home</Link>
+          <Link to="/">{L("Back to home")}</Link>
         </Button>
       </div>
     </div>

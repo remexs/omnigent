@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCreateHostDirectory, useHostFilesystem } from "@/hooks/useHostFilesystem";
+import { L } from "@/i18n";
 
 /**
  * Join a directory path and a new child name into an absolute path.
@@ -462,8 +463,8 @@ export function WorkspacePicker({
           type="button"
           onClick={() => parent !== null && navigateTo(parent)}
           disabled={parent === null}
-          aria-label="Up one level"
-          title="Up one level"
+          aria-label={L("Up one level")}
+          title={L("Up one level")}
           className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30"
           data-testid="workspace-picker-up"
         >
@@ -472,8 +473,8 @@ export function WorkspacePicker({
         <button
           type="button"
           onClick={() => navigateTo("")}
-          aria-label="Home"
-          title="Home"
+          aria-label={L("Home")}
+          title={L("Home")}
           className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           data-testid="workspace-picker-home"
         >
@@ -515,8 +516,8 @@ export function WorkspacePicker({
           type="button"
           onClick={openNewFolder}
           disabled={!canCreateFolder}
-          aria-label="New folder"
-          title="New folder"
+          aria-label={L("New folder")}
+          title={L("New folder")}
           className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30"
           data-testid="workspace-picker-new-folder"
         >
@@ -540,8 +541,8 @@ export function WorkspacePicker({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
-            title="Close"
+            aria-label={L("Close")}
+            title={L("Close")}
             className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             data-testid="workspace-picker-close"
           >
@@ -575,7 +576,7 @@ export function WorkspacePicker({
                   cancelNewFolder();
                 }
               }}
-              placeholder="New folder name"
+              placeholder={L("New folder name")}
               spellCheck={false}
               autoCapitalize="off"
               autoCorrect="off"
@@ -586,8 +587,8 @@ export function WorkspacePicker({
               type="button"
               disabled={newFolderName.trim() === "" || createDir.isPending}
               onClick={() => void commitNewFolder()}
-              aria-label="Create folder"
-              title="Create folder"
+              aria-label={L("Create folder")}
+              title={L("Create folder")}
               className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30"
               data-testid="workspace-picker-new-folder-create"
             >
@@ -596,8 +597,8 @@ export function WorkspacePicker({
             <button
               type="button"
               onClick={cancelNewFolder}
-              aria-label="Cancel new folder"
-              title="Cancel"
+              aria-label={L("Cancel new folder")}
+              title={L("Cancel")}
               className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               data-testid="workspace-picker-new-folder-cancel"
             >
@@ -628,7 +629,7 @@ export function WorkspacePicker({
         </div>
       )}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {isLoading && <div className="px-3 py-3 text-xs text-muted-foreground">Loading…</div>}
+        {isLoading && <div className="px-3 py-3 text-xs text-muted-foreground">{L("Loading…")}</div>}
         {error !== null && error !== undefined && !isLoading && (
           <div className="px-3 py-3 text-xs text-destructive" data-testid="workspace-picker-error">
             {error instanceof Error ? error.message : "Failed to load directory"}

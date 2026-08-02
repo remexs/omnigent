@@ -27,6 +27,7 @@ import {
   SECURE_STREAMDOWN_REHYPE_PLUGINS,
   STREAMDOWN_PLUGINS,
 } from "./streamdown-security";
+import { L } from "@/i18n";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"];
@@ -239,7 +240,7 @@ export const MessageBranchPrevious = ({ children, ...props }: MessageBranchPrevi
 
   return (
     <Button
-      aria-label="Previous branch"
+      aria-label={L("Previous branch")}
       disabled={totalBranches <= 1}
       onClick={goToPrevious}
       size="icon-sm"
@@ -259,7 +260,7 @@ export const MessageBranchNext = ({ children, ...props }: MessageBranchNextProps
 
   return (
     <Button
-      aria-label="Next branch"
+      aria-label={L("Next branch")}
       disabled={totalBranches <= 1}
       onClick={goToNext}
       size="icon-sm"
@@ -366,11 +367,11 @@ function ChatCodeBlockCopyButton({ getCode }: { getCode: () => string }) {
 
   return (
     <Button
-      aria-label="Copy Code"
+      aria-label={L("Copy Code")}
       className={CODE_BLOCK_OVERLAY_BUTTON_CLASS}
       onClick={handleClick}
       size="icon-sm"
-      title="Copy Code"
+      title={L("Copy Code")}
       type="button"
       variant="ghost"
     >
@@ -382,7 +383,7 @@ function ChatCodeBlockCopyButton({ getCode }: { getCode: () => string }) {
 function ChatCodeBlockWrapToggle({ wrap, onToggle }: { wrap: boolean; onToggle: () => void }) {
   return (
     <Button
-      aria-label="Toggle word wrap"
+      aria-label={L("Toggle word wrap")}
       aria-pressed={wrap}
       // Brighten when active so the pressed state reads at a glance.
       className={cn(CODE_BLOCK_OVERLAY_BUTTON_CLASS, wrap && "text-foreground")}

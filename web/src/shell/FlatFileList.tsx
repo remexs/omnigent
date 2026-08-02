@@ -9,6 +9,7 @@ import { useCursorTooltip } from "./useCursorTooltip";
 
 export type { ChangedSort } from "@/lib/changedSort";
 import type { ChangedSort } from "@/lib/changedSort";
+import { L } from "@/i18n";
 
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf(".");
@@ -118,7 +119,7 @@ function FileListItem({
             )}
             {file.lines_added !== null && file.lines_removed !== null && " "}
             {file.lines_removed !== null && (
-              <span className="text-destructive">&minus;{file.lines_removed}</span>
+              <span className="text-destructive">{L("&minus;")}{file.lines_removed}</span>
             )}
           </span>
         )}
@@ -182,7 +183,7 @@ export function FlatFileList({
   runnerWentOffline?: boolean;
 }) {
   if (isLoading) {
-    return <p className="px-2 py-1 text-muted-foreground text-xs">Loading…</p>;
+    return <p className="px-2 py-1 text-muted-foreground text-xs">{L("Loading…")}</p>;
   }
   if (isError) {
     // Runner not connected. If it went offline after being up (host
@@ -191,16 +192,16 @@ export function FlatFileList({
     // state rather than alarm the user.
     if (error instanceof RunnerOfflineError) {
       if (runnerWentOffline) return <RunnerAsleepHint />;
-      return <p className="px-2 py-1 text-muted-foreground text-xs">No workspace changes yet</p>;
+      return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No workspace changes yet")}</p>;
     }
     return (
       <p className="px-2 py-1 text-destructive text-xs">
-        Failed to load: {error instanceof Error ? error.message : String(error)}
+        {L("Failed to load:")}{error instanceof Error ? error.message : String(error)}
       </p>
     );
   }
   if (!files || files.length === 0) {
-    return <p className="px-2 py-1 text-muted-foreground text-xs">No workspace changes yet</p>;
+    return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No workspace changes yet")}</p>;
   }
   const normalizedSearchQuery = normalizeSearchQuery(searchQuery);
   const visibleFiles = files.filter(
@@ -218,7 +219,7 @@ export function FlatFileList({
   if (visibleFiles.length === 0) {
     return (
       <p className="px-2 py-1 text-muted-foreground text-xs">
-        All changes are in hidden files.{" "}
+        {L("All changes are in hidden files.")}{" "}
         <button
           type="button"
           className="cursor-pointer underline hover:text-foreground"
@@ -232,7 +233,7 @@ export function FlatFileList({
   if (sorted.length === 0) {
     return (
       <p className="px-2 py-1 text-muted-foreground text-xs">
-        No changed files match "{searchQuery.trim()}"
+        {L("No changed files match \"")}{searchQuery.trim()}"
       </p>
     );
   }
@@ -240,7 +241,7 @@ export function FlatFileList({
     <>
       {hiddenCount > 0 && (
         <p className="px-2 py-1 text-muted-foreground text-xs">
-          {hiddenCount} file{hiddenCount === 1 ? "" : "s"} hidden.{" "}
+          {hiddenCount} file{hiddenCount === 1 ? "" : "s"} {L("hidden.")}{" "}
           <button
             type="button"
             className="cursor-pointer underline hover:text-foreground"

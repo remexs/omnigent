@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { SessionState } from "@/hooks/useSessionState";
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
+import { L } from "@/i18n";
 
 export interface SessionStateBadgeProps {
   state: SessionState;
@@ -30,7 +31,7 @@ function describe(state: SessionState): Visual {
         ariaLabel: tooltip,
         tooltip,
         render: () => (
-          <Badge className="border-transparent bg-warning/25 text-warning">Needs response</Badge>
+          <Badge className="border-transparent bg-warning/25 text-warning">{L("Needs response")}</Badge>
         ),
       };
     }

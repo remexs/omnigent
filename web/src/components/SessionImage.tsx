@@ -4,6 +4,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { getOmnigentHostConfig, hostFetch } from "@/lib/host";
 import { ZoomableImage } from "@/components/ImageLightbox";
+import { L } from "@/i18n";
 
 export interface SessionImageProps {
   /**
@@ -86,7 +87,7 @@ function EmbeddedSessionImage({ path, alt, className }: SessionImageProps) {
     return (
       <div
         role="status"
-        aria-label="Loading image"
+        aria-label={L("Loading image")}
         // Square placeholder keeps the bubble from collapsing before the
         // (unknown-dimension) image resolves.
         className={cn(

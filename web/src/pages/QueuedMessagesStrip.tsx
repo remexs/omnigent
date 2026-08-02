@@ -19,6 +19,7 @@ import {
 
 import type { QueuedMessage } from "@/store/chatStore";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 interface QueuedMessagesStripProps {
   /** Messages waiting to be flushed, in FIFO order (head first). */
@@ -84,7 +85,7 @@ function QueuedRow({
         <button
           type="button"
           ref={setDragRef}
-          aria-label="Reorder queued message"
+          aria-label={L("Reorder queued message")}
           className="shrink-0 cursor-grab touch-none rounded p-0.5 text-muted-foreground/50 transition hover:text-foreground focus-visible:text-foreground active:cursor-grabbing"
           {...attributes}
           {...listeners}
@@ -100,7 +101,7 @@ function QueuedRow({
       {onSteer ? (
         <button
           type="button"
-          aria-label="Send queued message now"
+          aria-label={L("Send queued message now")}
           className="flex shrink-0 items-center gap-1 rounded px-1 py-0.5 text-muted-foreground/60 transition hover:text-foreground focus-visible:text-foreground"
           onClick={() => onSteer(message.queueId)}
         >
@@ -110,7 +111,7 @@ function QueuedRow({
       ) : null}
       <button
         type="button"
-        aria-label="Edit queued message"
+        aria-label={L("Edit queued message")}
         className="shrink-0 rounded p-0.5 text-muted-foreground/60 transition hover:text-foreground focus-visible:text-foreground"
         onClick={() => onEdit(message.queueId)}
       >
@@ -118,7 +119,7 @@ function QueuedRow({
       </button>
       <button
         type="button"
-        aria-label="Remove queued message"
+        aria-label={L("Remove queued message")}
         className="shrink-0 rounded p-0.5 text-muted-foreground/60 transition hover:text-foreground focus-visible:text-foreground"
         onClick={() => onDelete(message.queueId)}
       >

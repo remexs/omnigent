@@ -26,6 +26,7 @@ import { Fragment } from "@tiptap/pm/model";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { MoreHorizontal, MoreVertical, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 // ---------------------------------------------------------------------------
 // Public helper — re-derives a cell's document position by DOM index.
@@ -808,7 +809,7 @@ export function TableHandles({
           <div
             role="button"
             tabIndex={0}
-            aria-label="Row options"
+            aria-label={L("Row options")}
             className={cn(
               "fixed z-50 flex cursor-grab items-center justify-center rounded-md",
               "border border-primary/30 bg-primary/10 text-primary shadow-sm transition-colors",
@@ -887,7 +888,7 @@ export function TableHandles({
           <div
             role="button"
             tabIndex={0}
-            aria-label="Column options"
+            aria-label={L("Column options")}
             className={cn(
               "fixed z-50 flex cursor-grab items-center justify-center rounded-md",
               "border border-primary/30 bg-primary/10 text-primary shadow-sm transition-colors",

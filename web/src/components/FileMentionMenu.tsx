@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { FileTextIcon, FolderIcon, PlusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WorkspaceFile } from "@/hooks/useWorkspaceChangedFiles";
+import { L } from "@/i18n";
 
 interface FileMentionMenuProps {
   /** Directory currently being browsed ("" = workspace root). */
@@ -49,10 +50,10 @@ export function FileMentionMenu({
       <div className="w-80 max-w-[calc(100vw-2rem)] shrink-0 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
         <div className="flex items-center justify-between gap-2 px-2 pb-0.5 pt-1.5 text-[11px] font-medium text-muted-foreground">
           <span className="truncate">{currentDir ? `/${currentDir}` : "Workspace"}</span>
-          <span className="shrink-0 text-[10px]">↵ open · ⇥ attach</span>
+          <span className="shrink-0 text-[10px]">{L("↵ open · ⇥ attach")}</span>
         </div>
         {entries.length === 0 && loading ? (
-          <div className="px-3 py-2 text-[13px] text-muted-foreground">Loading…</div>
+          <div className="px-3 py-2 text-[13px] text-muted-foreground">{L("Loading…")}</div>
         ) : (
           <div ref={listRef} role="listbox" className="max-h-80 overflow-y-auto p-1">
             {entries.map((entry, i) => {

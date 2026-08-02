@@ -41,6 +41,7 @@ import "./pdfViewer.css";
 // path resolving from `node_modules`.
 // oxlint-disable-next-line import/default -- Vite's `?url` import returns the asset URL.
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { L } from "@/i18n";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
@@ -303,7 +304,7 @@ export function PdfViewer({
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Zoom out"
+            aria-label={L("Zoom out")}
             disabled={scale <= MIN_SCALE}
             onClick={zoomOut}
           >
@@ -313,8 +314,8 @@ export function PdfViewer({
             type="button"
             variant="ghost"
             size="sm"
-            aria-label="Reset zoom"
-            title="Reset zoom"
+            aria-label={L("Reset zoom")}
+            title={L("Reset zoom")}
             disabled={scale === 1}
             onClick={resetZoom}
             className="w-12 tabular-nums text-muted-foreground"
@@ -325,7 +326,7 @@ export function PdfViewer({
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Zoom in"
+            aria-label={L("Zoom in")}
             disabled={scale >= MAX_SCALE}
             onClick={zoomIn}
           >

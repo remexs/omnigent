@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { NewTerminalButton } from "./NewTerminalButton";
 import { TerminalStatusBadge } from "./terminalStatus";
 import { useTerminalSplit } from "./useTerminalSplit";
+import { L } from "@/i18n";
 
 interface TerminalsPanelProps {
   open: boolean;
@@ -173,14 +174,14 @@ export function TerminalsPanel({
       )}
 
       <header className="flex shrink-0 items-center justify-between border-border border-b px-4 py-2">
-        <h2 className="font-medium text-sm">Shells</h2>
+        <h2 className="font-medium text-sm">{L("Shells")}</h2>
         <div className="flex items-center gap-1">
           {/* Renders only when the agent's spec declares terminals. */}
           <NewTerminalButton
             conversationId={conversationId}
             onCreated={(key) => setActiveKey(key)}
           />
-          <Button type="button" variant="ghost" size="icon-sm" aria-label="Close" onClick={onClose}>
+          <Button type="button" variant="ghost" size="icon-sm" aria-label={L("Close")} onClick={onClose}>
             <XIcon className="size-4" />
           </Button>
         </div>

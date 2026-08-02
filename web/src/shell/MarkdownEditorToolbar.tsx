@@ -43,6 +43,7 @@ import type {} from "@tiptap/extension-table";
 import type {} from "@tiptap/extension-list";
 import { TableMap, cellAround, colCount, findTable, isInTable } from "@tiptap/pm/tables";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 export function ToolbarBtn({
   children,
@@ -90,8 +91,8 @@ function TableBtn({ editor }: { editor: Editor | null }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        title="Insert table"
-        aria-label="Insert table"
+        title={L("Insert table")}
+        aria-label={L("Insert table")}
         disabled={!editor}
         onMouseDown={(e) => e.preventDefault()}
         className="min-w-[1.75rem] rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
@@ -202,21 +203,21 @@ function TableAlignControls({ editor }: { editor: Editor }) {
       <Divider />
       <ToolbarBtn
         active={current === "left"}
-        title="Align column left"
+        title={L("Align column left")}
         onClick={() => setColumnAlign(editor, "left")}
       >
         <AlignLeft className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={current === "center"}
-        title="Align column center"
+        title={L("Align column center")}
         onClick={() => setColumnAlign(editor, "center")}
       >
         <AlignCenter className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={current === "right"}
-        title="Align column right"
+        title={L("Align column right")}
         onClick={() => setColumnAlign(editor, "right")}
       >
         <AlignRight className="size-3.5" />
@@ -352,14 +353,14 @@ export function ToolbarPlugin({
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-card px-2 py-1 shrink-0">
       <ToolbarBtn
-        title="Undo (⌘Z)"
+        title={L("Undo (⌘Z)")}
         onClick={() => editor?.chain().focus().undo().run()}
         className={!canUndo ? "opacity-30 cursor-default" : ""}
       >
         <Undo2 className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
-        title="Redo (⌘⇧Z)"
+        title={L("Redo (⌘⇧Z)")}
         onClick={() => editor?.chain().focus().redo().run()}
         className={!canRedo ? "opacity-30 cursor-default" : ""}
       >
@@ -368,35 +369,35 @@ export function ToolbarPlugin({
       <Divider />
       <ToolbarBtn
         active={isParagraph}
-        title="Normal"
+        title={L("Normal")}
         onClick={() => editor?.chain().focus().setParagraph().run()}
       >
         <Pilcrow className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isH1}
-        title="Heading 1"
+        title={L("Heading 1")}
         onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
       >
         <Heading1 className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isH2}
-        title="Heading 2"
+        title={L("Heading 2")}
         onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         <Heading2 className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isH3}
-        title="Heading 3"
+        title={L("Heading 3")}
         onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
       >
         <Heading3 className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isBlockquote}
-        title="Quote"
+        title={L("Quote")}
         onClick={() => editor?.chain().focus().toggleBlockquote().run()}
       >
         <Quote className="size-3.5" />
@@ -404,48 +405,48 @@ export function ToolbarPlugin({
       <Divider />
       <ToolbarBtn
         active={isBold}
-        title="Bold (⌘B)"
+        title={L("Bold (⌘B)")}
         onClick={() => editor?.chain().focus().toggleBold().run()}
       >
         <Bold className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isItalic}
-        title="Italic (⌘I)"
+        title={L("Italic (⌘I)")}
         onClick={() => editor?.chain().focus().toggleItalic().run()}
       >
         <Italic className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isStrike}
-        title="Strikethrough"
+        title={L("Strikethrough")}
         onClick={() => editor?.chain().focus().toggleStrike().run()}
       >
         <Strikethrough className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isCode}
-        title="Inline code"
+        title={L("Inline code")}
         onClick={() => editor?.chain().focus().toggleCode().run()}
       >
         <Code className="size-3.5" />
       </ToolbarBtn>
       <Divider />
       <ToolbarBtn
-        title="Bullet list"
+        title={L("Bullet list")}
         onClick={() => editor?.chain().focus().toggleBulletList().run()}
       >
         <List className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
-        title="Numbered list"
+        title={L("Numbered list")}
         onClick={() => editor?.chain().focus().toggleOrderedList().run()}
       >
         <ListOrdered className="size-3.5" />
       </ToolbarBtn>
       <ToolbarBtn
         active={isTaskList}
-        title="Task list"
+        title={L("Task list")}
         onClick={() => editor?.chain().focus().toggleTaskList().run()}
       >
         <ListTodo className="size-3.5" />
@@ -454,7 +455,7 @@ export function ToolbarPlugin({
       <TableBtn editor={editor} />
       {editor && <TableAlignControls editor={editor} />}
       <div className="ml-auto flex items-center gap-2">
-        <ToolbarBtn title="Copy" onClick={handleCopy}>
+        <ToolbarBtn title={L("Copy")} onClick={handleCopy}>
           {isCopied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
         </ToolbarBtn>
         <button

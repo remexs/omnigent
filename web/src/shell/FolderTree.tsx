@@ -13,6 +13,7 @@ import { type ChangedSort, compareChangedFiles, type SortableFile } from "./Flat
 import { formatBytes, gitStatusLabel, gitStatusLetter } from "./fileStatusUtils";
 import { FileDownloadButton } from "./FileDownloadButton";
 import { useCursorTooltip } from "./useCursorTooltip";
+import { L } from "@/i18n";
 
 // VS Code–style indentation: folder chevron and file icon share the same x
 // at each depth. GUIDE_OFFSET centers the indent-guide line under the chevron.
@@ -304,19 +305,19 @@ export function FolderTree({
   // When a search query is active, render a flat filtered list instead of the tree.
   if (searchQuery.trim().length > 0) {
     if (isSearching && !searchResults) {
-      return <p className="px-2 py-1 text-muted-foreground text-xs">Searching…</p>;
+      return <p className="px-2 py-1 text-muted-foreground text-xs">{L("Searching…")}</p>;
     }
     if (isSearchError) {
       return (
         <p className="px-2 py-1 text-destructive text-xs">
-          Search failed: {searchError instanceof Error ? searchError.message : "Unknown error"}
+          {L("Search failed:")}{searchError instanceof Error ? searchError.message : "Unknown error"}
         </p>
       );
     }
     if (!searchResults || searchResults.length === 0) {
       return (
         <p className="px-2 py-1 text-muted-foreground text-xs">
-          No files match "{searchQuery.trim()}"
+          {L("No files match \"")}{searchQuery.trim()}"
         </p>
       );
     }
@@ -329,7 +330,7 @@ export function FolderTree({
       const hiddenCount = searchResults.length;
       return (
         <p className="px-2 py-1 text-muted-foreground text-xs">
-          {hiddenCount} match{hiddenCount === 1 ? "" : "es"} in hidden directories.{" "}
+          {hiddenCount} match{hiddenCount === 1 ? "" : "es"} {L("in hidden directories.")}{" "}
           <button
             type="button"
             className="cursor-pointer underline hover:text-foreground"
@@ -358,7 +359,7 @@ export function FolderTree({
   }
 
   if (isLoading) {
-    return <p className="px-2 py-1 text-muted-foreground text-xs">Loading…</p>;
+    return <p className="px-2 py-1 text-muted-foreground text-xs">{L("Loading…")}</p>;
   }
   if (isError) {
     // Runner not connected. If it went offline after being up (host
@@ -366,16 +367,16 @@ export function FolderTree({
     // session just hasn't started, fall through to the empty state.
     if (error instanceof RunnerOfflineError) {
       if (runnerWentOffline) return <RunnerAsleepHint />;
-      return <p className="px-2 py-1 text-muted-foreground text-xs">No files in workspace</p>;
+      return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No files in workspace")}</p>;
     }
     return (
       <p className="px-2 py-1 text-destructive text-xs">
-        Failed to load: {error instanceof Error ? error.message : String(error)}
+        {L("Failed to load:")}{error instanceof Error ? error.message : String(error)}
       </p>
     );
   }
   if (!files || files.length === 0) {
-    return <p className="px-2 py-1 text-muted-foreground text-xs">No files in workspace</p>;
+    return <p className="px-2 py-1 text-muted-foreground text-xs">{L("No files in workspace")}</p>;
   }
 
   const tree = buildTree(files, sort);

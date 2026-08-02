@@ -28,6 +28,7 @@ import {
   isGoalUserMode,
   type GoalModeDraft,
 } from "./goalUtils";
+import { L } from "@/i18n";
 
 export interface GoalDialogProps {
   open: boolean;
@@ -56,7 +57,7 @@ function GoalSummary({ loading, goal }: GoalSummaryProps) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2Icon className="size-4 animate-spin" />
-        <span>Loading goal</span>
+        <span>{L("Loading goal")}</span>
       </div>
     );
   }
@@ -150,10 +151,10 @@ function GoalEditor({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">Mode</label>
+        <label className="text-xs font-medium text-muted-foreground">{L("Mode")}</label>
         <div
           role="radiogroup"
-          aria-label="Goal mode"
+          aria-label={L("Goal mode")}
           className="flex w-full gap-1 rounded-lg border border-border bg-muted/30 p-1"
           data-testid="goal-mode"
         >
@@ -168,7 +169,7 @@ function GoalEditor({
               data-testid="goal-mode-keep"
             >
               <CheckIcon className="size-3.5" />
-              <span>Keep current</span>
+              <span>{L("Keep current")}</span>
             </button>
           )}
           <button
@@ -181,7 +182,7 @@ function GoalEditor({
             data-testid="goal-mode-active"
           >
             <PlayCircleIcon className="size-3.5" />
-            <span>Active</span>
+            <span>{L("Active")}</span>
           </button>
           <button
             type="button"
@@ -193,7 +194,7 @@ function GoalEditor({
             data-testid="goal-mode-paused"
           >
             <PauseCircleIcon className="size-3.5" />
-            <span>Paused</span>
+            <span>{L("Paused")}</span>
           </button>
         </div>
       </div>
@@ -211,7 +212,7 @@ function GoalEditor({
           value={tokenBudget}
           onChange={(event) => onTokenBudgetChange(event.currentTarget.value)}
           disabled={readOnly || busy}
-          placeholder="Optional"
+          placeholder={L("Optional")}
           data-testid="goal-token-budget"
         />
       </div>
@@ -550,7 +551,7 @@ export function GoalDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TargetIcon className="size-4" />
-            <span>Goal</span>
+            <span>{L("Goal")}</span>
           </DialogTitle>
         </DialogHeader>
 

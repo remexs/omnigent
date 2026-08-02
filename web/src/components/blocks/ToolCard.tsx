@@ -36,6 +36,7 @@ import {
   formatToolTitle,
 } from "@/lib/toolTitle";
 import { useFileViewer } from "@/shell/FileViewerContext";
+import { L } from "@/i18n";
 
 const OUTPUT_PREVIEW_LINE_LIMIT = 80;
 const OUTPUT_PREVIEW_CHAR_LIMIT = 12_000;
@@ -210,7 +211,7 @@ export function ToolCard({
       />
       <CollapsibleContent className="mt-1 ml-2 space-y-2 border-l pl-3 py-1 data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=open]:animate-in">
         <CodePanel
-          title="Parameters"
+          title={L("Parameters")}
           text={inputJson}
           copyText={inputJson}
           copyLabel="Copy parameters"
@@ -432,7 +433,7 @@ function OutputSection({ output }: { output: string }) {
           (!canExpand || isExpanded) && "max-h-[36rem] overflow-auto",
         )}
       >
-        <CodePanel title="Output" text={preview.text} copyText={output} copyLabel="Copy output" />
+        <CodePanel title={L("Output")} text={preview.text} copyText={output} copyLabel="Copy output" />
         {canExpand && !isExpanded && (
           <div className="pointer-events-none absolute inset-x-px bottom-px h-16 rounded-b-md bg-gradient-to-t from-background to-transparent" />
         )}

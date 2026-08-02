@@ -39,6 +39,7 @@ import { SubagentsPanel } from "./SubagentsPanel";
 import { TodoPanel } from "./TodoPanel";
 import { useTerminalStatuses } from "./useTerminalStatuses";
 import { type RightRailTab, TAB_BADGE_BASE } from "./railTabs";
+import { L } from "@/i18n";
 
 function WorkspaceTabTooltip({
   label,
@@ -135,11 +136,11 @@ function NewTabMenu({
 
   return (
     <DropdownMenu>
-      <WorkspaceTabTooltip label="Open new" className={triggerClassName}>
+      <WorkspaceTabTooltip label={L("Open new")} className={triggerClassName}>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            aria-label="Open new"
+            aria-label={L("Open new")}
             disabled={create.isPending}
             className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-default disabled:opacity-50"
           >
@@ -148,7 +149,7 @@ function NewTabMenu({
         </DropdownMenuTrigger>
       </WorkspaceTabTooltip>
       <DropdownMenuContent align="start">
-        <DropdownMenuLabel>Open new</DropdownMenuLabel>
+        <DropdownMenuLabel>{L("Open new")}</DropdownMenuLabel>
         {multipleShells ? (
           <DropdownMenuSub>
             {/* Clicking "Shell" launches the remembered default immediately —
@@ -605,7 +606,7 @@ export function WorkspacePanel({
   );
   return (
     <aside
-      aria-label="Workspace"
+      aria-label={L("Workspace")}
       inert={inert}
       // Floating desktop surface: 8px from every edge. AppShell reserves the
       // panel width from ChatHeader, so the pane can extend to the top without
@@ -665,19 +666,19 @@ export function WorkspacePanel({
         >
           <TabsList variant="pill" className="gap-0">
             {showFilesPanel && (
-              <WorkspaceTabTooltip label="Files">
+              <WorkspaceTabTooltip label={L("Files")}>
                 <TabsTrigger
                   value="files"
                   aria-label={changedCount > 0 ? `Files ${changedCount} changed` : "Files"}
                   className="size-8 shrink-0 rounded-md p-0 hover:bg-muted"
                 >
                   <FilesIcon className="size-4" />
-                  <span className="sr-only">Files</span>
+                  <span className="sr-only">{L("Files")}</span>
                   {changedCount > 0 && <span className="sr-only">{changedCount}</span>}
                 </TabsTrigger>
               </WorkspaceTabTooltip>
             )}
-            <WorkspaceTabTooltip label="Agents">
+            <WorkspaceTabTooltip label={L("Agents")}>
               <TabsTrigger
                 value="subagents"
                 aria-label={
@@ -688,7 +689,7 @@ export function WorkspacePanel({
                 className="size-8 shrink-0 rounded-md p-0 hover:bg-muted"
               >
                 <BotIcon className="size-4" />
-                <span className="sr-only">Agents</span>
+                <span className="sr-only">{L("Agents")}</span>
                 <span
                   className={cn(
                     TAB_BADGE_BASE,
@@ -701,14 +702,14 @@ export function WorkspacePanel({
               </TabsTrigger>
             </WorkspaceTabTooltip>
             {showShellsTab && (
-              <WorkspaceTabTooltip label="Shells">
+              <WorkspaceTabTooltip label={L("Shells")}>
                 <TabsTrigger
                   value="terminals"
                   aria-label={terminalsLength > 0 ? `Shells ${terminalsLength}` : "Shells"}
                   className="size-8 shrink-0 rounded-md p-0 hover:bg-muted"
                 >
                   <SquareTerminalIcon className="size-4" />
-                  <span className="sr-only">Shells</span>
+                  <span className="sr-only">{L("Shells")}</span>
                   {terminalsLength > 0 && (
                     <span className="sr-only text-muted-foreground">{terminalsLength}</span>
                   )}
@@ -716,14 +717,14 @@ export function WorkspacePanel({
               </WorkspaceTabTooltip>
             )}
             {todosSupported && todosTotal > 0 && (
-              <WorkspaceTabTooltip label="Tasks">
+              <WorkspaceTabTooltip label={L("Tasks")}>
                 <TabsTrigger
                   value="todos"
                   aria-label={`Tasks ${todosCompleted} of ${todosTotal} completed`}
                   className="size-8 shrink-0 rounded-md p-0 hover:bg-muted"
                 >
                   <ListTodoIcon className="size-4" />
-                  <span className="sr-only">Tasks</span>
+                  <span className="sr-only">{L("Tasks")}</span>
                   <span className="sr-only">
                     {todosCompleted}/{todosTotal}
                   </span>
@@ -731,14 +732,14 @@ export function WorkspacePanel({
               </WorkspaceTabTooltip>
             )}
             {showBrowserTab && (
-              <WorkspaceTabTooltip label="Browser">
+              <WorkspaceTabTooltip label={L("Browser")}>
                 <TabsTrigger
                   value="browser"
-                  aria-label="Browser"
+                  aria-label={L("Browser")}
                   className="size-8 shrink-0 rounded-md p-0 hover:bg-muted"
                 >
                   <GlobeIcon className="size-4" />
-                  <span className="sr-only">Browser</span>
+                  <span className="sr-only">{L("Browser")}</span>
                 </TabsTrigger>
               </WorkspaceTabTooltip>
             )}

@@ -91,6 +91,7 @@ import { ForkDialogContextProvider, type ForkDialogContextValue } from "./ForkDi
 import { InlineTerminalsSection } from "./InlineTerminalsSection";
 import { WorkspacePanel } from "./WorkspacePanel";
 import type { RightRailTab } from "./railTabs";
+import { L } from "@/i18n";
 
 /**
  * Top-level layout. The sidebar and right panels are responsive:
@@ -1543,7 +1544,7 @@ export function AppShell() {
               {conversationId && rootSessionId && (
                 <MobilePanelDrawer
                   open={subagentsPanelOpen}
-                  title="Agents"
+                  title={L("Agents")}
                   onClose={() => setSubagentsPanelOpen(false)}
                   testId="subagents-panel-drawer"
                 >
@@ -1553,7 +1554,7 @@ export function AppShell() {
               {conversationId && (
                 <MobilePanelDrawer
                   open={shellsPanelOpen}
-                  title="Shells"
+                  title={L("Shells")}
                   onClose={() => setShellsPanelOpen(false)}
                   testId="shells-panel-drawer"
                 >
@@ -1569,7 +1570,7 @@ export function AppShell() {
               {conversationId && (
                 <MobilePanelDrawer
                   open={todosPanelOpen}
-                  title="Tasks"
+                  title={L("Tasks")}
                   onClose={() => setTodosPanelOpen(false)}
                   testId="todos-panel-drawer"
                 >
@@ -1626,7 +1627,7 @@ export function AppShell() {
             <Dialog open={agentInfoOpen} onOpenChange={setAgentInfoOpen}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Agent</DialogTitle>
+                  <DialogTitle>{L("Agent")}</DialogTitle>
                   <DialogDescription className="sr-only">
                     Tools and policies configured for the active agent.
                   </DialogDescription>

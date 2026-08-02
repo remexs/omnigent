@@ -5,6 +5,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { L } from "@/i18n";
 
 export interface UserMessageNavProps {
   goPrev: () => void;
@@ -42,12 +43,12 @@ export function UserMessageNav({
               size="icon"
               type="button"
               variant="outline"
-              aria-label="Previous user message"
+              aria-label={L("Previous user message")}
             >
               <ChevronUpIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left">Previous message (⌘⌥↑)</TooltipContent>
+          <TooltipContent side="left">{L("Previous message (⌘⌥↑)")}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -58,12 +59,12 @@ export function UserMessageNav({
               size="icon"
               type="button"
               variant="outline"
-              aria-label="Next user message"
+              aria-label={L("Next user message")}
             >
               <ChevronDownIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left">Next message (⌘⌥↓)</TooltipContent>
+          <TooltipContent side="left">{L("Next message (⌘⌥↓)")}</TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>

@@ -65,6 +65,7 @@ import {
   type AgentStatus,
 } from "./subagentStatus";
 import { AddAgentDialog } from "./AddAgentDialog";
+import { L } from "@/i18n";
 
 // Session-scoped URL params that the file viewer / Files panel write
 // for one session and AppShell's restore effect re-reads on the next.
@@ -198,8 +199,8 @@ function ViewModeToggle({
         variant={viewMode === "list" ? "secondary" : "ghost"}
         size="icon-xs"
         onClick={() => onViewModeChange("list")}
-        aria-label="List view"
-        title="List view"
+        aria-label={L("List view")}
+        title={L("List view")}
         data-testid="view-mode-list"
       >
         <ListIcon className="size-3.5" />
@@ -208,8 +209,8 @@ function ViewModeToggle({
         variant={viewMode === "graph" ? "secondary" : "ghost"}
         size="icon-xs"
         onClick={() => onViewModeChange("graph")}
-        aria-label="Graph view"
-        title="Graph view"
+        aria-label={L("Graph view")}
+        title={L("Graph view")}
         data-testid="view-mode-graph"
       >
         <NetworkIcon className="size-3.5" />
@@ -344,7 +345,7 @@ function StatusIndicator({ activity, label, details }: AgentStatus) {
         data-testid="subagent-status-dot"
         className="inline-flex shrink-0 items-center text-xs"
       >
-        <Badge className="border-transparent bg-warning/15 text-warning">Needs response</Badge>
+        <Badge className="border-transparent bg-warning/15 text-warning">{L("Needs response")}</Badge>
       </span>
     );
   }

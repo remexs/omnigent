@@ -34,6 +34,7 @@ import {
 import { type ChangedSort, FlatFileList } from "./FlatFileList";
 import { FolderTree } from "./FolderTree";
 import { useScrollRestore } from "./useScrollRestore";
+import { L } from "@/i18n";
 
 interface FilesPanelProps {
   onFileSelect: (path: string) => void;
@@ -141,7 +142,7 @@ function SortSelector({
           aria-label={`Sort: ${active.label}`}
           className="flex shrink-0 cursor-pointer items-center gap-1 rounded-full px-2.5 py-[4px] text-muted-foreground text-xs hover:bg-muted hover:text-foreground"
         >
-          <span>Sort:</span>
+          <span>{L("Sort:")}</span>
           <active.Icon className="size-3.5" />
         </button>
       </DropdownMenuTrigger>
@@ -183,13 +184,13 @@ function FileScopeSwitch({
   const activePill = "bg-muted text-foreground";
   const idlePill = "text-muted-foreground hover:text-foreground";
   return (
-    <div role="radiogroup" aria-label="File scope" className="flex shrink-0 items-center gap-1">
+    <div role="radiogroup" aria-label={L("File scope")} className="flex shrink-0 items-center gap-1">
       <button
         type="button"
         role="radio"
         aria-checked={changedSelected}
-        aria-label="Changed"
-        title="Show changed files only"
+        aria-label={L("Changed")}
+        title={L("Show changed files only")}
         onClick={() => onChange(true)}
         className={cn(pill, changedSelected ? activePill : idlePill)}
       >
@@ -205,8 +206,8 @@ function FileScopeSwitch({
         type="button"
         role="radio"
         aria-checked={allSelected}
-        aria-label="All"
-        title="Show the full folder tree"
+        aria-label={L("All")}
+        title={L("Show the full folder tree")}
         onClick={() => onChange(false)}
         className={cn(pill, allSelected ? activePill : idlePill)}
       >
@@ -382,7 +383,7 @@ export function FilesPanel({
     >
       {/* Header — single row: [title · workingDir] [eye] [close?] */}
       <div className="flex shrink-0 items-center gap-2 px-3 py-2">
-        <span className="shrink-0 font-medium text-sm">Working folder</span>
+        <span className="shrink-0 font-medium text-sm">{L("Working folder")}</span>
         {workingDir && <WorkingDirLabel dir={workingDir} />}
         {servedFromHost && (
           <TooltipProvider>
@@ -412,7 +413,7 @@ export function FilesPanel({
           {onClose && (
             <button
               type="button"
-              aria-label="Close files"
+              aria-label={L("Close files")}
               className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={onClose}
             >
@@ -437,10 +438,10 @@ export function FilesPanel({
             <div className="flex min-w-0 flex-1 items-center gap-[6px] rounded-full border border-border px-[10px] py-[4px] transition-colors focus-within:border-border-strong">
               <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
               <input
-                aria-label="Search changed files"
+                aria-label={L("Search changed files")}
                 className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
                 onChange={(event) => setChangedSearch(event.target.value)}
-                placeholder="Search"
+                placeholder={L("Search")}
                 type="search"
                 value={changedSearch}
               />
@@ -457,10 +458,10 @@ export function FilesPanel({
               <div className="flex min-w-0 flex-1 items-center gap-[6px] rounded-full border border-border px-[10px] py-[4px] transition-colors focus-within:border-border-strong">
                 <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
                 <input
-                  aria-label="Search all files"
+                  aria-label={L("Search all files")}
                   className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
                   onChange={(event) => setTreeSearch(event.target.value)}
-                  placeholder="Search"
+                  placeholder={L("Search")}
                   type="search"
                   value={treeSearch}
                 />
@@ -469,7 +470,7 @@ export function FilesPanel({
                 type="button"
                 aria-label={showSearchFilters ? "Hide search filters" : "Show search filters"}
                 aria-expanded={showSearchFilters}
-                title="Files to include / exclude"
+                title={L("Files to include / exclude")}
                 className={cn(
                   "flex shrink-0 cursor-pointer items-center gap-1 rounded-full px-2.5 py-[4px] hover:bg-muted",
                   showSearchFilters || treeFiltersActive
@@ -489,14 +490,14 @@ export function FilesPanel({
           {showSearchFilters && (
             <div className="flex flex-col gap-1.5 border-border border-t px-3 py-2">
               <SearchFilterInput
-                label="files to include"
-                placeholder="e.g. *.ts, src/**"
+                label={L("files to include")}
+                placeholder={L("e.g. *.ts, src/**")}
                 value={treeInclude}
                 onChange={setTreeInclude}
               />
               <SearchFilterInput
-                label="files to exclude"
-                placeholder="e.g. **/node_modules, *.test.ts"
+                label={L("files to exclude")}
+                placeholder={L("e.g. **/node_modules, *.test.ts")}
                 value={treeExclude}
                 onChange={setTreeExclude}
               />

@@ -26,6 +26,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { setup as setupRequest } from "@/lib/accountsApi";
+import { L } from "@/i18n";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -75,7 +76,7 @@ export function SetupPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Create the admin account</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{L("Create the admin account")}</h1>
           <p className="text-sm text-muted-foreground">
             First run — pick the username and password for this server's admin. You can invite
             others once you're in.
@@ -96,7 +97,7 @@ export function SetupPage() {
               disabled={submitting}
               required
               pattern="[a-z0-9][a-z0-9._\-]{0,63}(@[a-z0-9.\-]+\.[a-z]{2,})?"
-              title="Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)"
+              title={L("Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)")}
             />
             <p className="text-xs text-muted-foreground">
               Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.

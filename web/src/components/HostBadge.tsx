@@ -6,6 +6,7 @@ import { useSession } from "@/hooks/useSession";
 import { useSessionHostOnline } from "@/hooks/RunnerHealthProvider";
 import { sandboxOptionLabel } from "@/lib/capabilities";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 export type HostBadgeStatus = "online" | "offline" | "unknown";
 
@@ -106,11 +107,11 @@ export function HostBadge({
         data-testid="host-badge"
         onClick={onReconnect}
         className="flex min-w-0 items-center gap-1.5 text-xs text-destructive underline-offset-2 hover:underline"
-        title="Host is offline — click to reconnect"
+        title={L("Host is offline — click to reconnect")}
       >
         <span aria-hidden className="size-2 shrink-0 rounded-full bg-destructive" />
         <MonitorOffIcon className="size-3.5 shrink-0" aria-hidden />
-        <span className="truncate">Host is offline — click to reconnect</span>
+        <span className="truncate">{L("Host is offline — click to reconnect")}</span>
       </button>
     );
   }

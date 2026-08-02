@@ -35,6 +35,7 @@ import {
   type SchedulePreset,
   type WeekdayCode,
 } from "@/lib/scheduleBuilder";
+import { L } from "@/i18n";
 
 // Presets only: "custom" is deferred (see file header) and is
 // deliberately absent from this list, so it's unreachable from the dropdown.
@@ -192,7 +193,7 @@ export function ScheduleFields({
           className="flex w-full min-w-0 flex-col gap-1.5"
           data-testid="schedule-frequency-control"
         >
-          <Label htmlFor="schedule-preset">Frequency</Label>
+          <Label htmlFor="schedule-preset">{L("Frequency")}</Label>
           <Select
             value={model.preset}
             onValueChange={(value) => onChange({ ...model, preset: value as SchedulePreset })}
@@ -252,7 +253,7 @@ export function ScheduleFields({
                   />
                   <button
                     type="button"
-                    aria-label="Open time picker"
+                    aria-label={L("Open time picker")}
                     data-testid="schedule-time-picker-trigger"
                     className="absolute top-1/2 right-2 flex size-4 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
                     onClick={() => handleTimePickerOpenChange(!timePickerOpen)}
@@ -324,8 +325,8 @@ export function ScheduleFields({
 
       {showWeekdays && (
         <div className="flex flex-col gap-1.5">
-          <Label>On days</Label>
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Weekdays">
+          <Label>{L("On days")}</Label>
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label={L("Weekdays")}>
             {WEEKDAY_CODES.map((code) => {
               const selected = model.weekdays.includes(code);
               return (

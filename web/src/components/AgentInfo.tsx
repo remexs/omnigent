@@ -57,9 +57,10 @@ import { copyText } from "@/lib/clipboard";
 import { useChatStore } from "@/store/chatStore";
 import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { useSessionHostVersion } from "@/hooks/RunnerHealthProvider";
+import { L } from "@/i18n";
 
 const MCP_SERVERS_UPDATED_TOAST = (
-  <span className="text-sm">MCP servers updated. Restart the session to apply changes.</span>
+  <span className="text-sm">{L("MCP servers updated. Restart the session to apply changes.")}</span>
 );
 
 /**
@@ -245,7 +246,7 @@ function ModelUsageBreakdown({ usageByModel }: { usageByModel: Record<string, Mo
               ))}
               {usage.totalCostUsd != null && (
                 <div className="flex items-baseline justify-between gap-3 pl-2 text-xs">
-                  <span className="text-muted-foreground/70">Cost</span>
+                  <span className="text-muted-foreground/70">{L("Cost")}</span>
                   <span className="tabular-nums text-muted-foreground">
                     {formatSessionCostUsd(usage.totalCostUsd)}
                   </span>
@@ -386,8 +387,8 @@ function AddPolicyDialog({
     >
       <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Policy</DialogTitle>
-          <DialogDescription>Choose a policy to apply to this session.</DialogDescription>
+          <DialogTitle>{L("Add Policy")}</DialogTitle>
+          <DialogDescription>{L("Choose a policy to apply to this session.")}</DialogDescription>
         </DialogHeader>
         <div className="min-w-0 space-y-3 pt-1">
           {!selected &&
@@ -406,7 +407,7 @@ function AddPolicyDialog({
                     type="text"
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
-                    placeholder="Filter policies..."
+                    placeholder={L("Filter policies...")}
                     className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-ring"
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
@@ -790,7 +791,7 @@ function McpServerManagerDialog({
   function notifyRestart() {
     onDirty();
     showToast(
-      <span className="text-sm">MCP servers updated. Restart the session to apply changes.</span>,
+      <span className="text-sm">{L("MCP servers updated. Restart the session to apply changes.")}</span>,
     );
   }
 
@@ -832,8 +833,8 @@ function McpServerManagerDialog({
     >
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Manage MCP Servers</DialogTitle>
-          <DialogDescription>Add, edit, or remove MCP servers for this session.</DialogDescription>
+          <DialogTitle>{L("Manage MCP Servers")}</DialogTitle>
+          <DialogDescription>{L("Add, edit, or remove MCP servers for this session.")}</DialogDescription>
         </DialogHeader>
         {dirty && (
           <div className="flex items-center gap-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-700 dark:text-yellow-400">
@@ -843,7 +844,7 @@ function McpServerManagerDialog({
         )}
         <div className="grid gap-4 pt-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="flex min-w-0 flex-col gap-1.5">
-            <SectionLabel>Servers</SectionLabel>
+            <SectionLabel>{L("Servers")}</SectionLabel>
             {servers.length > 0 ? (
               <div className="flex max-h-56 flex-col divide-y divide-border overflow-y-auto rounded border border-border">
                 {servers.map((server) => (
@@ -888,7 +889,7 @@ function McpServerManagerDialog({
                 ))}
               </div>
             ) : (
-              <p className="py-3 text-xs text-muted-foreground">No MCP servers</p>
+              <p className="py-3 text-xs text-muted-foreground">{L("No MCP servers")}</p>
             )}
             {form.originalName && (
               <Button type="button" variant="ghost" size="sm" onClick={resetForm}>
@@ -937,7 +938,7 @@ function McpServerManagerDialog({
                 </label>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Headers</span>
+                    <span>{L("Headers")}</span>
                     <button
                       type="button"
                       onClick={() =>
@@ -947,7 +948,7 @@ function McpServerManagerDialog({
                         }))
                       }
                       className="rounded p-0.5 hover:bg-muted"
-                      aria-label="Add header"
+                      aria-label={L("Add header")}
                     >
                       <PlusIcon className="size-3" />
                     </button>
@@ -964,7 +965,7 @@ function McpServerManagerDialog({
                           })
                         }
                         className="font-mono text-xs"
-                        placeholder="Header-Name"
+                        placeholder={L("Header-Name")}
                       />
                       <Input
                         value={header.value}
@@ -982,7 +983,7 @@ function McpServerManagerDialog({
                         type="button"
                         variant="ghost"
                         size="icon-xs"
-                        aria-label="Remove header"
+                        aria-label={L("Remove header")}
                         onClick={() =>
                           setForm((prev) => ({
                             ...prev,
@@ -1022,7 +1023,7 @@ function McpServerManagerDialog({
               <Input
                 value={form.description}
                 onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder="Optional"
+                placeholder={L("Optional")}
               />
             </label>
             {(formError || mutationError) && (
@@ -1115,14 +1116,14 @@ function McpServersSection({
   return (
     <div className="flex flex-col gap-1.5 py-3">
       <div className="flex items-center justify-between">
-        <SectionLabel>Tools</SectionLabel>
+        <SectionLabel>{L("Tools")}</SectionLabel>
         {canEdit && (
           <button
             type="button"
             onClick={() => setManagerOpenWithCallback(true)}
             className="rounded p-0.5 hover:bg-muted"
-            title="Manage MCP servers"
-            aria-label="Manage MCP servers"
+            title={L("Manage MCP servers")}
+            aria-label={L("Manage MCP servers")}
           >
             <PlusIcon className="size-3 text-muted-foreground" />
           </button>
@@ -1137,7 +1138,7 @@ function McpServersSection({
       {servers.length > 0 ? (
         <McpServerList servers={servers} onDelete={canEdit ? handleDeleteServer : undefined} />
       ) : (
-        <p className="text-xs text-muted-foreground">No MCP servers</p>
+        <p className="text-xs text-muted-foreground">{L("No MCP servers")}</p>
       )}
       {canEdit && (
         <McpServerManagerDialog
@@ -1169,12 +1170,12 @@ function SessionPoliciesSection({ sessionId }: { sessionId: string }) {
   return (
     <div className="flex flex-col gap-1.5 py-3">
       <div className="flex items-center justify-between">
-        <SectionLabel>Policies</SectionLabel>
+        <SectionLabel>{L("Policies")}</SectionLabel>
         <button
           type="button"
           onClick={() => setAddOpen(true)}
           className="rounded p-0.5 hover:bg-muted"
-          title="Add policy"
+          title={L("Add policy")}
         >
           <PlusIcon className="size-3 text-muted-foreground" />
         </button>
@@ -1226,7 +1227,7 @@ function SessionPoliciesSection({ sessionId }: { sessionId: string }) {
           })}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">No policies added</p>
+        <p className="text-xs text-muted-foreground">{L("No policies added")}</p>
       )}
       <AddPolicyDialog
         sessionId={sessionId}
@@ -1353,20 +1354,20 @@ export function AgentInfoContent({
       )}
       {sessionId && owner && isSessionShared && (
         <div className="flex flex-col gap-1.5 py-3">
-          <SectionLabel>Owner</SectionLabel>
+          <SectionLabel>{L("Owner")}</SectionLabel>
           <span
             className="truncate font-mono text-xs text-muted-foreground"
             data-testid="agent-info-session-owner"
             title={owner}
           >
             {owner}
-            {owner === viewerId && <span className="ml-1 text-muted-foreground/60">(you)</span>}
+            {owner === viewerId && <span className="ml-1 text-muted-foreground/60">{L("(you)")}</span>}
           </span>
         </div>
       )}
       {sessionId && (
         <div className="flex flex-col gap-1.5 py-3">
-          <SectionLabel>Session ID</SectionLabel>
+          <SectionLabel>{L("Session ID")}</SectionLabel>
           <div className="flex items-center gap-2">
             <code
               className="min-w-0 flex-1 truncate py-1 font-mono text-xs text-muted-foreground"
@@ -1399,7 +1400,7 @@ export function AgentInfoContent({
           <div className="flex flex-col gap-2 py-3">
             {sessionCostUsd != null && (
               <div className="flex items-baseline justify-between gap-3">
-                <SectionLabel>Session cost</SectionLabel>
+                <SectionLabel>{L("Session cost")}</SectionLabel>
                 <span
                   className="font-mono text-xs tabular-nums text-muted-foreground"
                   data-testid="agent-info-session-cost"
@@ -1571,7 +1572,7 @@ export function AgentInfoButton({ agent, sessionId }: AgentInfoProps) {
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Agent tools and policies"
+              aria-label={L("Agent tools and policies")}
               data-testid="agent-info-trigger"
               className="hidden text-muted-foreground hover:text-foreground md:inline-flex"
               onPointerEnter={openOnHover}
@@ -1584,7 +1585,7 @@ export function AgentInfoButton({ agent, sessionId }: AgentInfoProps) {
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent>Agent tools &amp; policies</TooltipContent>
+        <TooltipContent>{L("Agent tools &amp; policies")}</TooltipContent>
       </Tooltip>
       <PopoverContent
         align="end"

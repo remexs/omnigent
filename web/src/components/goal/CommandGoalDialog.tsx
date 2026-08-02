@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { L } from "@/i18n";
 
 export interface CommandGoalDialogProps {
   open: boolean;
@@ -55,7 +56,7 @@ export function CommandGoalDialog({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <TargetIcon className="size-4" />
-              <span>Goal</span>
+              <span>{L("Goal")}</span>
             </DialogTitle>
             <DialogDescription>
               {backendLabel} keeps working until this condition is met. Progress and completion
@@ -77,7 +78,7 @@ export function CommandGoalDialog({
               disabled={readOnly}
               maxLength={4000}
               className="min-h-28 resize-y"
-              placeholder="All tests pass and the implementation is complete"
+              placeholder={L("All tests pass and the implementation is complete")}
               data-testid="goal-condition"
             />
             {error && <p className="text-sm text-destructive">{error}</p>}

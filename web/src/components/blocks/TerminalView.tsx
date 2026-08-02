@@ -27,6 +27,7 @@ import {
   isUnexpectedTerminalClose,
   TerminalSession,
 } from "./TerminalSession";
+import { L } from "@/i18n";
 
 /**
  * Backoff schedule for automatic re-attach after a transport-level
@@ -420,7 +421,7 @@ function StatusOverlay({
       )}
       {state.kind === "closed" && !reconnectPending && (
         <div className="flex flex-wrap items-center justify-center gap-2 px-3">
-          <span>Bridge closed: {state.reason}</span>
+          <span>{L("Bridge closed:")}{state.reason}</span>
           {onResume && (
             <Button
               type="button"
@@ -438,7 +439,7 @@ function StatusOverlay({
           )}
         </div>
       )}
-      {state.kind === "error" && <span>Bridge error</span>}
+      {state.kind === "error" && <span>{L("Bridge error")}</span>}
     </div>
   );
 }

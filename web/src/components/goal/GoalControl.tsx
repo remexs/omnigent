@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { CommandGoalDialog } from "./CommandGoalDialog";
 import { GoalDialog } from "./GoalDialog";
 import { formatGoalStatus } from "./goalUtils";
+import { L } from "@/i18n";
 
 interface GoalControlBaseProps {
   conversationId: string | null;
@@ -62,7 +63,7 @@ export function GoalControl(props: GoalControlProps) {
             onClick={() => setOpen(true)}
           >
             <TargetIcon className="size-3.5" />
-            <span>Goal</span>
+            <span>{L("Goal")}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -99,7 +100,7 @@ export function GoalStatusPill({ goal }: { goal: Goal }) {
       className="inline-flex items-center gap-1 text-xs font-medium text-foreground"
     >
       <TargetIcon className="size-3.5 shrink-0" />
-      <span>Goal {formatGoalStatus(goal.status)}</span>
+      <span>{L("Goal")}{formatGoalStatus(goal.status)}</span>
     </span>
   );
 }

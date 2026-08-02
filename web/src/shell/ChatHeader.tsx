@@ -27,6 +27,7 @@ import { PresenceAvatars } from "@/components/PresenceAvatars";
 import type { Agent } from "@/hooks/useAgents";
 import { cn } from "@/lib/utils";
 import { TAB_BADGE_BASE } from "./railTabs";
+import { L } from "@/i18n";
 
 /**
  * Gating flags + handlers for the mobile-only session-menu FAB (the
@@ -203,7 +204,7 @@ export function ChatHeader({
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label="Open sidebar"
+                aria-label={L("Open sidebar")}
                 onClick={onOpenSidebar}
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -212,7 +213,7 @@ export function ChatHeader({
             </TooltipTrigger>
             {/* Bottom placement keeps the tooltip clear of the macOS
                 Electron shell's traffic lights at the window's top edge. */}
-            <TooltipContent side="bottom">Open sidebar</TooltipContent>
+            <TooltipContent side="bottom">{L("Open sidebar")}</TooltipContent>
           </Tooltip>
         )}
         {isChildSession && parentSessionId && (
@@ -230,9 +231,9 @@ export function ChatHeader({
               size="sm"
               className="gap-0.5 pl-1.5 pr-2 text-muted-foreground hover:text-foreground"
             >
-              <Link to={`/c/${parentSessionId}`} aria-label="Back to parent session">
+              <Link to={`/c/${parentSessionId}`} aria-label={L("Back to parent session")}>
                 <ChevronLeftIcon className="size-4" />
-                <span>Back</span>
+                <span>{L("Back")}</span>
               </Link>
             </Button>
             {/* Divider + sub-agent identity. The agent name (from the bound
@@ -249,10 +250,10 @@ export function ChatHeader({
                   <span className="truncate text-sm font-semibold text-foreground">
                     {boundAgent.name}
                   </span>
-                  <span className="text-xs text-muted-foreground">Sub-agent</span>
+                  <span className="text-xs text-muted-foreground">{L("Sub-agent")}</span>
                 </div>
               ) : (
-                <span className="text-sm font-semibold text-foreground">Sub-agent</span>
+                <span className="text-sm font-semibold text-foreground">{L("Sub-agent")}</span>
               )}
             </div>
           </>
@@ -283,7 +284,7 @@ export function ChatHeader({
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label="Session actions"
+                aria-label={L("Session actions")}
                 data-testid="session-actions-menu"
                 className="text-muted-foreground hover:text-foreground md:hidden"
               >
@@ -328,7 +329,7 @@ export function ChatHeader({
               >
                 <Button
                   type="button"
-                  aria-label="Share session"
+                  aria-label={L("Share session")}
                   disabled
                   title={shareDisabledReason}
                   // share-button-glassy (index.css) paints the pink gradient,
@@ -347,7 +348,7 @@ export function ChatHeader({
         ) : canShare ? (
           <Button
             type="button"
-            aria-label="Share session"
+            aria-label={L("Share session")}
             onClick={onShare}
             // share-button-glassy (index.css) paints the pink gradient,
             // shadow, and white text in both light and dark mode.
@@ -407,7 +408,7 @@ export function ChatHeader({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  aria-label="Open session menu"
+                  aria-label={L("Open session menu")}
                   className="text-muted-foreground hover:text-foreground md:hidden"
                 >
                   <PanelRightIcon className="size-4" />

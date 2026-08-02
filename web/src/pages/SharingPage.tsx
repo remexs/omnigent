@@ -17,6 +17,7 @@ import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { getCurrentIsAdmin, resolveIdentity } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 import { useSetSharing, useSharing } from "@/hooks/useSharing";
+import { L } from "@/i18n";
 
 /** The four tiers, most-permissive first, with human-readable copy. */
 const TIERS: { id: SharingMode; label: string; description: string }[] = [
@@ -79,7 +80,7 @@ export function SharingPage() {
   if (!isSingleUser && meIsAdmin === false) {
     return (
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
-        <h1 className="mb-2 text-2xl font-semibold">Session sharing</h1>
+        <h1 className="mb-2 text-2xl font-semibold">{L("Session sharing")}</h1>
         <p className="text-sm text-muted-foreground">
           You don't have permission to manage session sharing.
         </p>
@@ -108,7 +109,7 @@ export function SharingPage() {
     <PageScroll contentClassName="px-8" extraBottom="2.5rem">
       <div>
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold">Session sharing</h1>
+          <h1 className="text-2xl font-semibold">{L("Session sharing")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Control whether users on this server can share sessions with others. Applies server-wide
             and takes effect immediately. Changes affect only new shares — existing grants
@@ -117,7 +118,7 @@ export function SharingPage() {
         </div>
 
         {isLoading || current === undefined ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">{L("Loading…")}</p>
         ) : (
           <>
             {!editable && (
@@ -128,7 +129,7 @@ export function SharingPage() {
             <fieldset
               className="space-y-2"
               disabled={!editable || setMode.isPending}
-              aria-label="Session sharing mode"
+              aria-label={L("Session sharing mode")}
             >
               {TIERS.map((tier) => {
                 const selected = tier.id === current;
@@ -164,7 +165,7 @@ export function SharingPage() {
             {/* Public access — a separate switch from the tiers above. */}
             <div className="mt-6 flex items-center justify-between rounded-lg border px-4 py-3">
               <div className="pr-4">
-                <p className="text-sm font-medium">Public access</p>
+                <p className="text-sm font-medium">{L("Public access")}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   Allow sharing a session with anyone who has the link (public read access). When
                   off, the Share dialog's "Public access" toggle is hidden and new public grants are
@@ -180,7 +181,7 @@ export function SharingPage() {
                 checked={publicEnabled}
                 onCheckedChange={togglePublic}
                 disabled={!publicEditable || setMode.isPending}
-                aria-label="Public access"
+                aria-label={L("Public access")}
               />
             </div>
             {error && <p className="mt-3 text-sm text-destructive">{error}</p>}

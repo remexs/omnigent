@@ -39,6 +39,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { conversationDisplayLabel, getConversationAgentType } from "./sidebarNav";
+import { L } from "@/i18n";
 
 export interface CommandPaletteProps {
   open: boolean;
@@ -222,15 +223,15 @@ export function CommandPalette({
         className="top-1/4 translate-y-0 overflow-hidden p-0 sm:max-w-2xl"
         showCloseButton={false}
       >
-        <DialogTitle className="sr-only">Command palette</DialogTitle>
+        <DialogTitle className="sr-only">{L("Command palette")}</DialogTitle>
         {/* shouldFilter=false: the server filters sessions and we filter actions
             (see file header). vimBindings=false: keep Ctrl+K/J from doubling as
             list-nav on Win/Linux, where Ctrl+K is also the opener. */}
-        <Command shouldFilter={false} vimBindings={false} label="Command palette">
+        <Command shouldFilter={false} vimBindings={false} label={L("Command palette")}>
           <CommandInput
             value={query}
             onValueChange={setQuery}
-            placeholder="Search sessions or run a command"
+            placeholder={L("Search sessions or run a command")}
             data-testid="command-palette-input"
           />
           <CommandList>
@@ -238,7 +239,7 @@ export function CommandPalette({
               {isFetching && debouncedQuery ? "Searching…" : "No results found"}
             </CommandEmpty>
             {sessions.length > 0 && (
-              <CommandGroup heading="Sessions">
+              <CommandGroup heading={L("Sessions")}>
                 {sessions.map((s) => (
                   // pl-6 indents the label to line up with the icon-prefixed
                   // Action rows below (their 16px icon + 8px gap), so the two
@@ -267,7 +268,7 @@ export function CommandPalette({
               </CommandGroup>
             )}
             {filteredActions.length > 0 && (
-              <CommandGroup heading="Actions">
+              <CommandGroup heading={L("Actions")}>
                 {filteredActions.map((a) => {
                   const Icon = a.icon;
                   return (

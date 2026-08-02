@@ -30,6 +30,7 @@ import { useSearchParams } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getMe, login as loginRequest } from "@/lib/accountsApi";
+import { L } from "@/i18n";
 
 const DEFAULT_RETURN_TO = "/";
 const LAST_USERNAME_KEY = "omnigent.lastLoginUsername";
@@ -142,8 +143,8 @@ export function LoginPage() {
     >
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-          <p className="text-sm text-muted-foreground">Welcome to Omnigent.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">{L("Sign in")}</h1>
+          <p className="text-sm text-muted-foreground">{L("Welcome to Omnigent.")}</p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
@@ -161,7 +162,7 @@ export function LoginPage() {
               required
             />
             <p className="text-xs text-muted-foreground">
-              On a fresh install your username is your machine login (the output of{" "}
+              {L("On a fresh install your username is your machine login (the output of")}{" "}
               <code className="font-mono">whoami</code>), unless an admin set a different one.
             </p>
           </div>

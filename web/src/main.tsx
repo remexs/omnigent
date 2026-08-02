@@ -24,6 +24,7 @@ import {
 import { applyThemePalette, readThemePalette } from "./lib/themePalette";
 import { applyCustomTheme, readCustomTheme } from "./lib/customTheme";
 import { initChatStore } from "./store/chatStore";
+import { htmlLang } from "./i18n";
 import "./index.css";
 
 // Start tracing before any request fires so fetch/XHR are patched in time
@@ -60,6 +61,12 @@ initNativeInsets();
 // Apply the saved UI font size and family before first paint so there's no flash.
 applyUiFontScale(readUiFontSizePx());
 applyUiFontFamily(readUiFontFamily());
+
+// Reflect the active UI language on <html> so screen readers and the browser
+// get the right lang. The full strings apply on first render via L().
+if (typeof document !== "undefined") {
+  document.documentElement.lang = htmlLang();
+}
 
 // The sidebar font size control was removed. Clear any previously persisted
 // value so existing users fall back to the default 13px size on reload.

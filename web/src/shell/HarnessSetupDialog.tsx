@@ -39,6 +39,7 @@ import {
   type ResolvedSetupStep,
 } from "@/lib/harnessSetup";
 import { HarnessCredentialForm } from "@/shell/HarnessCredentialForm";
+import { L } from "@/i18n";
 
 export function HarnessSetupDialog({
   open,
@@ -136,7 +137,7 @@ export function HarnessSetupDialog({
       <DialogContent className="sm:max-w-lg" data-testid="harness-setup-dialog">
         <DialogHeader>
           <DialogTitle>
-            Set up {name} on {host?.name}
+            {L("Set up")}{name} on {host?.name}
           </DialogTitle>
           {/* Only show a description when it adds something the title doesn't:
               the done / needs-more-setup states. The generic "complete these
@@ -156,8 +157,8 @@ export function HarnessSetupDialog({
           // (all green ticks) rather than showing a "run omni setup"
           // signpost that would contradict the "is ready" description.
           <p className="py-1 text-sm text-muted-foreground" data-testid="harness-setup-empty">
-            Run <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">omni setup</code>{" "}
-            on {host?.name} to finish setting up {name}.
+            {L("Run")}<code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{L("omni setup")}</code>{" "}
+            on {host?.name} {L("to finish setting up")}{name}.
           </p>
         ) : hasSteps ? (
           <ul className="flex flex-col gap-3 py-1">
@@ -255,7 +256,7 @@ function SetupStepRow({
               rather than stranded at the bottom of the dialog. */}
           {step.kind === "install" && installing ? (
             <span className="text-xs text-muted-foreground" data-testid="harness-setup-installing">
-              Installing on {host?.name} — this can take a few minutes for larger agents.
+              {L("Installing on")}{host?.name} — this can take a few minutes for larger agents.
             </span>
           ) : (
             detail && <span className="text-xs text-muted-foreground">{detail}</span>
@@ -292,7 +293,7 @@ function SetupStepRow({
             size="sm"
             disabled
             data-testid="harness-setup-add-credential"
-            title="Install first, then set up authentication"
+            title={L("Install first, then set up authentication")}
           >
             Set up auth
           </Button>
@@ -327,7 +328,7 @@ function CopyCommand({ command }: { command: string }) {
     <button
       type="button"
       data-testid="harness-setup-command"
-      title="Copy command"
+      title={L("Copy command")}
       className="group flex shrink-0 items-center gap-1.5 rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
         void copyText(command)

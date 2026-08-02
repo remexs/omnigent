@@ -46,6 +46,7 @@ import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { getOmnigentTransformShareLink, getOmnigentUserSearch } from "@/lib/host";
 import { useRebasePath } from "@/lib/routing";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 const PUBLIC_USER = "__public__";
 
@@ -148,7 +149,7 @@ export function PermissionsModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">Sharing unavailable</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">{L("Sharing unavailable")}</DialogTitle>
             <DialogDescription>
               Sharing has been disabled for this Omnigent server.
             </DialogDescription>
@@ -167,7 +168,7 @@ export function PermissionsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">Share this session</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">{L("Share this session")}</DialogTitle>
           <DialogDescription>
             {sharingReadOnly
               ? "This server allows read-only sharing — invite others to view this session."
@@ -179,8 +180,8 @@ export function PermissionsModal({
         {publicSharingEnabled && (
           <div className="flex items-center justify-between rounded-lg border px-3 py-2">
             <div>
-              <p className="text-sm font-medium">Public access</p>
-              <p className="text-xs text-muted-foreground">Anyone can view this session</p>
+              <p className="text-sm font-medium">{L("Public access")}</p>
+              <p className="text-xs text-muted-foreground">{L("Anyone can view this session")}</p>
             </div>
             <Switch
               checked={isPublic}
@@ -195,9 +196,9 @@ export function PermissionsModal({
             track's min-content and pushes every row past the dialog edge. */}
         <div className="min-w-0" data-testid="share-grants">
           {isLoading ? (
-            <p className="text-sm text-muted-foreground py-2">Loading…</p>
+            <p className="text-sm text-muted-foreground py-2">{L("Loading…")}</p>
           ) : userGrants.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-2">No grants yet.</p>
+            <p className="text-sm text-muted-foreground py-2">{L("No grants yet.")}</p>
           ) : (
             <>
               {/* Column headers */}
@@ -244,11 +245,11 @@ export function PermissionsModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Read</SelectItem>
+                <SelectItem value="1">{L("Read")}</SelectItem>
                 {/* Read-only sharing caps new grants at view; hide Edit. */}
-                {!sharingReadOnly && <SelectItem value="2">Edit</SelectItem>}
+                {!sharingReadOnly && <SelectItem value="2">{L("Edit")}</SelectItem>}
                 {!sharingReadOnly && canDelegateApprovals && (
-                  <SelectItem value="2-approve">Edit + approve</SelectItem>
+                  <SelectItem value="2-approve">{L("Edit + approve")}</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -313,7 +314,7 @@ function AddUserField({ value, onChange }: AddUserFieldProps) {
         id="perm-user"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="alice@example.com"
+        placeholder={L("alice@example.com")}
         className="mt-1 h-8"
       />
     );
@@ -416,7 +417,7 @@ function AddUserCombobox({ value, onChange }: AddUserFieldProps) {
         // preventDefault below, so they don't blur the input before committing.
         onBlur={() => setOpen(false)}
         onKeyDown={handleKeyDown}
-        placeholder="alice@example.com"
+        placeholder={L("alice@example.com")}
         className="mt-1 h-8"
         autoComplete="off"
       />
@@ -424,9 +425,9 @@ function AddUserCombobox({ value, onChange }: AddUserFieldProps) {
         // Wider than the (narrow) field so suggested emails aren't truncated.
         <div className="absolute left-0 top-full z-50 mt-1 w-96 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
           {isLoading ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">Searching…</div>
+            <div className="py-6 text-center text-sm text-muted-foreground">{L("Searching…")}</div>
           ) : suggestions.length === 0 ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">No matches</div>
+            <div className="py-6 text-center text-sm text-muted-foreground">{L("No matches")}</div>
           ) : (
             <div ref={listRef} id={listId} role="listbox" className="max-h-72 overflow-y-auto">
               {suggestions.map((s, index) => (
@@ -565,7 +566,7 @@ function QrCodeDialog({
               // mode; the padding also serves as the QR quiet zone.
               bgColor="#ffffff"
               fgColor="#000000"
-              aria-label="QR code to open this session in the Omnigent app"
+              aria-label={L("QR code to open this session in the Omnigent app")}
             />
           </div>
         </div>
@@ -634,9 +635,9 @@ function GrantRow({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">Read</SelectItem>
-            <SelectItem value="2">Edit</SelectItem>
-            {canDelegateApprovals && <SelectItem value="2-approve">Edit + approve</SelectItem>}
+            <SelectItem value="1">{L("Read")}</SelectItem>
+            <SelectItem value="2">{L("Edit")}</SelectItem>
+            {canDelegateApprovals && <SelectItem value="2-approve">{L("Edit + approve")}</SelectItem>}
           </SelectContent>
         </Select>
       )}
@@ -651,7 +652,7 @@ function GrantRow({
           className="shrink-0 text-muted-foreground hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
-          <span className="sr-only">Revoke</span>
+          <span className="sr-only">{L("Revoke")}</span>
         </Button>
       )}
     </div>

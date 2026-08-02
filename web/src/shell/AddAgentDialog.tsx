@@ -13,6 +13,7 @@ import { AgentCard } from "@/components/AgentCard";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { childSessionsQueryKey } from "@/hooks/useChildSessions";
 import { createSession } from "@/lib/sessionsApi";
+import { L } from "@/i18n";
 
 // Title sentinel marking a user-added agent. Mirrors the server's
 // ``_UI_ADDED_AGENT_TITLE_PREFIX`` in omnigent/server/routes/sessions.py:
@@ -111,16 +112,16 @@ export function AddAgentDialog({
         className="flex max-h-[85vh] flex-col gap-4 sm:max-w-lg"
       >
         <DialogHeader>
-          <DialogTitle>Add agent</DialogTitle>
+          <DialogTitle>{L("Add agent")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Pick an agent</span>
+            <span className="text-xs font-medium text-muted-foreground">{L("Pick an agent")}</span>
             {agentList.length === 0 ? (
               <p data-testid="add-agent-empty" className="text-xs text-muted-foreground">
-                No agents available on this server. Register one with{" "}
-                <code className="font-mono">omnigent server --agent</code>.
+                {L("No agents available on this server. Register one with")}{" "}
+                <code className="font-mono">{L("omnigent server --agent")}</code>.
               </p>
             ) : (
               agentList.map((agent) => (
@@ -149,7 +150,7 @@ export function AddAgentDialog({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Name this agent"
+                placeholder={L("Name this agent")}
                 className="rounded-md border border-input bg-background px-3 py-2 font-mono text-xs outline-none transition-colors focus-visible:border-ring"
               />
             </div>

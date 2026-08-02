@@ -11,6 +11,7 @@
 
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { XIcon } from "lucide-react";
+import { L } from "@/i18n";
 
 const TOAST_EVENT = "omnigent:toast";
 const DEFAULT_DURATION_MS = 6000;
@@ -80,7 +81,7 @@ function ToastRow({ item, onDismiss }: { item: ToastItem; onDismiss: (id: number
       <span className="min-w-0">{item.content}</span>
       <button
         type="button"
-        aria-label="Dismiss"
+        aria-label={L("Dismiss")}
         onClick={() => onDismiss(item.id)}
         className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
       >

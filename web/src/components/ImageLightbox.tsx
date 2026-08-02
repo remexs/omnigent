@@ -14,6 +14,7 @@ import { XIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
 import { getEmbedRoot } from "@/lib/host";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 // Zoom bounds and step for the lightbox viewer. 1 = fit-to-card.
 const MIN_ZOOM = 1;
@@ -165,7 +166,7 @@ function ZoomViewer({ image }: { image: LightboxImage }) {
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Zoom out"
+          aria-label={L("Zoom out")}
           disabled={zoom <= MIN_ZOOM}
           onClick={() => applyZoom(zoom - ZOOM_STEP * 2)}
         >
@@ -173,7 +174,7 @@ function ZoomViewer({ image }: { image: LightboxImage }) {
         </Button>
         <button
           type="button"
-          aria-label="Reset zoom"
+          aria-label={L("Reset zoom")}
           className="min-w-[3ch] cursor-pointer text-center text-xs tabular-nums text-muted-foreground hover:text-foreground"
           onClick={resetView}
         >
@@ -182,7 +183,7 @@ function ZoomViewer({ image }: { image: LightboxImage }) {
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Zoom in"
+          aria-label={L("Zoom in")}
           disabled={zoom >= MAX_ZOOM}
           onClick={() => applyZoom(zoom + ZOOM_STEP * 2)}
         >
@@ -251,7 +252,7 @@ export function ImageLightboxProvider({ children }: { children: React.ReactNode 
                 className="absolute top-3 right-3 bg-background/70 hover:bg-background/90"
               >
                 <XIcon />
-                <span className="sr-only">Close</span>
+                <span className="sr-only">{L("Close")}</span>
               </Button>
             </DialogPrimitive.Close>
           </DialogPrimitive.Content>

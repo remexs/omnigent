@@ -15,6 +15,7 @@ import {
   searchDecorationKey,
   type SearchDecorationState,
 } from "./TipTapSearchExtension";
+import { L } from "@/i18n";
 
 interface MarkdownSearchBarProps {
   editor: Editor | null;
@@ -128,7 +129,7 @@ export function MarkdownSearchBar({
             close();
           }
         }}
-        placeholder="Find…"
+        placeholder={L("Find…")}
         className="min-w-0 flex-1 bg-transparent text-xs outline-none"
       />
       <span className="shrink-0 text-xs text-muted-foreground">
@@ -136,7 +137,7 @@ export function MarkdownSearchBar({
       </span>
       <button
         type="button"
-        aria-label="Previous match"
+        aria-label={L("Previous match")}
         className="rounded p-0.5 text-muted-foreground hover:bg-muted disabled:opacity-40"
         disabled={matchCount === 0}
         onClick={goPrev}
@@ -145,7 +146,7 @@ export function MarkdownSearchBar({
       </button>
       <button
         type="button"
-        aria-label="Next match"
+        aria-label={L("Next match")}
         className="rounded p-0.5 text-muted-foreground hover:bg-muted disabled:opacity-40"
         disabled={matchCount === 0}
         onClick={goNext}
@@ -154,7 +155,7 @@ export function MarkdownSearchBar({
       </button>
       <button
         type="button"
-        aria-label="Close search"
+        aria-label={L("Close search")}
         className="rounded p-0.5 text-muted-foreground hover:bg-muted"
         onClick={close}
       >

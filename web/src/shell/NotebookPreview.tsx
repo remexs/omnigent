@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlockContent } from "@/components/ai-elements/code-block";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 // ansi-to-react is CJS with a TS-compiled `exports.default`; depending on the
 // bundler interop (Vite dev prebundle vs vitest vs production build) the
@@ -162,7 +163,7 @@ function OutputView({ output }: { output: NotebookOutput }) {
       return (
         <img
           src={`data:${imageMime};base64,${b64}`}
-          alt="notebook output"
+          alt={L("notebook output")}
           className="max-w-full my-1"
         />
       );
@@ -195,7 +196,7 @@ function CodeCell({ cell, language }: { cell: NotebookCell; language: BundledLan
   return (
     <div className="flex gap-2">
       <div className="w-14 shrink-0 pt-1 text-right font-mono text-xs text-muted-foreground select-none">
-        In [{count ?? " "}]:
+        {L("In [")}{count ?? " "}]:
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="rounded border bg-muted/30 text-xs">
@@ -224,7 +225,7 @@ export function NotebookPreview({
   if (error || !notebook) {
     return (
       <div className="p-8 text-sm">
-        <div className="text-destructive">Cannot render notebook: {error}</div>
+        <div className="text-destructive">{L("Cannot render notebook:")}{error}</div>
         <div className="mt-1 text-muted-foreground">
           Switch to the source view to inspect the raw file.
         </div>

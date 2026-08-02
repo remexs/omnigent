@@ -47,6 +47,7 @@ import {
   normalizeWorkspacePath,
   sessionsSharingDirectory,
 } from "./NewChatDialog";
+import { L } from "@/i18n";
 
 // Select sentinel for "keep the source's agent" (Radix Select needs a
 // non-empty value). When chosen, the fork omits agent_id and the server
@@ -528,7 +529,7 @@ export function ForkSessionForm({
               instructions directly when none are. */}
         {isCodingSource && (
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Host</span>
+            <span className="text-xs font-medium text-muted-foreground">{L("Host")}</span>
             {hosts === undefined ? (
               <p className="text-xs text-muted-foreground" data-testid="fork-session-no-hosts">
                 Loading hosts…
@@ -562,7 +563,7 @@ export function ForkSessionForm({
                   }}
                 >
                   <SelectTrigger className="w-full text-xs" data-testid="fork-session-host-select">
-                    <SelectValue placeholder="Select a host" />
+                    <SelectValue placeholder={L("Select a host")} />
                   </SelectTrigger>
                   <SelectContent>
                     {onlineHosts.map((host) => (
@@ -624,7 +625,7 @@ export function ForkSessionForm({
                 ) : (
                   <>
                     {sourceAgentDisplay}{" "}
-                    <span className="text-muted-foreground">(same as original session)</span>
+                    <span className="text-muted-foreground">{L("(same as original session)")}</span>
                   </>
                 )}
               </SelectValue>
@@ -636,7 +637,7 @@ export function ForkSessionForm({
                 className="text-xs"
               >
                 {sourceAgentDisplay}{" "}
-                <span className="text-muted-foreground">(same as original session)</span>
+                <span className="text-muted-foreground">{L("(same as original session)")}</span>
               </SelectItem>
               {builtinSwitchable.map((agent) => (
                 <SelectItem
@@ -669,7 +670,7 @@ export function ForkSessionForm({
               directory; changing it lives under Advanced settings. */}
         {usingSourceDir && (
           <p className="text-xs text-muted-foreground" data-testid="fork-session-reuse-dir-hint">
-            By default the clone reuses the original session's{" "}
+            {L("By default the clone reuses the original session's")}{" "}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -699,7 +700,7 @@ export function ForkSessionForm({
               {conflictingSessions.length === 1
                 ? "1 other agent is"
                 : `${conflictingSessions.length} other agents are`}{" "}
-              working in this directory, so writes may conflict. Name a{" "}
+              {L("working in this directory, so writes may conflict. Name a")}{" "}
               {usingSourceWorktree ? "different git branch" : "git branch"} under Advanced settings
               to work in an isolated copy.
             </span>
@@ -819,7 +820,7 @@ export function ForkSessionForm({
                       type="text"
                       value={branchName}
                       onChange={(e) => setBranchName(e.target.value)}
-                      placeholder="feature/my-branch"
+                      placeholder={L("feature/my-branch")}
                       data-testid="fork-session-branch-input"
                       className="rounded-md border border-input bg-background px-3 py-2 font-mono text-xs outline-none transition-colors focus-visible:border-ring"
                     />
@@ -930,7 +931,7 @@ export function ForkSessionDialog({
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="What does cloning do?"
+                  aria-label={L("What does cloning do?")}
                   data-testid="fork-session-info"
                   // tabIndex=-1 keeps the dialog's open-autofocus (and tabbing)
                   // off this icon, so the tooltip only opens on hover — not the

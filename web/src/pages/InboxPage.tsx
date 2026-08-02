@@ -57,6 +57,7 @@ import { approve, getSession } from "@/lib/sessionsApi";
 import { userColor, userInitials } from "@/lib/userBadge";
 import { cn } from "@/lib/utils";
 import { conversationDisplayLabel, getConversationAgentType } from "@/shell/sidebarNav";
+import { L } from "@/i18n";
 
 /** Optimistic verdicts keyed by elicitation id, mirroring the chat store's flip. */
 type RespondedMap = Record<
@@ -190,7 +191,7 @@ export function InboxPage() {
   return (
     <PageScroll contentClassName="px-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Inbox</h1>
+        <h1 className="text-2xl font-semibold">{L("Inbox")}</h1>
         {(items.length > 0 || commentInbox.items.length > 0) && (
           <span className="text-sm text-muted-foreground">
             {[
@@ -214,7 +215,7 @@ export function InboxPage() {
         >
           <AlertTriangleIcon className="size-4 shrink-0 text-destructive" />
           <span className="flex-1">
-            Couldn’t load inbox items from {failedSessionCount}{" "}
+            {L("Couldn’t load inbox items from")}{failedSessionCount}{" "}
             {failedSessionCount === 1 ? "session" : "sessions"}.
           </span>
           <Button
@@ -243,7 +244,7 @@ export function InboxPage() {
         commentInbox.items.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-16 text-center">
             <InboxIcon className="size-8 text-muted-foreground/50" />
-            <p className="text-sm font-medium">Nothing waiting on you</p>
+            <p className="text-sm font-medium">{L("Nothing waiting on you")}</p>
             <p className="text-xs text-muted-foreground">
               When an agent needs your input or someone comments on a file, it will show up here.
             </p>
@@ -363,7 +364,7 @@ export function InboxPage() {
                 <div className="flex items-center gap-2">
                   <span className="min-w-0 truncate text-sm">
                     <span className="font-medium">{author}</span>
-                    <span className="text-muted-foreground"> commented on </span>
+                    <span className="text-muted-foreground"> {L("commented on")}</span>
                     <span className="font-mono text-xs">{comment.path}</span>
                   </span>
                   <span className="ml-auto flex shrink-0 items-center gap-2">

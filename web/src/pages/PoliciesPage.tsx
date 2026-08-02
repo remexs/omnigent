@@ -38,6 +38,7 @@ import { getCurrentIsAdmin, resolveIdentity } from "@/lib/identity";
 import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { isSingleUserMode } from "@/lib/capabilities";
 import { coercePolicyParams } from "@/lib/policyParams";
+import { L } from "@/i18n";
 
 // ---------------------------------------------------------------------------
 // Add-policy dialog (registry-driven, same UX as session policies)
@@ -150,8 +151,8 @@ function AddDefaultPolicyDialog({
     >
       <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Global Policy</DialogTitle>
-          <DialogDescription>Choose a policy to apply globally to all sessions.</DialogDescription>
+          <DialogTitle>{L("Add Global Policy")}</DialogTitle>
+          <DialogDescription>{L("Choose a policy to apply globally to all sessions.")}</DialogDescription>
         </DialogHeader>
         <div className="min-w-0 space-y-3 pt-1">
           {!selected &&
@@ -170,7 +171,7 @@ function AddDefaultPolicyDialog({
                     type="text"
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
-                    placeholder="Filter policies..."
+                    placeholder={L("Filter policies...")}
                     className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-ring"
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
@@ -468,7 +469,7 @@ export function PoliciesPage() {
   if (!isSingleUser && meIsAdmin === false) {
     return (
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
-        <h1 className="mb-2 text-2xl font-semibold">Global Policies</h1>
+        <h1 className="mb-2 text-2xl font-semibold">{L("Global Policies")}</h1>
         <p className="text-sm text-muted-foreground">
           You don't have permission to manage global policies.
         </p>
@@ -496,7 +497,7 @@ export function PoliciesPage() {
     <PageScroll contentClassName="px-8" extraBottom="2.5rem">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Global Policies</h1>
+          <h1 className="text-2xl font-semibold">{L("Global Policies")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Global policies applied to all sessions.
           </p>
@@ -561,7 +562,7 @@ export function PoliciesPage() {
                           variant="ghost"
                           size="icon"
                           className="size-8 text-muted-foreground hover:text-destructive"
-                          title="Remove policy"
+                          title={L("Remove policy")}
                           onClick={() => setDeleteCandidate(p)}
                           disabled={pendingAction}
                         >
@@ -621,7 +622,7 @@ export function PoliciesPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Remove {deleteCandidate?.name}?</DialogTitle>
+            <DialogTitle>{L("Remove")}{deleteCandidate?.name}?</DialogTitle>
             <DialogDescription>
               This removes the global policy from all sessions. Existing session-level policies with
               the same handler are unaffected.

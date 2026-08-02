@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { BRAIN_HARNESS_LABELS, useBrainHarnessLabels } from "@/lib/agentLabels";
 import type { AgentBundleInput, MCPServerInput } from "@/lib/agentBundle";
+import { L } from "@/i18n";
 
 /**
  * Harness options for the picker. "default" uses the server's default
@@ -191,7 +192,7 @@ export function CreateAgentDialog({
         className="flex max-h-[85vh] flex-col gap-4 sm:max-w-lg"
       >
         <DialogHeader>
-          <DialogTitle>Create custom agent</DialogTitle>
+          <DialogTitle>{L("Create custom agent")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
@@ -201,14 +202,14 @@ export function CreateAgentDialog({
               htmlFor="create-agent-name"
               className="text-xs font-medium text-muted-foreground"
             >
-              Name <span className="text-destructive">*</span>
+              {L("Name")}<span className="text-destructive">*</span>
             </label>
             <Input
               id="create-agent-name"
               data-testid="create-agent-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="my-agent"
+              placeholder={L("my-agent")}
               autoFocus
             />
           </div>
@@ -226,14 +227,14 @@ export function CreateAgentDialog({
               data-testid="create-agent-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="A short summary of what this agent does"
+              placeholder={L("A short summary of what this agent does")}
             />
           </div>
 
           {/* Harness */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-muted-foreground">
-              Harness <span className="text-destructive">*</span>
+              {L("Harness")}<span className="text-destructive">*</span>
             </label>
             <Select value={harness} onValueChange={setHarness}>
               <SelectTrigger data-testid="create-agent-harness" className="w-full">
@@ -255,14 +256,14 @@ export function CreateAgentDialog({
               htmlFor="create-agent-model"
               className="text-xs font-medium text-muted-foreground"
             >
-              Model <span className="text-destructive">*</span>
+              {L("Model")}<span className="text-destructive">*</span>
             </label>
             <Input
               id="create-agent-model"
               data-testid="create-agent-model"
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              placeholder="claude-sonnet-4-20250514"
+              placeholder={L("claude-sonnet-4-20250514")}
             />
           </div>
 
@@ -279,7 +280,7 @@ export function CreateAgentDialog({
               data-testid="create-agent-instructions"
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              placeholder="You are a helpful assistant that..."
+              placeholder={L("You are a helpful assistant that...")}
               className="min-h-[120px]"
             />
           </div>
@@ -287,7 +288,7 @@ export function CreateAgentDialog({
           {/* MCP Servers */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">MCP Tools</span>
+              <span className="text-xs font-medium text-muted-foreground">{L("MCP Tools")}</span>
               <Button
                 type="button"
                 variant="ghost"
@@ -344,7 +345,7 @@ function MCPServerRow({
           data-testid="create-agent-mcp-name"
           value={entry.name}
           onChange={(e) => onChange({ name: e.target.value })}
-          placeholder="server-name"
+          placeholder={L("server-name")}
           className="flex-1"
         />
         <Select
@@ -377,13 +378,13 @@ function MCPServerRow({
             data-testid="create-agent-mcp-command"
             value={entry.command}
             onChange={(e) => onChange({ command: e.target.value })}
-            placeholder="command (e.g. npx)"
+            placeholder={L("command (e.g. npx)")}
           />
           <Input
             data-testid="create-agent-mcp-args"
             value={entry.args}
             onChange={(e) => onChange({ args: e.target.value })}
-            placeholder="args (e.g. -y @modelcontextprotocol/server-github)"
+            placeholder={L("args (e.g. -y @modelcontextprotocol/server-github)")}
           />
           <Textarea
             data-testid="create-agent-mcp-env"

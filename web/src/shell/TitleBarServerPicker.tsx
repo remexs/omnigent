@@ -14,6 +14,7 @@ import {
   type ServerPickerInfo,
 } from "@/lib/nativeBridge";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 /** Short display label for a server URL — its host, e.g. "localhost:8000". */
 function hostOf(url: string): string {
@@ -87,7 +88,7 @@ export function TitleBarServerPicker({
             "my-1 text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
             "data-[state=open]:bg-foreground/5 data-[state=open]:text-foreground",
           )}
-          title="Switch server"
+          title={L("Switch server")}
         >
           <span className="truncate font-medium">
             {threadTitle || "Omnigent"} — {hostOf(info.currentOrigin)}

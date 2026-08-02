@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { useServiceWorkerUpdate } from "./useServiceWorkerUpdate";
+import { L } from "@/i18n";
 
 /**
  * Service-worker update banner.
@@ -26,7 +27,7 @@ export function PWAUpdateBanner() {
         "supports-[backdrop-filter]:bg-background/80",
       )}
     >
-      <span className="text-sm text-foreground">A new version of Omnigent is available.</span>
+      <span className="text-sm text-foreground">{L("A new version of Omnigent is available.")}</span>
       <Button size="sm" onClick={reload}>
         Reload
       </Button>

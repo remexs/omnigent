@@ -31,6 +31,7 @@ import { useDirectorySessions } from "@/hooks/useDirectorySessions";
 import { useRunnerHealthRegistration } from "@/hooks/RunnerHealthProvider";
 import { useRecentWorkspaces } from "@/hooks/useRecentWorkspaces";
 import { getSessionSlim, launchRunner } from "@/lib/sessionsApi";
+import { L } from "@/i18n";
 
 /**
  * Compact host label for the Select item — mirrors NewChatDialog's
@@ -259,7 +260,7 @@ export function ResumeWithDirectoryDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent data-testid="resume-dir-dialog" className="flex flex-col gap-4 sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Resume this session</DialogTitle>
+          <DialogTitle>{L("Resume this session")}</DialogTitle>
           <DialogDescription>
             This clone hasn't picked a working directory yet. Choose a host and directory to
             continue the conversation against your files.
@@ -293,10 +294,10 @@ export function ResumeWithDirectoryDialog({
         ) : (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-medium text-muted-foreground">Host</span>
+              <span className="text-xs font-medium text-muted-foreground">{L("Host")}</span>
               <Select value={selectedHostId ?? ""} onValueChange={(v) => setSelectedHostId(v)}>
                 <SelectTrigger className="w-full text-xs" data-testid="resume-dir-host-select">
-                  <SelectValue placeholder="Select a host" />
+                  <SelectValue placeholder={L("Select a host")} />
                 </SelectTrigger>
                 <SelectContent>
                   {onlineHosts.map((host) => (
@@ -313,7 +314,7 @@ export function ResumeWithDirectoryDialog({
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-medium text-muted-foreground">Working directory</span>
+              <span className="text-xs font-medium text-muted-foreground">{L("Working directory")}</span>
               {selectedHostId ? (
                 <>
                   <WorkspacePathField
@@ -385,7 +386,7 @@ export function ResumeWithDirectoryDialog({
                 type="text"
                 value={branchName}
                 onChange={(e) => setBranchName(e.target.value)}
-                placeholder="feature/my-branch"
+                placeholder={L("feature/my-branch")}
                 data-testid="resume-dir-branch-input"
                 className="rounded-md border border-input bg-background px-3 py-2 font-mono text-xs outline-none transition-colors focus-visible:border-ring"
               />
@@ -395,8 +396,8 @@ export function ResumeWithDirectoryDialog({
                   type="text"
                   value={baseBranch}
                   onChange={(e) => setBaseBranch(e.target.value)}
-                  placeholder="Base branch (defaults to the current branch)"
-                  aria-label="Base branch"
+                  placeholder={L("Base branch (defaults to the current branch)")}
+                  aria-label={L("Base branch")}
                   data-testid="resume-dir-base-branch-input"
                   className="rounded-md border border-input bg-background px-3 py-2 font-mono text-xs outline-none transition-colors focus-visible:border-ring"
                 />

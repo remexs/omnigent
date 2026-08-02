@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { shortModelName } from "@/components/CostRoutingControl";
 import { cn } from "@/lib/utils";
 import { TOOL_SURFACE_WIDTH_CLASS } from "./toolSurface";
+import { L } from "@/i18n";
 
 interface ErrorBannerProps {
   message: string;
@@ -43,7 +44,7 @@ export function ErrorBanner({ message, source, code }: ErrorBannerProps) {
     >
       <AlertCircleIcon />
       <AlertTitle className="min-w-0 break-words [overflow-wrap:anywhere]">
-        Error{source ? ` · ${source}` : ""}
+        {L("Error")}{source ? ` · ${source}` : ""}
         {code && message ? ` · ${code}` : ""}
       </AlertTitle>
       <AlertDescription className="min-w-0 max-w-full overflow-hidden">
@@ -68,7 +69,7 @@ export function PolicyDeniedBanner({ reason, phase }: PolicyDeniedBannerProps) {
   return (
     <Alert>
       <ShieldXIcon />
-      <AlertTitle>Blocked by policy{phase ? ` · ${phase}` : ""}</AlertTitle>
+      <AlertTitle>{L("Blocked by policy")}{phase ? ` · ${phase}` : ""}</AlertTitle>
       <AlertDescription>{reason}</AlertDescription>
     </Alert>
   );
@@ -95,7 +96,7 @@ export function RetryIndicator({
     <div className="flex items-center gap-2 text-muted-foreground text-xs">
       <RotateCcwIcon className="size-3" />
       <span>
-        Retrying {source} · attempt {attempt}/{maxAttempts}
+        {L("Retrying")}{source} {L("· attempt")}{attempt}/{maxAttempts}
         {delaySeconds > 0 ? ` · waiting ${delaySeconds.toFixed(1)}s` : ""}
       </span>
     </div>
@@ -112,7 +113,7 @@ export function CompactionMarker() {
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-xs italic">
       <ShrinkIcon className="size-3" />
-      <span>Conversation compacted</span>
+      <span>{L("Conversation compacted")}</span>
     </div>
   );
 }
@@ -141,8 +142,8 @@ export function RoutingDecisionChip({ model, applied, rationale }: RoutingDecisi
       <span className="flex items-center gap-1.5">
         <BrainCircuitIcon className="size-3 shrink-0" />
         <span>
-          Intelligent model router{" · "}
-          {!applied && <span>would have picked </span>}
+          {L("Intelligent model router")}{" · "}
+          {!applied && <span>{L("would have picked")}</span>}
           <span className="font-medium text-foreground">{short}</span>
         </span>
       </span>
@@ -193,11 +194,11 @@ export function RoutingDecisionCard({
     >
       <div className="flex items-center gap-1.5 text-xs">
         <BrainCircuitIcon className="size-3.5 shrink-0 text-muted-foreground" />
-        <span className="font-medium">Intelligent routing</span>
+        <span className="font-medium">{L("Intelligent routing")}</span>
         <span className="text-muted-foreground">{applied ? "· applied" : "· advisory"}</span>
         <CollapsibleTrigger
           className="ml-auto cursor-pointer rounded p-0.5 text-muted-foreground hover:text-foreground"
-          aria-label="Show raw routing verdict"
+          aria-label={L("Show raw routing verdict")}
           data-testid="routing-decision-raw-toggle"
         >
           <ChevronRightIcon className="size-3 transition-transform group-data-[state=open]:rotate-90" />
@@ -216,7 +217,7 @@ export function RoutingDecisionCard({
         <CodeBlock code={prettyOutput} language="json">
           <CodeBlockHeader>
             <CodeBlockTitle className="min-w-0">
-              <span className="truncate font-medium uppercase tracking-wide">Verdict</span>
+              <span className="truncate font-medium uppercase tracking-wide">{L("Verdict")}</span>
             </CodeBlockTitle>
           </CodeBlockHeader>
         </CodeBlock>

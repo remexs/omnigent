@@ -32,6 +32,7 @@ import {
 } from "@/hooks/useChildSessions";
 import { useDebugMode } from "@/hooks/useDebugMode";
 import { terminalTabKey, useTerminals, type TerminalInfo } from "@/hooks/useTerminals";
+import { L } from "@/i18n";
 
 interface SessionRailProps {
   conversationId: string;
@@ -86,7 +87,7 @@ function TerminalsCard({ terminals, onExpand }: TerminalsCardProps) {
   return (
     <Card size="sm" data-testid="terminals-card">
       <CardHeader>
-        <CardTitle className="text-sm">Terminals</CardTitle>
+        <CardTitle className="text-sm">{L("Terminals")}</CardTitle>
         <CardAction>
           <button
             type="button"
@@ -107,7 +108,7 @@ function TerminalsCard({ terminals, onExpand }: TerminalsCardProps) {
       {!collapsed && (
         <CardContent>
           {terminals.length === 0 ? (
-            <p className="text-muted-foreground text-xs">No open terminals</p>
+            <p className="text-muted-foreground text-xs">{L("No open terminals")}</p>
           ) : (
             <ul className="flex flex-col gap-0.5">
               {terminals.map((t) => (
@@ -150,7 +151,7 @@ function ExecutionLogsCard({ childSessions, onExpand }: ExecutionLogsCardProps) 
   return (
     <Card size="sm" data-testid="execution-logs-card">
       <CardHeader>
-        <CardTitle className="text-sm">Execution logs</CardTitle>
+        <CardTitle className="text-sm">{L("Execution logs")}</CardTitle>
         <CardAction>
           <button
             type="button"

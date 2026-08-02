@@ -29,6 +29,7 @@ import { isSingleUserMode } from "@/lib/capabilities";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { isElectronShell } from "@/lib/nativeBridge";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 export type SettingsSectionId =
   | "appearance"
@@ -235,14 +236,14 @@ export function SettingsSidebarBody({
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Close sidebar"
+              aria-label={L("Close sidebar")}
               onClick={onClose}
               className="rounded-full"
             >
               <PanelRightOpenIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Collapse sidebar</TooltipContent>
+          <TooltipContent side="bottom">{L("Collapse sidebar")}</TooltipContent>
         </Tooltip>
       </div>
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-3 py-3">

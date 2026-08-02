@@ -38,6 +38,7 @@ const { pathToFileURL } = require("node:url");
 const { execFile } = require("node:child_process");
 const { registerLocalhostCors } = require("./localhost_cors");
 const { normalizeUrl, expandDatabricksWorkspaceUrl } = require("./url");
+const { menuLabel } = require("./menu_i18n");
 const { parseOmnigentDeepLink, chooseDeepLinkStrategy } = require("./deepLink");
 const { registerWorkspaceChromeHide } = require("./workspace-chrome");
 const { createBrowserViewRegistry } = require("./browserViewRegistry");
@@ -1206,7 +1207,7 @@ function attachContextMenu(win) {
         });
       }
       template.push({
-        label: "Add to Dictionary",
+        label: menuLabel("Add to Dictionary"),
         click: () => win.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord),
       });
       template.push({ type: "separator" });
@@ -1214,7 +1215,7 @@ function attachContextMenu(win) {
 
     if (params.linkURL) {
       template.push({
-        label: "Copy Link Address",
+        label: menuLabel("Copy Link Address"),
         click: () => clipboard.writeText(params.linkURL),
       });
       template.push({ type: "separator" });
@@ -1727,7 +1728,7 @@ function buildMenu() {
   const serverSubmenu = [
     {
       id: "new_window",
-      label: "New Window",
+      label: menuLabel("New Window"),
       // Own the standard new-window accelerator here — there is no
       // role-based File menu in this app.
       accelerator: "CmdOrCtrl+N",
@@ -1737,13 +1738,13 @@ function buildMenu() {
       id: "new_server_window",
       // A second server in its own window. The connection is per-window —
       // it never replaces the saved default server.
-      label: "New Window on Different Server…",
+      label: menuLabel("New Window on Different Server…"),
       click: () => createWindow(undefined, { ephemeral: true }),
     },
     { type: "separator" },
     {
       id: "change_server",
-      label: "Change Server…",
+      label: menuLabel("Change Server…"),
       click: () => changeServer(),
     },
     { type: "separator" },
@@ -1753,7 +1754,7 @@ function buildMenu() {
     // consent dialog when driven from a server page).
     {
       id: "check_for_updates",
-      label: "Check for Updates…",
+      label: menuLabel("Check for Updates…"),
       click: async () => {
         // Surface the two silent outcomes of a manual menubar check with a
         // native dialog: "no update" (otherwise only the renderer banner
@@ -1767,8 +1768,8 @@ function buildMenu() {
             await dialog.showMessageBox(activeWindow(), {
               type: "info",
               title: "Omnigent",
-              message: "You're up to date!",
-              detail: `Omnigent ${app.getVersion()} is the latest version.`,
+              message: menuLabel("You're up to date!"),
+              detail: `Omnigent ${app.getVersion()} ${menuLabel("is the latest version.")}`,
               buttons: ["OK"],
             });
           }
@@ -1776,7 +1777,7 @@ function buildMenu() {
           await dialog.showMessageBox(activeWindow(), {
             type: "warning",
             title: "Omnigent",
-            message: "Couldn't check for updates",
+            message: menuLabel("Couldn't check for updates"),
             detail: String(err?.message ?? err),
             buttons: ["OK"],
           });
@@ -1785,7 +1786,7 @@ function buildMenu() {
     },
     {
       id: "restart_to_update",
-      label: "Restart to Update",
+      label: menuLabel("Restart to Update"),
       click: async () => {
         // Production install path: the UpdateBanner toast is dismissible (and
         // a user may have closed it), so the menubar must still offer a way to
@@ -1797,8 +1798,8 @@ function buildMenu() {
           await dialog.showMessageBox(activeWindow(), {
             type: "info",
             title: "Omnigent",
-            message: "No update is ready to install",
-            detail: "Check for updates first, then download the new version.",
+            message: menuLabel("No update is ready to install"),
+            detail: menuLabel("Check for updates first, then download the new version."),
             buttons: ["OK"],
           });
         }
@@ -1807,13 +1808,13 @@ function buildMenu() {
     { type: "separator" },
     // `role: "close"` carries the standard CmdOrCtrl+W shortcut and closes
     // the focused window. There is no File menu, so Close lives under Server.
-    { role: "close", label: "Close Window" },
+    { role: "close", label: menuLabel("Close Window") },
   ];
 
   // Our custom Server menu, inserted right after the leftmost menu — index 1
   // on macOS (after the app menu), first on Linux/Windows.
   template.push({
-    label: "Server",
+    label: menuLabel("Server"),
     submenu: serverSubmenu,
   });
 
@@ -1821,7 +1822,7 @@ function buildMenu() {
   // text-editing shortcuts; hand-rolled here instead of `role: "editMenu"`
   // only so Find… can live where users expect it.
   template.push({
-    label: "Edit",
+    label: menuLabel("Edit"),
     submenu: [
       { role: "undo" },
       { role: "redo" },
@@ -1835,7 +1836,7 @@ function buildMenu() {
       { type: "separator" },
       {
         id: "find",
-        label: "Find…",
+        label: menuLabel("Find…"),
         accelerator: "CmdOrCtrl+F",
         click: () => {
           const target = findTargetForShortcut();
@@ -1847,7 +1848,7 @@ function buildMenu() {
   // Standard View roles (Reload/zoom/fullscreen). Developer Tools lives in
   // the Debug menu (dev only), so this menu is identical in dev and release.
   template.push({
-    label: "View",
+    label: menuLabel("View"),
     submenu: [
       { role: "reload" },
       { role: "forceReload" },
@@ -1896,7 +1897,7 @@ function buildMenu() {
         { type: "separator" },
         {
           id: "notification_sound_enabled",
-          label: "Play Notification Sound",
+          label: menuLabel("Play Notification Sound"),
           type: "checkbox",
           checked: notificationSoundEnabled(),
           click: (item) => {
@@ -1905,13 +1906,13 @@ function buildMenu() {
             saveSettings(settings);
           },
         },
-        { label: "Sound", submenu: soundChoices },
+        { label: menuLabel("Sound"), submenu: soundChoices },
       );
     }
 
     debugSubmenu.push({ type: "separator" }, { role: "toggleDevTools" });
 
-    template.push({ label: "Debug", submenu: debugSubmenu });
+    template.push({ label: menuLabel("Debug"), submenu: debugSubmenu });
   }
 
   const menu = Menu.buildFromTemplate(template);

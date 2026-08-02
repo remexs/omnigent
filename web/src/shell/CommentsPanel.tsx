@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Comment } from "@/hooks/useComments";
 import type { ActiveSelection } from "./codeViewerHelpers";
 import { displayAnchorContent } from "./pdfCommentHelpers";
+import { L } from "@/i18n";
 
 function avatarStyle(name: string): { backgroundColor: string; color: string } {
   let hash = 0;
@@ -162,7 +163,7 @@ export function CommentsPanel({
       )}
       {/* Header — fixed height so layout doesn't shift when button is hidden */}
       <div className="flex h-11 shrink-0 items-center justify-between px-3 border-b border-border">
-        <span className="text-xs font-semibold">Comments</span>
+        <span className="text-xs font-semibold">{L("Comments")}</span>
         {tab === "open" && (
           <Button
             type="button"
@@ -224,7 +225,7 @@ export function CommentsPanel({
             <div className="space-y-2 border-b border-border px-3 py-2">
               {activeSelection.anchor_content && (
                 <div className="truncate rounded bg-muted/40 px-2 py-1 font-mono text-[10px] text-muted-foreground">
-                  <span className="text-foreground/60">Selection: </span>
+                  <span className="text-foreground/60">{L("Selection:")}</span>
                   {displayAnchorContent(activeSelection.anchor_content).split("\n")[0]}
                 </div>
               )}
@@ -232,7 +233,7 @@ export function CommentsPanel({
                 ref={addCommentTextareaRef}
                 className="w-full resize-none rounded border border-border bg-background px-2 py-1.5 text-xs placeholder:text-muted-foreground"
                 rows={3}
-                placeholder="Add a comment…"
+                placeholder={L("Add a comment…")}
                 value={body}
                 onChange={(e) => {
                   setBody(e.target.value);
@@ -525,7 +526,7 @@ function CommentCard({
               {onCopyLink && (
                 <button
                   type="button"
-                  aria-label="Copy link to comment"
+                  aria-label={L("Copy link to comment")}
                   className="cursor-pointer text-[11px] text-muted-foreground transition-colors hover:text-foreground"
                   onClick={(e) => {
                     e.stopPropagation();

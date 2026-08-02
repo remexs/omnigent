@@ -26,6 +26,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supportsBrowser } from "@/lib/nativeBridge";
 import { normalizeTypedUrl } from "@/lib/normalizeTypedUrl";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 /** Renderer CSS-pixel bounds pushed to the main process (converted to window
  *  DIPs there via the host zoom factor). */
@@ -390,8 +391,8 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
           type="button"
           onClick={handleBack}
           disabled={!canGoBack}
-          aria-label="Go back"
-          title="Back"
+          aria-label={L("Go back")}
+          title={L("Back")}
           className="flex size-6 items-center justify-center rounded text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
         >
           <ChevronLeftIcon className="size-4" />
@@ -400,8 +401,8 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
           type="button"
           onClick={handleForward}
           disabled={!canGoForward}
-          aria-label="Go forward"
-          title="Forward"
+          aria-label={L("Go forward")}
+          title={L("Forward")}
           className="flex size-6 items-center justify-center rounded text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
         >
           <ChevronRightIcon className="size-4" />
@@ -410,8 +411,8 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
           type="button"
           onClick={handleReload}
           disabled={!viewActive}
-          aria-label="Reload"
-          title="Reload"
+          aria-label={L("Reload")}
+          title={L("Reload")}
           className="flex size-6 items-center justify-center rounded text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
         >
           <RotateCwIcon className="size-4" />
@@ -422,8 +423,8 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
           spellCheck={false}
           autoCorrect="off"
           autoCapitalize="off"
-          placeholder="Enter a URL"
-          aria-label="Address bar"
+          placeholder={L("Enter a URL")}
+          aria-label={L("Address bar")}
           onChange={(e) => setCurrentUrl(e.target.value)}
           onFocus={() => {
             urlEditingRef.current = true;
@@ -444,8 +445,8 @@ export function BrowserPane({ conversationId, className }: BrowserPaneProps) {
           type="button"
           onClick={handleDevTools}
           disabled={!viewActive}
-          aria-label="Toggle DevTools"
-          title="Toggle DevTools"
+          aria-label={L("Toggle DevTools")}
+          title={L("Toggle DevTools")}
           className="flex size-6 items-center justify-center rounded text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
         >
           <WrenchIcon className="size-4" />

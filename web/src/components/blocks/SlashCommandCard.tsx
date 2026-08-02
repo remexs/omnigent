@@ -14,6 +14,7 @@ import { ChevronRightIcon, CommandIcon, WandSparklesIcon, type LucideIcon } from
 import { useMemo } from "react";
 import { CodeBlock, CodeBlockHeader, CodeBlockTitle } from "@/components/ai-elements/code-block";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { L } from "@/i18n";
 
 type SlashCommandKind = "skill" | "command";
 
@@ -107,7 +108,7 @@ function ArgsPanel({ args }: { args: string }) {
     <CodeBlock code={args} language="bash">
       <CodeBlockHeader>
         <CodeBlockTitle className="min-w-0">
-          <span className="truncate font-medium uppercase tracking-wide">Arguments</span>
+          <span className="truncate font-medium uppercase tracking-wide">{L("Arguments")}</span>
         </CodeBlockTitle>
       </CodeBlockHeader>
     </CodeBlock>
@@ -119,7 +120,7 @@ function OutputPanel({ output }: { output: string }) {
     <CodeBlock code={output} language="bash">
       <CodeBlockHeader>
         <CodeBlockTitle className="min-w-0">
-          <span className="truncate font-medium uppercase tracking-wide">Output</span>
+          <span className="truncate font-medium uppercase tracking-wide">{L("Output")}</span>
         </CodeBlockTitle>
       </CodeBlockHeader>
     </CodeBlock>

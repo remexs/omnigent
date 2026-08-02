@@ -20,6 +20,7 @@ import { AGENT_TERMINAL_IDS, terminalTabKey, useTerminals } from "@/hooks/useTer
 import { useTerminalFirst } from "./TerminalFirstContext";
 import { TerminalStatusBadge } from "./terminalStatus";
 import { useTerminalStatuses } from "./useTerminalStatuses";
+import { L } from "@/i18n";
 
 interface MainTerminalViewProps {
   conversationId: string;
@@ -150,7 +151,7 @@ export function MainTerminalView({
                 <span className="flex-1" />
                 <button
                   type="button"
-                  aria-label="Close shell"
+                  aria-label={L("Close shell")}
                   onClick={() => terminalFirstCtx?.setView("chat")}
                   className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >

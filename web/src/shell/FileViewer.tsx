@@ -97,6 +97,7 @@ import {
 import { CommentsPanel, type ActiveSelection } from "./CommentsPanel";
 import { useScrollRestore } from "./useScrollRestore";
 import { isPdfAnchor } from "./pdfCommentHelpers";
+import { L } from "@/i18n";
 
 // Monaco diff is heavy (~MBs + worker); load it only when the diff view is
 // actually shown.
@@ -1158,13 +1159,13 @@ function FileViewerBody({
                       type="button"
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Close file viewer"
+                      aria-label={L("Close file viewer")}
                       onClick={() => guardDirty(onClose)}
                     >
                       <ArrowLeftIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Close</TooltipContent>
+                  <TooltipContent>{L("Close")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -1175,7 +1176,7 @@ function FileViewerBody({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Previous file"
+                aria-label={L("Previous file")}
                 disabled={!prevPath}
                 onClick={() => prevPath && guardDirty(() => onNavigateTo(prevPath))}
               >
@@ -1188,7 +1189,7 @@ function FileViewerBody({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Next file"
+                aria-label={L("Next file")}
                 disabled={!nextPath}
                 onClick={() => nextPath && guardDirty(() => onNavigateTo(nextPath))}
               >
@@ -1260,7 +1261,7 @@ function FileViewerBody({
             {toolbarCollapsed ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="ghost" size="icon-sm" aria-label="More actions">
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label={L("More actions")}>
                     <MoreHorizontalIcon className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -1349,10 +1350,10 @@ function FileViewerBody({
           {isDeletedFile && viewMode !== "diff" ? (
             <div className="flex flex-col items-center justify-center gap-2 p-8 text-sm text-muted-foreground">
               <Trash2Icon className="size-5 opacity-40" />
-              <span>This file has been deleted.</span>
+              <span>{L("This file has been deleted.")}</span>
               {isDiffAvailable && (
                 <span className="text-xs">
-                  Click <FileDiffIcon className="inline size-3.5 align-text-bottom" /> to view its
+                  {L("Click")}<FileDiffIcon className="inline size-3.5 align-text-bottom" /> to view its
                   previous content.
                 </span>
               )}
@@ -1364,7 +1365,7 @@ function FileViewerBody({
             // undefined on error, which would otherwise read as still-loading.
             diffQuery.isError ? (
               <div className="flex items-center justify-center p-8 text-destructive text-sm">
-                Failed to load:{" "}
+                {L("Failed to load:")}{" "}
                 {diffQuery.error instanceof Error
                   ? diffQuery.error.message
                   : String(diffQuery.error)}
@@ -1491,7 +1492,7 @@ function FileViewerBody({
       >
         <DialogContent showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>Unsaved changes</DialogTitle>
+            <DialogTitle>{L("Unsaved changes")}</DialogTitle>
             <DialogDescription>
               Your edits will be lost if you leave without saving.
             </DialogDescription>

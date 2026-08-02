@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { ParsedSystemMessage, SystemMessageKind } from "@/lib/systemMessage";
+import { L } from "@/i18n";
 
 const KIND_ICON: Record<Exclude<SystemMessageKind, "subagent_wake">, LucideIcon> = {
   task_completed: CheckCircle2Icon,
@@ -57,7 +58,7 @@ export function SystemMessageView({ message }: SystemMessageViewProps) {
         >
           <Icon className="size-3.5 shrink-0" />
           <span>
-            <strong className="font-semibold">System:</strong> {message.label}
+            <strong className="font-semibold">{L("System:")}</strong> {message.label}
           </span>
           <ChevronRightIcon
             className={cn("size-3.5 shrink-0 transition-transform", open && "rotate-90")}
@@ -67,7 +68,7 @@ export function SystemMessageView({ message }: SystemMessageViewProps) {
         <div className="flex items-center gap-1.5 px-1.5 py-0.5">
           <Icon className="size-3.5 shrink-0" />
           <span>
-            <strong className="font-semibold">System:</strong> {message.label}
+            <strong className="font-semibold">{L("System:")}</strong> {message.label}
           </span>
         </div>
       )}

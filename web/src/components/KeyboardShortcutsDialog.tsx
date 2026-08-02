@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { isNativeShell } from "@/lib/nativeBridge";
+import { L } from "@/i18n";
 
 // Custom event the dialog listens for, so non-adjacent surfaces (e.g. the
 // account menu) can open it without threading state through the tree.
@@ -199,7 +200,7 @@ export function KeyboardShortcutsDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Keyboard shortcuts</DialogTitle>
+          <DialogTitle>{L("Keyboard shortcuts")}</DialogTitle>
           <DialogDescription className="sr-only">
             The keyboard shortcuts available in the chat.
           </DialogDescription>

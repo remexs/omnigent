@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { authenticatedFetch } from "@/lib/identity";
 import { formatPreview } from "@/lib/previewFormat";
+import { L } from "@/i18n";
 
 interface ElicitationData {
   status: "pending" | "resolved";
@@ -106,13 +107,13 @@ export function ApprovePage() {
     <div className="mx-auto flex min-h-screen max-w-xl items-center justify-center p-6">
       {state.kind === "loading" && (
         <Alert className="flex flex-col gap-2 py-4 px-5">
-          <AlertTitle className="text-sm">Loading elicitation…</AlertTitle>
+          <AlertTitle className="text-sm">{L("Loading elicitation…")}</AlertTitle>
         </Alert>
       )}
 
       {state.kind === "resolved" && (
         <Alert className="flex flex-col gap-2 border-muted py-4 px-5">
-          <AlertTitle className="text-sm">Elicitation resolved</AlertTitle>
+          <AlertTitle className="text-sm">{L("Elicitation resolved")}</AlertTitle>
           <AlertDescription className="text-xs">
             This approval request is no longer pending. It may have been resolved, timed out, or
             cancelled.
@@ -122,7 +123,7 @@ export function ApprovePage() {
 
       {state.kind === "error" && (
         <Alert variant="destructive" className="flex flex-col gap-2 py-4 px-5">
-          <AlertTitle className="text-sm">Error</AlertTitle>
+          <AlertTitle className="text-sm">{L("Error")}</AlertTitle>
           <AlertDescription className="text-xs">{state.message}</AlertDescription>
         </Alert>
       )}
@@ -142,7 +143,7 @@ export function ApprovePage() {
               </>
             )}
           </AlertTitle>
-          <AlertDescription className="text-xs">You can close this page.</AlertDescription>
+          <AlertDescription className="text-xs">{L("You can close this page.")}</AlertDescription>
         </Alert>
       )}
 

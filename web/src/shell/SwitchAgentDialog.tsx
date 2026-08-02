@@ -20,6 +20,7 @@ import { switchSessionAgent } from "@/lib/sessionsApi";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { useSessionAgent } from "@/hooks/useAgents";
 import { agentRootName, harnessFamily, switchTargetCarriesHistory } from "@/lib/forkHarness";
+import { L } from "@/i18n";
 
 // "" means no target chosen yet. It must be empty (not a sentinel like
 // "__none__"): Radix only renders the trigger placeholder when the controlled
@@ -142,7 +143,7 @@ export function SwitchAgentDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent data-testid="switch-agent-dialog" className="flex flex-col gap-4 sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Switch agent</DialogTitle>
+          <DialogTitle>{L("Switch agent")}</DialogTitle>
           <DialogDescription>
             Continue this session on a different agent. The conversation, comments, and files stay;
             the next message runs on the new agent.
@@ -167,7 +168,7 @@ export function SwitchAgentDialog({
                   currentDisplay ? (
                     <span data-testid="switch-agent-current">
                       <span className="text-foreground">{currentDisplay}</span>{" "}
-                      <span className="text-muted-foreground">(current agent)</span>
+                      <span className="text-muted-foreground">{L("(current agent)")}</span>
                     </span>
                   ) : (
                     "Choose an agent"
@@ -192,7 +193,7 @@ export function SwitchAgentDialog({
 
         {resetsModelSettings && (
           <p data-testid="switch-agent-reset-warning" className="text-xs text-muted-foreground">
-            Model &amp; reasoning effort will reset to {chosen?.display_name}'s defaults (different
+            {L("Model &amp; reasoning effort will reset to")}{chosen?.display_name}'s defaults (different
             provider).
           </p>
         )}

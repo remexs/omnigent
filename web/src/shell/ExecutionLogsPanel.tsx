@@ -43,6 +43,7 @@ import { useResizablePanel } from "@/hooks/useResizablePanel";
 import { useSessionItems, type RawSessionItem } from "@/hooks/useSessionItems";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/store/chatStore";
+import { L } from "@/i18n";
 
 /** True when the focused session's agent loop is live. */
 function useFocusedSessionActive(): boolean {
@@ -152,8 +153,8 @@ export function ExecutionLogsPanel({
         />
       )}
       <header className="flex shrink-0 items-center justify-between border-border border-b px-4 py-3">
-        <h2 className="font-medium text-sm">Execution logs</h2>
-        <Button type="button" variant="ghost" size="icon-sm" aria-label="Close" onClick={onClose}>
+        <h2 className="font-medium text-sm">{L("Execution logs")}</h2>
+        <Button type="button" variant="ghost" size="icon-sm" aria-label={L("Close")} onClick={onClose}>
           <XIcon className="size-4" />
         </Button>
       </header>
@@ -250,13 +251,13 @@ function SessionItemsList({ sessionId }: { sessionId: string }) {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) {
-    return <div className="text-muted-foreground text-xs">Loading…</div>;
+    return <div className="text-muted-foreground text-xs">{L("Loading…")}</div>;
   }
   if (error) {
-    return <div className="text-destructive text-xs">Failed to load items: {error.message}</div>;
+    return <div className="text-destructive text-xs">{L("Failed to load items:")}{error.message}</div>;
   }
   if (items.length === 0) {
-    return <div className="text-muted-foreground text-xs">No items</div>;
+    return <div className="text-muted-foreground text-xs">{L("No items")}</div>;
   }
   return (
     <div

@@ -25,6 +25,7 @@ import {
   parseBridgeMessage,
 } from "./htmlCommentBridge";
 import { TruncatedBanner } from "./TruncatedBanner";
+import { L } from "@/i18n";
 
 interface HtmlCommentViewerProps {
   conversationId: string;
@@ -235,7 +236,7 @@ export function HtmlCommentViewer({
       srcDoc={srcDoc}
       // oxlint-disable-next-line eslint-plugin-react(iframe-missing-sandbox)
       sandbox={HTML_PREVIEW_SANDBOX}
-      title="HTML preview"
+      title={L("HTML preview")}
       className="w-full h-full border-0"
     />
   );

@@ -3,6 +3,7 @@ import { FolderIcon, FolderOpenIcon } from "lucide-react";
 
 import { useHostFilesystem } from "@/hooks/useHostFilesystem";
 import { isNavigablePath } from "./WorkspacePicker";
+import { L } from "@/i18n";
 
 // DOM-safety bound only; the dropdown scrolls and overflow is
 // surfaced ("+N more") rather than silently dropped.
@@ -260,12 +261,12 @@ export function WorkspacePathField({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder="/Users/you/projects/app"
+          placeholder={L("/Users/you/projects/app")}
           spellCheck={false}
           autoCapitalize="off"
           autoCorrect="off"
           role="combobox"
-          aria-label="Working directory path"
+          aria-label={L("Working directory path")}
           aria-autocomplete="list"
           aria-expanded={dropdownOpen}
           aria-controls="workspace-path-listbox"
@@ -276,7 +277,7 @@ export function WorkspacePathField({
         <button
           type="button"
           onClick={onBrowse}
-          aria-label="Browse directories"
+          aria-label={L("Browse directories")}
           className="flex size-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground transition hover:bg-muted hover:text-foreground"
           data-testid="workspace-browse-toggle"
         >
@@ -335,7 +336,7 @@ export function WorkspacePathField({
               )}
             </>
           )}
-          {showLoading && <div className="px-3 py-2 text-xs text-muted-foreground">Loading…</div>}
+          {showLoading && <div className="px-3 py-2 text-xs text-muted-foreground">{L("Loading…")}</div>}
         </div>
       )}
     </div>

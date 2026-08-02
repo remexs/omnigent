@@ -22,6 +22,7 @@ import { useSearchParams } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { register as registerRequest } from "@/lib/accountsApi";
+import { L } from "@/i18n";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -81,7 +82,7 @@ export function RegisterPage() {
     >
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{L("Create your account")}</h1>
           <p className="text-sm text-muted-foreground">
             You were invited to join this Omnigent server.
           </p>
@@ -110,7 +111,7 @@ export function RegisterPage() {
                 disabled={submitting}
                 required
                 pattern="[a-z0-9][a-z0-9._\-]{0,63}(@[a-z0-9.\-]+\.[a-z]{2,})?"
-                title="Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)"
+                title={L("Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)")}
               />
               <p className="text-xs text-muted-foreground">
                 Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.

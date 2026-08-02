@@ -189,6 +189,7 @@ import { GoalControl, GoalStatusPill, useGoalState, type Goal } from "@/componen
 import { copyText } from "@/lib/clipboard";
 import { showToast } from "@/components/ui/toast";
 import { useIsMobileViewport } from "@/hooks/useIsMobileViewport";
+import { L } from "@/i18n";
 
 // Matches both wordings the native executors emit: "[Attached: <path>]"
 // (claude/pi/cursor) and "[Attached file: <path>]" (codex). Capturing group
@@ -1925,9 +1926,9 @@ function ConversationLoadError({
   return (
     <div className="flex flex-1 items-center justify-center px-6">
       <div className="flex max-w-md flex-col items-center gap-3 text-center">
-        <h1 className="font-medium text-foreground text-lg">Conversation not found</h1>
+        <h1 className="font-medium text-foreground text-lg">{L("Conversation not found")}</h1>
         <p className="text-muted-foreground text-sm">
-          Couldn't load{" "}
+          {L("Couldn't load")}{" "}
           <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{conversationId}</code>
           : {error.message}
         </p>
@@ -1993,7 +1994,7 @@ function WorkingStatusPin({ show, suppress = false }: { show: boolean; suppress?
           the agent is working, so it announces whether the tab is painted
           (scrolled up) or collapsed (at the bottom, where the inline shimmer
           owns the visuals). */}
-      {show && <span className="sr-only">Working…</span>}
+      {show && <span className="sr-only">{L("Working…")}</span>}
       {/* Mirror the conversation content column (mx-auto + px-6 + width) so the
           tab's left edge lines up with the inline shimmer's. */}
       <div className={cn("mx-auto w-full px-6", CHAT_COLUMN_WIDTH)}>
@@ -2552,7 +2553,7 @@ export function JumpToTopButton({
         size="sm"
         disabled={jumping}
         onClick={() => void jumpToTop()}
-        aria-label="Jump to the first message"
+        aria-label={L("Jump to the first message")}
         // When hidden (opacity-0 / pointer-events-none) keep the button out of
         // the tab order and the accessibility tree so it can't take focus or be
         // announced while invisible.
@@ -2701,7 +2702,7 @@ export function SandboxFailedIndicator({ status }: { status: SandboxStatus }) {
       )}
     >
       <AlertTriangleIcon className="size-3.5 shrink-0" aria-hidden />
-      <span>Sandbox launch failed{status.error ? `: ${status.error}` : ""}</span>
+      <span>{L("Sandbox launch failed")}{status.error ? `: ${status.error}` : ""}</span>
     </div>
   );
 }
@@ -2836,7 +2837,7 @@ export function ConnectionIndicator({
         )}
       >
         <Loader2Icon className="size-3.5 shrink-0 animate-spin" aria-hidden />
-        <span>Connecting…</span>
+        <span>{L("Connecting…")}</span>
       </div>
     );
   }
@@ -3087,14 +3088,14 @@ function ConnectedTerminalFirstPill({
     >
       <div
         role="group"
-        aria-label="View mode"
+        aria-label={L("View mode")}
         className="terminal-first-switcher flex items-center gap-1 rounded-full border border-border bg-card/90 p-1 text-xs shadow-sm"
       >
         <div className="flex items-center gap-0.5">
           <button
             type="button"
             aria-pressed={view === "chat"}
-            aria-label="Chat"
+            aria-label={L("Chat")}
             onClick={() => setView("chat")}
             className={cn(
               "terminal-first-switcher-option flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 transition-colors",
@@ -3104,12 +3105,12 @@ function ConnectedTerminalFirstPill({
             )}
           >
             <MessageSquareIcon className="size-3.5 shrink-0" />
-            <span>Chat</span>
+            <span>{L("Chat")}</span>
           </button>
           <button
             type="button"
             aria-pressed={view === "terminal"}
-            aria-label="Terminal"
+            aria-label={L("Terminal")}
             disabled={!terminalsAvailable}
             title={terminalStartingUp ? "Terminal is starting up…" : undefined}
             onClick={() => setView("terminal")}
@@ -3125,7 +3126,7 @@ function ConnectedTerminalFirstPill({
             ) : (
               <TerminalIcon className="size-3.5 shrink-0" />
             )}
-            <span>Terminal</span>
+            <span>{L("Terminal")}</span>
           </button>
         </div>
       </div>
@@ -3235,7 +3236,7 @@ function useCopyMessage(getText: () => string): {
         window.clearTimeout(timeoutRef.current);
         timeoutRef.current = window.setTimeout(() => setIsCopied(false), 2000);
         if (isMobile) {
-          showToast(<span className="text-sm">Copied to clipboard</span>, { duration: 1500 });
+          showToast(<span className="text-sm">{L("Copied to clipboard")}</span>, { duration: 1500 });
         }
       },
       (error) => {
@@ -3405,7 +3406,7 @@ function UserBubble({ bubble }: { bubble: Extract<Bubble, { kind: "user" }> }) {
       </div>
       {text && (
         <MessageActions className="mt-1 ml-auto opacity-40 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
-          <MessageAction tooltip="Copy" onClick={handleCopy}>
+          <MessageAction tooltip={L("Copy")} onClick={handleCopy}>
             {isCopied ? <CheckIcon size={14} /> : <CopyIcon size={14} />}
           </MessageAction>
         </MessageActions>
@@ -3463,12 +3464,12 @@ function AssistantBubble({
             data-testid="assistant-interrupted-indicator"
           >
             <XIcon className="size-3" aria-hidden="true" />
-            <span>Interrupted</span>
+            <span>{L("Interrupted")}</span>
           </p>
         )}
         {markdownText && (
           <MessageActions className="mt-1 opacity-40 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-            <MessageAction tooltip="Copy" onClick={handleCopy}>
+            <MessageAction tooltip={L("Copy")} onClick={handleCopy}>
               {isCopied ? <CheckIcon size={14} /> : <CopyIcon size={14} />}
             </MessageAction>
             {/* Fork from this response: clone the session with history
@@ -3477,7 +3478,7 @@ function AssistantBubble({
                 the session can't be forked (sub-agent / isolated mount). */}
             {forkDialog?.canFork && bubble.lifecycle !== "streaming" && (
               <MessageAction
-                tooltip="Fork from here"
+                tooltip={L("Fork from here")}
                 data-testid="fork-from-response"
                 onClick={() => forkDialog.openForkDialog({ upToResponseId: bubble.responseId })}
               >
@@ -3489,7 +3490,7 @@ function AssistantBubble({
       </Message>
 
       {bubble.lifecycle === "failed" && (
-        <p className="text-destructive text-xs">Error: {bubble.error}</p>
+        <p className="text-destructive text-xs">{L("Error:")}{bubble.error}</p>
       )}
     </>
   );
@@ -3713,7 +3714,7 @@ function ContextRing({ contextWindow, tokensUsed }: { contextWindow: number; tok
         </span>
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-44 text-center text-xs">
-        <p className="tabular-nums">{usedPct}% of context used.</p>
+        <p className="tabular-nums">{usedPct}{L("% of context used.")}</p>
       </TooltipContent>
     </Tooltip>
   );
@@ -3904,7 +3905,7 @@ function ComposerStatusLine({
             className="inline-flex items-center gap-1 text-xs font-medium text-foreground"
           >
             <FileTextIcon className="size-3.5 shrink-0" />
-            <span>Plan mode</span>
+            <span>{L("Plan mode")}</span>
           </span>
         )}
         {showGoal && goal && <GoalStatusPill goal={goal} />}
@@ -3978,7 +3979,7 @@ function SubagentComposerTray({ label }: { label: string }) {
       <BotIcon className="size-3.5 shrink-0" aria-hidden="true" />
       {/* truncate so a long sub-agent name never wraps the tray to two rows */}
       <span className="min-w-0 truncate">
-        Chatting with sub-agent <strong className="font-semibold">{label}</strong>
+        {L("Chatting with sub-agent")}<strong className="font-semibold">{label}</strong>
       </span>
     </div>
   );
@@ -4863,7 +4864,7 @@ export function Composer({
       >
         {isDragActive && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-card/80">
-            <span className="text-sm font-medium text-ring">Drop files here</span>
+            <span className="text-sm font-medium text-ring">{L("Drop files here")}</span>
           </div>
         )}
         {/* Slash-command suggestions — floats above the composer box */}
@@ -4902,7 +4903,7 @@ export function Composer({
                   type="button"
                   onClick={() => onRemoveQuote(i)}
                   className="mt-0.5 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
-                  aria-label="Remove quote"
+                  aria-label={L("Remove quote")}
                 >
                   <XIcon className="size-3.5" />
                 </button>
@@ -4979,7 +4980,7 @@ export function Composer({
               // Keep the overlay's scroll position locked to the textarea's.
               if (backdropRef.current) backdropRef.current.scrollTop = e.currentTarget.scrollTop;
             }}
-            aria-label="Message the agent"
+            aria-label={L("Message the agent")}
             placeholder={
               readOnlyReason !== null
                 ? readOnlyReason
@@ -5093,10 +5094,10 @@ export function Composer({
               className="size-9 md:size-8"
               disabled={disabled || isReadOnly || hasPendingElicitation}
               onClick={() => fileInputRef.current?.click()}
-              title="Attach files"
+              title={L("Attach files")}
             >
               <PaperclipIcon className="size-4" />
-              <span className="sr-only">Attach files</span>
+              <span className="sr-only">{L("Attach files")}</span>
             </Button>
             <ComposerMicButton
               enableHotkey
@@ -5150,7 +5151,7 @@ export function Composer({
                     ) : (
                       <FileTextIcon className="size-3.5" />
                     )}
-                    <span>Plan</span>
+                    <span>{L("Plan")}</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -5738,7 +5739,7 @@ function SessionConfigModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" data-testid="composer-config-modal">
         <DialogHeader>
-          <DialogTitle>Configure {harnessLabel ?? "session"}</DialogTitle>
+          <DialogTitle>{L("Configure")}{harnessLabel ?? "session"}</DialogTitle>
           <DialogDescription className="sr-only">
             Change how this session runs. Model, effort, and smart routing apply to the next turn.
           </DialogDescription>
@@ -5749,13 +5750,13 @@ function SessionConfigModal({
           no Model dropdown to fold it into (e.g. Polly). Agents that render a
           Model dropdown (Claude, Codex, …) offer it as a Model option below. */}
           {costRoutingEligible && !showModels && (
-            <ConfigRow label="Smart Routing" description="Auto-pick the model per turn by task">
+            <ConfigRow label={L("Smart Routing")} description={L("Auto-pick the model per turn by task")}>
               <div className="flex h-8 items-center justify-end">
                 <Switch
                   size="sm"
                   checked={draftRoutingOn}
                   data-testid="composer-config-smart-routing"
-                  aria-label="Smart Routing"
+                  aria-label={L("Smart Routing")}
                   onCheckedChange={(next) => {
                     setDraftRoutingOn(next);
                     // Routing picks the model + effort per turn, so an explicit
@@ -5767,20 +5768,20 @@ function SessionConfigModal({
             </ConfigRow>
           )}
           {showModels && (
-            <ConfigRow label="Model" description="Underlying LLM">
+            <ConfigRow label={L("Model")} description={L("Underlying LLM")}>
               <Select value={modelValue} onValueChange={onModelChange}>
                 <SelectTrigger
                   className="w-full"
                   data-testid="composer-config-model"
-                  aria-label="Model"
+                  aria-label={L("Model")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" align="start">
                   {costRoutingEligible && (
-                    <SelectItem value={MODEL_SELECT_SMART}>Smart Routing</SelectItem>
+                    <SelectItem value={MODEL_SELECT_SMART}>{L("Smart Routing")}</SelectItem>
                   )}
-                  <SelectItem value={MODEL_SELECT_DEFAULT}>Default</SelectItem>
+                  <SelectItem value={MODEL_SELECT_DEFAULT}>{L("Default")}</SelectItem>
                   {modelSelectOptions.map((m) => (
                     <SelectItem
                       key={m.id}
@@ -5796,7 +5797,7 @@ function SessionConfigModal({
             </ConfigRow>
           )}
           {showEffort && (
-            <ConfigRow label="Effort" description="Reasoning depth vs. speed">
+            <ConfigRow label={L("Effort")} description={L("Reasoning depth vs. speed")}>
               <Select
                 value={draftEffort ?? EFFORT_SELECT_NONE}
                 onValueChange={(v) => setDraftEffort(v === EFFORT_SELECT_NONE ? null : v)}
@@ -5807,12 +5808,12 @@ function SessionConfigModal({
                 <SelectTrigger
                   className="w-full"
                   data-testid="composer-config-effort"
-                  aria-label="Effort"
+                  aria-label={L("Effort")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" align="start">
-                  <SelectItem value={EFFORT_SELECT_NONE}>Default</SelectItem>
+                  <SelectItem value={EFFORT_SELECT_NONE}>{L("Default")}</SelectItem>
                   {effortLevels.map((level) => (
                     <SelectItem
                       key={level}
@@ -5925,7 +5926,7 @@ function ComposerConfigGear({
                 setOpen(true);
               }}
               data-testid="composer-config-gear"
-              aria-label="Configure session"
+              aria-label={L("Configure session")}
             >
               <SettingsIcon className="size-4" />
             </Button>
@@ -6142,7 +6143,7 @@ function ComposerModelEffortLabel({
         data-testid="composer-model-effort-label"
         className="min-w-0 shrink truncate px-1 text-xs tabular-nums text-muted-foreground"
       >
-        <span className="text-foreground">Smart Routing</span>
+        <span className="text-foreground">{L("Smart Routing")}</span>
       </span>
     );
   }

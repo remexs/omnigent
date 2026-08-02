@@ -74,6 +74,7 @@ import { HtmlCommentViewer } from "./HtmlCommentViewer";
 import { TruncatedBanner } from "./TruncatedBanner";
 import { useLightbox } from "@/components/ImageLightbox";
 import { getEmbedRoot } from "@/lib/host";
+import { L } from "@/i18n";
 
 // Monaco is heavy (~MBs + worker); load it only when a non-markdown file is
 // actually viewed, so the initial bundle and markdown/preview paths don't pay
@@ -317,7 +318,7 @@ function ImageViewer({ data, path }: { data: FileContentResponse; path: string }
           onClick={() => open({ src: url, alt: filename })}
           className="max-h-full max-w-full cursor-zoom-in object-contain"
           style={CHECKERBOARD_STYLE}
-          title="Click to zoom"
+          title={L("Click to zoom")}
         />
       )}
     </div>
@@ -667,7 +668,7 @@ export function CodeViewer({
   if (fileQuery.isError) {
     return (
       <div className="p-8 text-destructive text-sm">
-        Error loading file:{" "}
+        {L("Error loading file:")}{" "}
         {fileQuery.error instanceof Error ? fileQuery.error.message : String(fileQuery.error)}
       </div>
     );
@@ -842,7 +843,7 @@ export function CodeViewer({
                 }
               }
             }}
-            placeholder="Find…"
+            placeholder={L("Find…")}
             className="min-w-0 flex-1 bg-transparent text-xs outline-none"
           />
           <span className="shrink-0 text-xs text-muted-foreground">
@@ -854,7 +855,7 @@ export function CodeViewer({
           </span>
           <button
             type="button"
-            aria-label="Previous match"
+            aria-label={L("Previous match")}
             className="rounded p-0.5 text-muted-foreground hover:bg-muted disabled:opacity-40"
             disabled={matches.length === 0}
             onClick={() => setCurrentMatchIdx((i) => (i - 1 + matches.length) % matches.length)}
@@ -863,7 +864,7 @@ export function CodeViewer({
           </button>
           <button
             type="button"
-            aria-label="Next match"
+            aria-label={L("Next match")}
             className="rounded p-0.5 text-muted-foreground hover:bg-muted disabled:opacity-40"
             disabled={matches.length === 0}
             onClick={() => setCurrentMatchIdx((i) => (i + 1) % matches.length)}
@@ -872,7 +873,7 @@ export function CodeViewer({
           </button>
           <button
             type="button"
-            aria-label="Close search"
+            aria-label={L("Close search")}
             className="rounded p-0.5 text-muted-foreground hover:bg-muted"
             onClick={() => {
               setSearchOpen(false);

@@ -49,6 +49,7 @@ import {
 import { getCurrentIsAdmin, resolveIdentity } from "@/lib/identity";
 import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { isSingleUserMode } from "@/lib/capabilities";
+import { L } from "@/i18n";
 
 export function MembersPage() {
   const info = useServerInfo();
@@ -110,7 +111,7 @@ export function MembersPage() {
   if (isSingleUser) {
     return (
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
-        <h1 className="mb-2 text-2xl font-semibold">Members</h1>
+        <h1 className="mb-2 text-2xl font-semibold">{L("Members")}</h1>
         <p className="text-sm text-muted-foreground">
           Member management is not available in single-user mode.
         </p>
@@ -135,7 +136,7 @@ export function MembersPage() {
   if (meIsAdmin === false) {
     return (
       <PageScroll contentClassName="px-8" extraBottom="2.5rem">
-        <h1 className="mb-2 text-2xl font-semibold">Members</h1>
+        <h1 className="mb-2 text-2xl font-semibold">{L("Members")}</h1>
         <p className="text-sm text-muted-foreground">
           You don't have permission to manage members.
         </p>
@@ -188,7 +189,7 @@ export function MembersPage() {
   return (
     <PageScroll contentClassName="px-8" extraBottom="2.5rem">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Members</h1>
+        <h1 className="text-2xl font-semibold">{L("Members")}</h1>
         {/* Invite mints a password-backed account — accounts mode only.
         Under OIDC, accounts are provisioned by the IdP on first login, so
         there's nothing to invite here. */}
@@ -220,10 +221,10 @@ export function MembersPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="px-3 py-2 font-medium">Username</th>
-                <th className="px-3 py-2 font-medium">Role</th>
-                <th className="px-3 py-2 font-medium">Last login</th>
-                {manageable && <th className="px-3 py-2 text-right font-medium">Actions</th>}
+                <th className="px-3 py-2 font-medium">{L("Username")}</th>
+                <th className="px-3 py-2 font-medium">{L("Role")}</th>
+                <th className="px-3 py-2 font-medium">{L("Last login")}</th>
+                {manageable && <th className="px-3 py-2 text-right font-medium">{L("Actions")}</th>}
               </tr>
             </thead>
             <tbody>
@@ -232,7 +233,7 @@ export function MembersPage() {
                   <td className="px-3 py-2 align-middle">
                     <span className="font-medium">{u.id}</span>
                     {u.id === meId && (
-                      <span className="ml-2 text-xs text-muted-foreground">(you)</span>
+                      <span className="ml-2 text-xs text-muted-foreground">{L("(you)")}</span>
                     )}
                     {!u.has_password && (
                       <Badge variant="outline" className="ml-2">
@@ -241,7 +242,7 @@ export function MembersPage() {
                     )}
                   </td>
                   <td className="px-3 py-2 align-middle">
-                    {u.is_admin ? <Badge>Admin</Badge> : <Badge variant="secondary">Member</Badge>}
+                    {u.is_admin ? <Badge>{L("Admin")}</Badge> : <Badge variant="secondary">{L("Member")}</Badge>}
                   </td>
                   <td className="px-3 py-2 align-middle text-muted-foreground">
                     {formatEpoch(u.last_login_at)}
@@ -252,7 +253,7 @@ export function MembersPage() {
                         <Button
                           variant="ghost"
                           size="xs"
-                          title="Reset password"
+                          title={L("Reset password")}
                           onClick={() => void onResetPassword(u.id)}
                           disabled={pendingAction || !u.has_password}
                         >
@@ -261,7 +262,7 @@ export function MembersPage() {
                         <Button
                           variant="ghost"
                           size="xs"
-                          title="Remove user"
+                          title={L("Remove user")}
                           onClick={() => setDeleteCandidate(u.id)}
                           disabled={pendingAction || u.id === meId}
                         >
@@ -278,7 +279,7 @@ export function MembersPage() {
       )}
 
       {users !== null && users.length === 0 && (
-        <p className="text-sm text-muted-foreground">No members yet.</p>
+        <p className="text-sm text-muted-foreground">{L("No members yet.")}</p>
       )}
 
       <div className="mt-3 flex items-center justify-end">
@@ -298,7 +299,7 @@ export function MembersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invite a member</DialogTitle>
+            <DialogTitle>{L("Invite a member")}</DialogTitle>
             <DialogDescription>
               A single-use invite URL will be created. Share it with the person you want to add.
               They'll choose their own username and password when they redeem it.
@@ -345,16 +346,16 @@ export function MembersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invite URL</DialogTitle>
+            <DialogTitle>{L("Invite URL")}</DialogTitle>
             <DialogDescription>
-              Send this URL to the new member. It expires in {formatTtl(inviteResult?.expires_at)}{" "}
+              {L("Send this URL to the new member. It expires in")}{formatTtl(inviteResult?.expires_at)}{" "}
               and is single-use — once they redeem it, it can't be used again. This URL is shown
               only once.
             </DialogDescription>
           </DialogHeader>
           {inviteResult !== null && <CopyableValue value={rebaseUrl(inviteResult.register_url)} />}
           <DialogFooter>
-            <Button onClick={() => setInviteResult(null)}>Done</Button>
+            <Button onClick={() => setInviteResult(null)}>{L("Done")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -368,14 +369,14 @@ export function MembersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New password for {resetResult?.id}</DialogTitle>
+            <DialogTitle>{L("New password for")}{resetResult?.id}</DialogTitle>
             <DialogDescription>
               Send this password to the user out-of-band (e.g. Slack DM). It is shown only once.
             </DialogDescription>
           </DialogHeader>
           {resetResult !== null && <CopyableValue value={resetResult.new_password} />}
           <DialogFooter>
-            <Button onClick={() => setResetResult(null)}>Done</Button>
+            <Button onClick={() => setResetResult(null)}>{L("Done")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -393,7 +394,7 @@ export function MembersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Remove {deleteCandidate}?</DialogTitle>
+            <DialogTitle>{L("Remove")}{deleteCandidate}?</DialogTitle>
             <DialogDescription>
               This deletes the user account and revokes all their session permissions. Sessions they
               own become inaccessible unless another user has manage rights on them. This action
@@ -456,7 +457,7 @@ function CopyableValue({ value }: { value: string }) {
         className="font-mono text-xs"
         onFocus={(e) => e.currentTarget.select()}
       />
-      <Button variant="outline" size="sm" onClick={() => void onCopy()} aria-label="Copy">
+      <Button variant="outline" size="sm" onClick={() => void onCopy()} aria-label={L("Copy")}>
         <CopyIcon /> {copied ? "Copied" : "Copy"}
       </Button>
     </div>

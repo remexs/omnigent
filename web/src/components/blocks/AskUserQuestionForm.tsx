@@ -33,6 +33,7 @@ import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-reac
 import { type ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { ClaudeQuestion } from "@/lib/askUserQuestion";
+import { L } from "@/i18n";
 
 /**
  * Map from question id/text → either a single selected label
@@ -228,7 +229,7 @@ export function AskUserQuestionForm({
     <div className="flex flex-col gap-2 text-foreground" data-testid="ask-user-question-form">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span data-testid="ask-user-question-progress">
-          Question {currentIndex + 1} of {questions.length}:
+          {L("Question")}{currentIndex + 1} of {questions.length}:
         </span>
         {current.header && (
           <span className="text-muted-foreground text-xs rounded bg-muted px-1.5 py-0.5">
@@ -325,7 +326,7 @@ export function AskUserQuestionForm({
                 scrolling within a fixed single row. */}
             <textarea
               rows={1}
-              placeholder="Type something"
+              placeholder={L("Type something")}
               value={customRowValue}
               onChange={(e) => handleCustomInput(currentKey, e)}
               data-testid="ask-user-question-custom-input"

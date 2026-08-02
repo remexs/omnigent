@@ -28,6 +28,7 @@ import {
   type StoreCredentialInput,
 } from "@/hooks/useHosts";
 import { harnessCredentialAdoptFamilies } from "@/lib/harnessSetup";
+import { L } from "@/i18n";
 
 export function HarnessCredentialForm({
   harness,
@@ -108,7 +109,7 @@ export function HarnessCredentialForm({
     options.push({
       id: "adopt",
       node: (
-        <CredentialOption icon={<KeyRound />} label="Use a credential found on this host">
+        <CredentialOption icon={<KeyRound />} label={L("Use a credential found on this host")}>
           <AdoptRow
             detected={adoptable}
             busy={busy}
@@ -124,9 +125,9 @@ export function HarnessCredentialForm({
     options.push({
       id: "subscription",
       node: (
-        <CredentialOption icon={<UserRound />} label="Sign in with your subscription">
+        <CredentialOption icon={<UserRound />} label={L("Sign in with your subscription")}>
           <p className="text-xs text-muted-foreground">
-            Use your existing plan — run{" "}
+            {L("Use your existing plan — run")}{" "}
             <button
               type="button"
               className="rounded bg-muted px-1 py-0.5 font-mono hover:text-foreground"
@@ -150,7 +151,7 @@ export function HarnessCredentialForm({
   options.push({
     id: "key",
     node: (
-      <CredentialOption icon={<KeyRound />} label="Use an API key">
+      <CredentialOption icon={<KeyRound />} label={L("Use an API key")}>
         <form
           className="flex items-center gap-2"
           onSubmit={(e) => {
@@ -163,7 +164,7 @@ export function HarnessCredentialForm({
           <Input
             type="password"
             autoComplete="off"
-            placeholder="Paste an API key"
+            placeholder={L("Paste an API key")}
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             data-testid="harness-credential-key"
@@ -177,7 +178,7 @@ export function HarnessCredentialForm({
   options.push({
     id: "gateway",
     node: (
-      <CredentialOption icon={<Waypoints />} label="Connect a gateway">
+      <CredentialOption icon={<Waypoints />} label={L("Connect a gateway")}>
         <p className="text-xs text-muted-foreground">
           Route through an OpenAI-compatible proxy (e.g. OpenRouter).
         </p>
@@ -199,7 +200,7 @@ export function HarnessCredentialForm({
         >
           <Input
             type="text"
-            placeholder="Gateway base URL (e.g. https://openrouter.ai/api/v1)"
+            placeholder={L("Gateway base URL (e.g. https://openrouter.ai/api/v1)")}
             value={gatewayUrl}
             onChange={(e) => setGatewayUrl(e.target.value)}
             className="h-8 text-xs"
@@ -208,7 +209,7 @@ export function HarnessCredentialForm({
             <Input
               type="password"
               autoComplete="off"
-              placeholder="Gateway API key"
+              placeholder={L("Gateway API key")}
               value={gatewayKey}
               onChange={(e) => setGatewayKey(e.target.value)}
               className="h-8 font-mono text-xs"
@@ -310,7 +311,7 @@ function AdoptRow({
       data-testid="harness-credential-adopt"
     >
       <span className="flex-1 text-xs">
-        Found <code className="font-mono">{detected.source}</code> on this host.
+        {L("Found")}<code className="font-mono">{detected.source}</code> on this host.
       </span>
       <Button type="button" size="sm" loading={busy} onClick={onUse}>
         Use it

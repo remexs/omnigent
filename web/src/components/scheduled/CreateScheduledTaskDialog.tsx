@@ -45,6 +45,7 @@ import {
 } from "@/lib/scheduleBuilder";
 import { ScheduledTaskApiError, type ScheduledTask } from "@/lib/scheduledTasksApi";
 import { localTimezone } from "@/lib/timezones";
+import { L } from "@/i18n";
 
 // Agents hidden from the scheduled-task picker (mirrors NewChatDialog's set):
 // superseded / SDK-only harnesses that shouldn't be user-pickable here.
@@ -338,11 +339,11 @@ export function CreateScheduledTaskDialog({
           data-testid="scheduled-task-dialog-body"
         >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="task-name">Name</Label>
+            <Label htmlFor="task-name">{L("Name")}</Label>
             <Input
               id="task-name"
               value={name}
-              placeholder="daily-brief"
+              placeholder={L("daily-brief")}
               data-testid="task-name-input"
               className="text-sm"
               onChange={(e) => setName(e.target.value)}
@@ -350,12 +351,12 @@ export function CreateScheduledTaskDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="task-prompt">Prompt</Label>
+            <Label htmlFor="task-prompt">{L("Prompt")}</Label>
             <Textarea
               id="task-prompt"
               value={prompt}
               rows={3}
-              placeholder="What should the agent do each run?"
+              placeholder={L("What should the agent do each run?")}
               data-testid="task-prompt-input"
               // No native resize grip — match the clean styling of the other fields.
               className="resize-none text-sm"
@@ -367,7 +368,7 @@ export function CreateScheduledTaskDialog({
             {/* "Runs with" — the unified picker offers BOTH harnesses (Claude
                 Code / Codex / Pi …) and agents (Polly / Debby), so "Agent" would
                 be misleading. */}
-            <Label>Runs with</Label>
+            <Label>{L("Runs with")}</Label>
             {isEdit ? (
               <div
                 className="flex h-8 w-full items-center rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground dark:bg-input/30"
@@ -467,7 +468,7 @@ export function CreateScheduledTaskDialog({
           {/* Optional host + workspace pin. Left unset, the server resolves the
               owner's connected host and its home directory at fire time. */}
           <div className="flex flex-col gap-1.5" data-testid="task-host-field">
-            <Label htmlFor="task-host">Host (optional)</Label>
+            <Label htmlFor="task-host">{L("Host (optional)")}</Label>
             <Select
               value={hostId === "" ? UNSET_HOST : hostId}
               onValueChange={(v) => {
@@ -500,7 +501,7 @@ export function CreateScheduledTaskDialog({
 
           {hostId !== "" && (
             <div className="flex flex-col gap-1.5">
-              <Label>Workspace (optional)</Label>
+              <Label>{L("Workspace (optional)")}</Label>
               <p className="text-[11px] text-muted-foreground">
                 Defaults to the host&apos;s home directory. Pick a directory to pin it.
               </p>

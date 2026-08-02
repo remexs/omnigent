@@ -33,6 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { describeSchedule, formatNextRunAt } from "@/lib/scheduleText";
 import type { ScheduledTask } from "@/lib/scheduledTasksApi";
+import { L } from "@/i18n";
 
 export function ScheduledTaskRow({
   task,
@@ -102,7 +103,7 @@ export function ScheduledTaskRow({
           {nextRun && (
             <>
               {" · "}
-              <span data-testid="task-next-run">Next run {nextRun}</span>
+              <span data-testid="task-next-run">{L("Next run")}{nextRun}</span>
             </>
           )}
         </span>

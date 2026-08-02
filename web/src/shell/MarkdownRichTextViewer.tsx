@@ -49,6 +49,7 @@ import {
   installMarkdownParserPatch,
   installMarkdownSerializerPatch,
 } from "./tiptapMarkdownPatches";
+import { L } from "@/i18n";
 
 // Minimal-escaping serialiser override (see tiptapMarkdownPatches.ts) —
 // installed once at module load, before any editor instance is created.
@@ -491,7 +492,7 @@ function MarkdownRichTextViewerInner({
         {!canEdit && (
           <button
             type="button"
-            title="Copy"
+            title={L("Copy")}
             onClick={handleCopyContent}
             className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
@@ -510,7 +511,7 @@ function MarkdownRichTextViewerInner({
       {canEdit && isDirty && hasExternalUpdate && (
         <div className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-2 border-t border-border bg-warning/10 px-4 py-1.5 text-xs text-foreground backdrop-blur-sm">
           <AlertTriangleIcon className="size-3.5 shrink-0 text-warning" />
-          <span className="flex-1">This file was modified externally while you were editing.</span>
+          <span className="flex-1">{L("This file was modified externally while you were editing.")}</span>
           <button
             type="button"
             className="rounded px-2 py-0.5 font-medium hover:bg-muted transition-colors"

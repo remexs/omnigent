@@ -31,6 +31,7 @@ import { useNow } from "@/hooks/useNow";
 import type { ScheduledTask } from "@/lib/scheduledTasksApi";
 import { nextRunAtMs } from "@/lib/scheduleText";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 type FilterTab = "all" | "active" | "paused";
 
@@ -150,7 +151,7 @@ export function TasksPage() {
     <PageScroll contentClassName="px-6">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold">Automations</h1>
+          <h1 className="text-2xl font-semibold">{L("Automations")}</h1>
           <p className="text-sm text-muted-foreground">
             Run agent sessions on a recurring schedule. Tasks fire on a connected host.
           </p>
@@ -169,13 +170,13 @@ export function TasksPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search automations…"
+            placeholder={L("Search automations…")}
             data-testid="tasks-search"
             className="pl-9"
           />
         </div>
         {hasAnyTasks && (
-          <div aria-label="Filter tasks" className="flex items-center gap-1">
+          <div aria-label={L("Filter tasks")} className="flex items-center gap-1">
             {FILTER_TABS.map((tab) => (
               <button
                 key={tab.value}
@@ -204,7 +205,7 @@ export function TasksPage() {
           className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm"
         >
           <TriangleAlertIcon className="size-4 shrink-0 text-destructive" />
-          <span className="flex-1">Couldn’t load automations.</span>
+          <span className="flex-1">{L("Couldn’t load automations.")}</span>
           <Button variant="outline" size="sm" onClick={() => void refetch()}>
             Retry
           </Button>
@@ -271,12 +272,12 @@ function EmptyState({
   return (
     <div className="py-8" data-testid="tasks-empty-state">
       {hasAny && (
-        <div className="py-10 text-center text-sm text-muted-foreground">No automations found</div>
+        <div className="py-10 text-center text-sm text-muted-foreground">{L("No automations found")}</div>
       )}
       {!hasAny && (
         <div className="flex flex-col items-center gap-2 py-12 text-center">
           <ClockIcon className="size-8 text-muted-foreground/50" />
-          <p className="text-sm font-medium">No automations yet</p>
+          <p className="text-sm font-medium">{L("No automations yet")}</p>
           <p className="max-w-sm text-xs text-muted-foreground">
             Create a task to run an agent session automatically on a recurring schedule.
           </p>
@@ -310,7 +311,7 @@ function SuggestionsSection({
       className={cn("mt-4 border-t border-border/60 pt-4", className)}
       data-testid="tasks-suggestions"
     >
-      {showHeading && <h2 className="mb-3 text-sm text-muted-foreground">Suggestions</h2>}
+      {showHeading && <h2 className="mb-3 text-sm text-muted-foreground">{L("Suggestions")}</h2>}
       {/* Compact chips that wrap onto multiple lines. */}
       <div className="flex flex-wrap gap-2">
         {SCHEDULED_TASK_SUGGESTIONS.map((s) => {

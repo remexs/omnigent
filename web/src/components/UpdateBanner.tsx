@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { type UpdateStatus, updateBridge } from "@/lib/nativeBridge";
 import { cn } from "@/lib/utils";
+import { L } from "@/i18n";
 
 function statusVersion(status: UpdateStatus | null): string | null {
   return status?.info?.version ?? null;
@@ -127,7 +128,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
   return (
     <div
       role={isError ? "status" : "region"}
-      aria-label="Desktop update"
+      aria-label={L("Desktop update")}
       className={cn(
         "rounded-xl border border-border bg-background p-3.5 text-sm shadow-lg",
         // `floating`: pin bottom-right for the in-page web build. `bare`: fill
@@ -158,12 +159,12 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           {visibleStatus.state === "downloading" && (
             <>
               <p className="font-medium text-foreground">
-                Downloading Omnigent update… {progress}%
+                {L("Downloading Omnigent update…")}{progress}%
               </p>
               <Progress
                 value={progress}
                 className="mt-2 h-1.5"
-                aria-label="Update download progress"
+                aria-label={L("Update download progress")}
               />
             </>
           )}
@@ -181,7 +182,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           )}
           {isError && (
             <>
-              <p className="font-medium text-foreground">Update check failed</p>
+              <p className="font-medium text-foreground">{L("Update check failed")}</p>
               {visibleStatus.lastError && (
                 <p className="mt-0.5 line-clamp-3 text-xs text-muted-foreground">
                   {visibleStatus.lastError}
@@ -236,7 +237,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
             type="button"
             variant="ghost"
             size="icon-xs"
-            aria-label="Dismiss"
+            aria-label={L("Dismiss")}
             className="-mt-1 -mr-1 shrink-0"
             onClick={() => setHiddenVersion(isError ? "error-security" : (version ?? null))}
           >

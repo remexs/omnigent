@@ -23,6 +23,7 @@ import { useState } from "react";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { L } from "@/i18n";
 
 interface ExitPlanModeReviewProps {
   /** Plan markdown from the ExitPlanMode tool_input, e.g. `"# Plan\n…"`. */
@@ -61,7 +62,7 @@ export function ExitPlanModeReview({
         <div className="flex flex-col gap-2 pt-1" data-testid="exit-plan-mode-feedback">
           <Textarea
             autoFocus
-            placeholder="What should change about the plan? (optional)"
+            placeholder={L("What should change about the plan? (optional)")}
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             className="min-h-20 text-sm"

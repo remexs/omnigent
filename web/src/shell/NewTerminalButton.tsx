@@ -31,6 +31,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useSessionAgent } from "@/hooks/useAgents";
 import { terminalTabKey, useCreateTerminal } from "@/hooks/useTerminals";
 import { useTerminalFirst } from "./TerminalFirstContext";
+import { L } from "@/i18n";
 
 interface NewTerminalButtonProps {
   conversationId: string;
@@ -89,7 +90,7 @@ export function NewTerminalButton({
     variant === "row" ? (
       <button
         type="button"
-        aria-label="New shell"
+        aria-label={L("New shell")}
         disabled={create.isPending}
         className="flex w-full items-center gap-2 px-2 py-1.5 text-left text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:cursor-default disabled:opacity-50"
         onClick={onTriggerClick}
@@ -102,7 +103,7 @@ export function NewTerminalButton({
     ) : (
       <button
         type="button"
-        aria-label="New shell"
+        aria-label={L("New shell")}
         disabled={create.isPending}
         className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:cursor-default disabled:opacity-50"
         onClick={onTriggerClick}
@@ -158,7 +159,7 @@ export function NewTerminalButton({
     <DropdownMenuTrigger asChild>
       <button
         type="button"
-        aria-label="Choose shell"
+        aria-label={L("Choose shell")}
         disabled={create.isPending}
         className={
           variant === "row"

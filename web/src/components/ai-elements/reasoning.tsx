@@ -13,6 +13,7 @@ import {
   SECURE_STREAMDOWN_REHYPE_PLUGINS,
   STREAMDOWN_PLUGINS,
 } from "./streamdown-security";
+import { L } from "@/i18n";
 
 interface ReasoningContextValue {
   isStreaming: boolean;
@@ -114,9 +115,9 @@ const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
     );
   }
   if (duration === undefined) {
-    return <span>Thought for a few seconds</span>;
+    return <span>{L("Thought for a few seconds")}</span>;
   }
-  return <span>Thought for {duration.toFixed(1)} seconds</span>;
+  return <span>{L("Thought for")}{duration.toFixed(1)} seconds</span>;
 };
 
 export const ReasoningTrigger = memo(

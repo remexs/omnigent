@@ -170,6 +170,7 @@ import {
   updateBridge,
 } from "@/lib/nativeBridge";
 import { cn } from "@/lib/utils";
+import { L, getLanguage, setLanguage, type Language } from "@/i18n";
 
 // Admin-only management surfaces, rendered as the Members / Policies settings
 // sub-categories. Visible to admins in all modes (accounts, OIDC, single-user).
@@ -471,7 +472,7 @@ function ModeControl() {
   return (
     <ThemeSubsection
       labelId={labelId}
-      title="Mode"
+      title={L("Mode")}
       helper="Follow your system, or force light or dark."
     >
       <CardRadioGroup<ThemeMode>
@@ -506,7 +507,7 @@ function TerminalThemeControl() {
   return (
     <ThemeSubsection
       labelId={labelId}
-      title="Terminal theme"
+      title={L("Terminal theme")}
       helper="Use a light or dark terminal, or match the app."
     >
       <CardRadioGroup<TerminalThemeMode>
@@ -540,7 +541,7 @@ function WorkspacePanelDefaultControl() {
   return (
     <ThemeSubsection
       labelId={labelId}
-      title="Workspace panel"
+      title={L("Workspace panel")}
       helper="Whether new chats open with the Files / Agents / Shells panel visible. Existing chats keep their last layout."
     >
       <CardRadioGroup<WorkspacePanelDefault>
@@ -617,7 +618,7 @@ function ColorThemeControl() {
   return (
     <ThemeSubsection
       labelId={labelId}
-      title="Color theme"
+      title={L("Color theme")}
       helper="Choose a preset, then tune it across light and dark mode."
     >
       <div className="overflow-hidden rounded-xl border bg-card/55 shadow-xs">
@@ -627,7 +628,7 @@ function ColorThemeControl() {
               <PaletteSwatchPreview swatch={isDark ? selected.dark : selected.light} />
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-medium">Theme palette</div>
+              <div className="text-sm font-medium">{L("Theme palette")}</div>
               <div className="truncate text-xs text-muted-foreground">
                 {selection === "custom"
                   ? `Based on ${PALETTES.find((palette) => palette.id === customTheme.basePalette)?.label ?? "Omnigent"}`
@@ -664,7 +665,7 @@ function ColorThemeControl() {
               ))}
               <SelectItem value="custom" data-testid="palette-custom">
                 <PaletteChip swatch={isDark ? customSwatches.dark : customSwatches.light} />
-                <span>Custom</span>
+                <span>{L("Custom")}</span>
               </SelectItem>
             </SelectContent>
           </Select>
@@ -672,20 +673,20 @@ function ColorThemeControl() {
 
         <div className="px-4">
           <ThemeColorPicker
-            label="Accent"
+            label={L("Accent")}
             value={editableTheme.accent}
             testId="custom-theme-accent"
             onChange={(accent) => updateCustomTheme({ accent })}
           />
           <ThemeColorPicker
-            label="Background tint"
+            label={L("Background tint")}
             value={editableTheme.tint}
             testId="custom-theme-tint"
             onChange={(tint) => updateCustomTheme({ tint })}
           />
           <div className="flex items-center justify-between gap-4 border-b border-border/70 py-4">
             <div>
-              <div className="text-sm font-medium">Contrast</div>
+              <div className="text-sm font-medium">{L("Contrast")}</div>
               <div className="text-xs text-muted-foreground">
                 Separates text, borders, and surfaces.
               </div>
@@ -697,7 +698,7 @@ function ColorThemeControl() {
                 min="0"
                 max="100"
                 value={editableTheme.contrast}
-                aria-label="Theme contrast"
+                aria-label={L("Theme contrast")}
                 data-testid="custom-theme-contrast"
                 onChange={(event) => updateCustomTheme({ contrast: Number(event.target.value) })}
                 className="h-1.5 min-w-0 flex-1 cursor-pointer accent-primary"
@@ -713,13 +714,13 @@ function ColorThemeControl() {
           </div>
           <div className="flex items-center justify-between gap-4 py-4">
             <div>
-              <div className="text-sm font-medium">Translucent sidebars</div>
+              <div className="text-sm font-medium">{L("Translucent sidebars")}</div>
               <div className="text-xs text-muted-foreground">
                 Lets the canvas show through the conversation and workspace rails.
               </div>
             </div>
             <Switch
-              aria-label="Translucent sidebars"
+              aria-label={L("Translucent sidebars")}
               checked={editableTheme.translucentSidebar}
               onCheckedChange={(translucentSidebar) => updateCustomTheme({ translucentSidebar })}
               data-testid="custom-theme-translucent-sidebar"
@@ -810,6 +811,50 @@ function HideUnconfiguredHarnessesControl() {
   );
 }
 
+/**
+ * UI language picker. Changing the language reloads the page so every
+ * component re-renders with the new strings (see i18n/index.ts).
+ */
+function LanguageSetting() {
+  const [lang, setLang] = useState<Language>(() => getLanguage());
+
+  const change = useCallback((next: Language) => {
+    setLang(next);
+    setLanguage(next);
+  }, []);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="text-sm font-medium">{L("Language")}</span>
+        <span className="text-sm text-muted-foreground">
+          {L("Choose the language used across the Omnigent interface.")}
+        </span>
+      </div>
+      <div role="group" aria-label={L("Language")} className="flex shrink-0 items-center gap-2">
+        <Button
+          type="button"
+          variant={lang === "zh-CN" ? "default" : "outline"}
+          size="sm"
+          onClick={() => change("zh-CN")}
+          data-testid="language-zh"
+        >
+          中文 (简体)
+        </Button>
+        <Button
+          type="button"
+          variant={lang === "en" ? "default" : "outline"}
+          size="sm"
+          onClick={() => change("en")}
+          data-testid="language-en"
+        >
+          English
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function AppearanceSection() {
   // Embedded: the host owns light/dark, so the Mode and Color theme pickers
   // would be no-ops — hide them and say so (matching ThemeModeMenu). Terminal
@@ -876,11 +921,13 @@ function AppearanceSection() {
   };
 
   return (
-    <Section title="Appearance" description="Choose how Omnigent looks on this device.">
+    <Section title={L("Appearance")} description={L("Choose how Omnigent looks on this device.")}>
       <div key={resetKey} className="flex flex-col gap-8">
+        {/* Language — device-level preference, applied on reload. */}
+        <LanguageSetting />
         {isEmbedded ? (
           <div className="flex flex-col gap-3">
-            <span className="text-sm font-medium">Theme</span>
+            <span className="text-sm font-medium">{L("Theme")}</span>
             <p className="text-sm text-muted-foreground">
               Theme is controlled by the host application.
             </p>
@@ -919,7 +966,7 @@ function AppearanceSection() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Reset appearance?</DialogTitle>
+              <DialogTitle>{L("Reset appearance?")}</DialogTitle>
               <DialogDescription>
                 This will reset every appearance choice back to its default.
               </DialogDescription>
@@ -949,7 +996,7 @@ function AppearanceSection() {
 /** Git behavior settings. */
 function GitSection() {
   return (
-    <Section title="Git" description="Configure how Omnigent works with Git.">
+    <Section title="Git" description={L("Configure how Omnigent works with Git.")}>
       <div className="flex flex-col gap-8">
         <DefaultBaseBranchControl />
       </div>
@@ -974,16 +1021,16 @@ function DefaultBaseBranchControl() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="text-sm font-medium">Default base branch</span>
+        <span className="text-sm font-medium">{L("Default base branch")}</span>
         <span className="text-sm text-muted-foreground">
           Auto-filled as the base when you name a new worktree branch. Leave blank to not auto-fill.
         </span>
       </div>
       <Input
         type="text"
-        aria-label="Default base branch"
+        aria-label={L("Default base branch")}
         data-testid="settings-default-base-branch-input"
-        placeholder="e.g. main"
+        placeholder={L("e.g. main")}
         spellCheck={false}
         autoCapitalize="off"
         autoCorrect="off"
@@ -1046,7 +1093,7 @@ function UiFontSizeControl() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
       <div className="flex flex-col">
-        <span className="text-sm font-medium">Interface font size</span>
+        <span className="text-sm font-medium">{L("Interface font size")}</span>
         <span className="text-sm text-muted-foreground">
           Scale text and spacing across the rest of the interface.
         </span>
@@ -1055,14 +1102,14 @@ function UiFontSizeControl() {
           border via inner dividers rather than floating as separate boxes. */}
       <div
         role="group"
-        aria-label="Interface font size"
+        aria-label={L("Interface font size")}
         className={cn(
           "inline-flex h-9 items-stretch overflow-hidden rounded-lg border border-input bg-background transition-colors dark:bg-input/30",
           "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
         )}
       >
         <StepperButton
-          label="Decrease interface font size"
+          label={L("Decrease interface font size")}
           testId="ui-font-size-dec"
           disabled={atMin}
           onClick={() => commit(px - UI_FONT_SIZE_STEP)}
@@ -1076,7 +1123,7 @@ function UiFontSizeControl() {
             min={UI_FONT_SIZE_MIN}
             max={UI_FONT_SIZE_MAX}
             step={UI_FONT_SIZE_STEP}
-            aria-label="Interface font size in pixels"
+            aria-label={L("Interface font size in pixels")}
             data-testid="ui-font-size-input"
             className="w-8 bg-transparent text-center text-sm font-medium tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             value={draft}
@@ -1088,7 +1135,7 @@ function UiFontSizeControl() {
           />
         </div>
         <StepperButton
-          label="Increase interface font size"
+          label={L("Increase interface font size")}
           testId="ui-font-size-inc"
           disabled={atMax}
           onClick={() => commit(px + UI_FONT_SIZE_STEP)}
@@ -1125,7 +1172,7 @@ function UiFontFamilyControl() {
           this column) so the input stays inline instead of dropping to its own
           row — matches the font-size row's alignment. */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="text-sm font-medium">Font family</span>
+        <span className="text-sm font-medium">{L("Font family")}</span>
         <span className="text-sm text-muted-foreground">
           Use any font installed on this device. Leave blank for the system default.
         </span>
@@ -1133,7 +1180,7 @@ function UiFontFamilyControl() {
       {/* Reset sits left of the input so the input is the rightmost element and
           its right edge lines up flush with the font-size stepper above.
           `invisible` (not removed) at the default keeps the row from shifting. */}
-      <div role="group" aria-label="Font family" className="flex shrink-0 items-center gap-2">
+      <div role="group" aria-label={L("Font family")} className="flex shrink-0 items-center gap-2">
         <Button
           type="button"
           variant="ghost"
@@ -1147,9 +1194,9 @@ function UiFontFamilyControl() {
         </Button>
         <Input
           type="text"
-          aria-label="UI font family"
+          aria-label={L("UI font family")}
           data-testid="ui-font-family-input"
-          placeholder="System default"
+          placeholder={L("System default")}
           spellCheck={false}
           autoCapitalize="off"
           autoCorrect="off"
@@ -1210,7 +1257,7 @@ function UiCodeFontSizeControl() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
       <div className="flex flex-col">
-        <span className="text-sm font-medium">Code font size</span>
+        <span className="text-sm font-medium">{L("Code font size")}</span>
         <span className="text-sm text-muted-foreground">
           Size of code in the editor and terminal.
         </span>
@@ -1219,14 +1266,14 @@ function UiCodeFontSizeControl() {
           font-size control. */}
       <div
         role="group"
-        aria-label="Code font size"
+        aria-label={L("Code font size")}
         className={cn(
           "inline-flex h-9 items-stretch overflow-hidden rounded-lg border border-input bg-background transition-colors dark:bg-input/30",
           "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
         )}
       >
         <StepperButton
-          label="Decrease code font size"
+          label={L("Decrease code font size")}
           testId="code-font-size-dec"
           disabled={atMin}
           onClick={() => commit(px - CODE_FONT_SIZE_STEP)}
@@ -1240,7 +1287,7 @@ function UiCodeFontSizeControl() {
             min={CODE_FONT_SIZE_MIN}
             max={CODE_FONT_SIZE_MAX}
             step={CODE_FONT_SIZE_STEP}
-            aria-label="Code font size in pixels"
+            aria-label={L("Code font size in pixels")}
             data-testid="code-font-size-input"
             className="w-8 bg-transparent text-center text-sm font-medium tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             value={draft}
@@ -1252,7 +1299,7 @@ function UiCodeFontSizeControl() {
           />
         </div>
         <StepperButton
-          label="Increase code font size"
+          label={L("Increase code font size")}
           testId="code-font-size-inc"
           disabled={atMax}
           onClick={() => commit(px + CODE_FONT_SIZE_STEP)}
@@ -1283,7 +1330,7 @@ function UiCodeFontFamilyControl() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="text-sm font-medium">Code font family</span>
+        <span className="text-sm font-medium">{L("Code font family")}</span>
         <span className="text-sm text-muted-foreground">
           Font for the code editor and terminal. Leave blank for the default.
         </span>
@@ -1291,7 +1338,7 @@ function UiCodeFontFamilyControl() {
       {/* Reset sits left of the input so the input's right edge lines up flush
           with the size stepper above. `invisible` (not removed) at the default
           keeps the row from shifting. */}
-      <div role="group" aria-label="Code font family" className="flex shrink-0 items-center gap-2">
+      <div role="group" aria-label={L("Code font family")} className="flex shrink-0 items-center gap-2">
         <Button
           type="button"
           variant="ghost"
@@ -1305,9 +1352,9 @@ function UiCodeFontFamilyControl() {
         </Button>
         <Input
           type="text"
-          aria-label="Code font family"
+          aria-label={L("Code font family")}
           data-testid="code-font-family-input"
-          placeholder="Editor default"
+          placeholder={L("Editor default")}
           spellCheck={false}
           autoCapitalize="off"
           autoCorrect="off"
@@ -1354,7 +1401,7 @@ function StepperButton({
 
 function ShortcutsSection() {
   return (
-    <Section title="Keyboard shortcuts" description="Speed up common actions with the keyboard.">
+    <Section title={L("Keyboard shortcuts")} description={L("Speed up common actions with the keyboard.")}>
       <KeyboardShortcutsList />
     </Section>
   );
@@ -1384,19 +1431,19 @@ function LocalCliSection() {
 
   if (status === "loading") {
     return (
-      <Section title="Local CLI">
-        <p className="text-sm text-muted-foreground">Checking…</p>
+      <Section title={L("Local CLI")}>
+        <p className="text-sm text-muted-foreground">{L("Checking…")}</p>
       </Section>
     );
   }
 
   return (
     <Section
-      title="Local CLI"
-      description="The Omnigent command-line tool this app uses to run a local server and connect this machine as a runner."
+      title={L("Local CLI")}
+      description={L("The Omnigent command-line tool this app uses to run a local server and connect this machine as a runner.")}
     >
       {status === null ? (
-        <p className="text-sm text-muted-foreground">CLI status is unavailable.</p>
+        <p className="text-sm text-muted-foreground">{L("CLI status is unavailable.")}</p>
       ) : (
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-sm">
@@ -1533,23 +1580,23 @@ function UpdatesSection() {
 
   if (config === "loading") {
     return (
-      <Section title="Updates">
-        <p className="text-sm text-muted-foreground">Checking…</p>
+      <Section title={L("Updates")}>
+        <p className="text-sm text-muted-foreground">{L("Checking…")}</p>
       </Section>
     );
   }
 
   return (
     <Section
-      title="Updates"
-      description="Desktop app update preferences for this installed Omnigent shell."
+      title={L("Updates")}
+      description={L("Desktop app update preferences for this installed Omnigent shell.")}
     >
       {config === null ? (
-        <p className="text-sm text-muted-foreground">Update settings are unavailable.</p>
+        <p className="text-sm text-muted-foreground">{L("Update settings are unavailable.")}</p>
       ) : (
         <div className="flex max-w-2xl flex-col gap-5">
           <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Update mode</span>
+            <span className="text-sm font-medium">{L("Update mode")}</span>
             <Select
               value={config.mode}
               onValueChange={(value) => void persistConfig({ mode: value as UpdateMode })}
@@ -1570,7 +1617,7 @@ function UpdatesSection() {
 
           <div className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">Install downloaded updates on next quit</span>
+              <span className="text-sm font-medium">{L("Install downloaded updates on next quit")}</span>
               <span className="text-xs text-muted-foreground">
                 Applies only after you choose to download an update.
               </span>
@@ -1579,7 +1626,7 @@ function UpdatesSection() {
               checked={config.autoInstall}
               onCheckedChange={(checked) => void persistConfig({ autoInstall: checked })}
               disabled={saving}
-              aria-label="Install downloaded updates on next quit"
+              aria-label={L("Install downloaded updates on next quit")}
             />
           </div>
 
@@ -1587,14 +1634,14 @@ function UpdatesSection() {
             <Button onClick={() => void onCheck()} loading={checking}>
               Check for updates now
             </Button>
-            {saving && <span className="text-xs text-muted-foreground">Saving…</span>}
+            {saving && <span className="text-xs text-muted-foreground">{L("Saving…")}</span>}
           </div>
 
           {lastCheckError && (
             <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm">
               <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
               <div>
-                <div className="font-medium">Last check failed</div>
+                <div className="font-medium">{L("Last check failed")}</div>
                 <div className="text-muted-foreground">{lastCheckError}</div>
               </div>
             </div>
@@ -1674,11 +1721,11 @@ function AccountSection() {
   }, [oldPw, newPw, confirmPw]);
 
   if (me === "unknown" || me === null) {
-    return <Section title="Account">{null}</Section>;
+    return <Section title={L("Account")}>{null}</Section>;
   }
 
   return (
-    <Section title="Account">
+    <Section title={L("Account")}>
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border">
@@ -1688,7 +1735,7 @@ function AccountSection() {
             <div className="truncate font-medium">
               {me.id}
               {me.is_admin && (
-                <span className="ml-1 text-xs font-normal text-muted-foreground">(admin)</span>
+                <span className="ml-1 text-xs font-normal text-muted-foreground">{L("(admin)")}</span>
               )}
             </div>
           </div>
@@ -1733,7 +1780,7 @@ function AccountSection() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change password</DialogTitle>
+            <DialogTitle>{L("Change password")}</DialogTitle>
             <DialogDescription>
               {pwDone
                 ? "Your password has been changed."
@@ -1752,7 +1799,7 @@ function AccountSection() {
               <Input
                 type="password"
                 autoComplete="current-password"
-                placeholder="Current password"
+                placeholder={L("Current password")}
                 value={oldPw}
                 onChange={(e) => setOldPw(e.target.value)}
                 disabled={pwBusy}
@@ -1761,7 +1808,7 @@ function AccountSection() {
               <Input
                 type="password"
                 autoComplete="new-password"
-                placeholder="New password"
+                placeholder={L("New password")}
                 value={newPw}
                 onChange={(e) => setNewPw(e.target.value)}
                 disabled={pwBusy}
@@ -1770,7 +1817,7 @@ function AccountSection() {
               <Input
                 type="password"
                 autoComplete="new-password"
-                placeholder="Confirm new password"
+                placeholder={L("Confirm new password")}
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
                 disabled={pwBusy}
@@ -1799,7 +1846,7 @@ function AccountSection() {
 
           {pwDone && (
             <DialogFooter>
-              <Button onClick={() => setPwOpen(false)}>Done</Button>
+              <Button onClick={() => setPwOpen(false)}>{L("Done")}</Button>
             </DialogFooter>
           )}
         </DialogContent>
@@ -1902,8 +1949,8 @@ function ArchivedSection() {
 
   return (
     <Section
-      title="Archived sessions"
-      description="Sessions you've archived. Restore one to the sidebar, or delete it for good."
+      title={L("Archived sessions")}
+      description={L("Sessions you've archived. Restore one to the sidebar, or delete it for good.")}
     >
       {items.length > 0 && (
         <div className="mb-4 flex items-center gap-2">
@@ -1916,14 +1963,14 @@ function ArchivedSection() {
           >
             <SelectTrigger
               id="archived-project-filter"
-              aria-label="Filter archived sessions by project"
+              aria-label={L("Filter archived sessions by project")}
               data-testid="archived-project-filter"
               className="w-56"
             >
               <SelectValue />
             </SelectTrigger>
             <SelectContent position="popper" align="start">
-              <SelectItem value={ALL_PROJECTS_VALUE}>All projects</SelectItem>
+              <SelectItem value={ALL_PROJECTS_VALUE}>{L("All projects")}</SelectItem>
               {items.map((name) => (
                 <SelectItem
                   key={name}
@@ -1939,7 +1986,7 @@ function ArchivedSection() {
       )}
 
       {listQuery.isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{L("Loading…")}</p>
       ) : archived.length === 0 && !listQuery.hasNextPage ? (
         // Definitive empty only when there are no archived rows AND no further
         // pages to fetch.
@@ -2029,7 +2076,7 @@ function ArchivedRow({ conversation }: { conversation: Conversation }) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Delete session"
+          aria-label={L("Delete session")}
           data-testid="delete-archived"
           disabled={busy}
           onClick={() => setDeleteOpen(true)}
@@ -2056,7 +2103,7 @@ function ArchivedRow({ conversation }: { conversation: Conversation }) {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete session?</DialogTitle>
+            <DialogTitle>{L("Delete session?")}</DialogTitle>
             <DialogDescription>
               <span className="font-medium break-all">{label}</span> and all of its history will be
               removed. This cannot be undone.

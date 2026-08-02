@@ -54,6 +54,7 @@ import type { RememberScope } from "@/lib/types";
 import { useChatStore } from "@/store/chatStore";
 import { AskUserQuestionForm, type AskUserQuestionAnswers } from "./AskUserQuestionForm";
 import { ExitPlanModeReview } from "./ExitPlanModeReview";
+import { L } from "@/i18n";
 
 /**
  * Extract the answer-option labels from an AskUserQuestion-shaped
@@ -309,7 +310,7 @@ export function ApprovalCard({
           data-testid="approval-card-remember"
         >
           <CheckIcon className="mr-1 size-3.5" />
-          Approve &amp; don't ask again for {rememberTarget}
+          {L("Approve &amp; don't ask again for")}{rememberTarget}
         </Button>
       )}
       <Button size="sm" variant="outline" onClick={() => submitBinary("decline")}>
@@ -426,7 +427,7 @@ export function ApprovalCard({
               </pre>
               {codexCommand.cwd && (
                 <span>
-                  <span className="text-muted-foreground">cwd: </span>
+                  <span className="text-muted-foreground">{L("cwd:")}</span>
                   <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
                     {codexCommand.cwd}
                   </code>
@@ -495,7 +496,7 @@ export function ApprovalCard({
         )}
         {isExitPlanMode ? (
           <>
-            <span>Claude finished planning and wants to proceed.</span>
+            <span>{L("Claude finished planning and wants to proceed.")}</span>
             <ExitPlanModeReview
               plan={exitPlanModePlan}
               onAcceptAuto={submitAllowAllEdits}
@@ -513,14 +514,14 @@ export function ApprovalCard({
           />
         ) : isCodexCommandApproval ? (
           <>
-            <span>Codex wants to run this command.</span>
+            <span>{L("Codex wants to run this command.")}</span>
             {codexCommand.reason && <span className="text-foreground">{codexCommand.reason}</span>}
             <pre className="overflow-x-auto rounded bg-muted px-2 py-1 font-mono text-xs text-foreground whitespace-pre-wrap">
               {codexCommand.command}
             </pre>
             {codexCommand.cwd && (
               <span className="text-xs">
-                cwd:{" "}
+                {L("cwd:")}{" "}
                 <code className="rounded bg-muted px-1 py-0.5 font-mono">{codexCommand.cwd}</code>
               </span>
             )}
