@@ -306,8 +306,9 @@ export function MembersPage() {
           <DialogHeader>
             <DialogTitle>{L("Invite a member")}</DialogTitle>
             <DialogDescription>
-              A single-use invite URL will be created. Share it with the person you want to add.
-              They'll choose their own username and password when they redeem it.
+              {L(
+                "A single-use invite URL will be created. Share it with the person you want to add.\n              They'll choose their own username and password when they redeem it.",
+              )}
             </DialogDescription>
           </DialogHeader>
           <label className="flex items-center gap-2 text-sm">
@@ -381,7 +382,9 @@ export function MembersPage() {
               {resetResult?.id}
             </DialogTitle>
             <DialogDescription>
-              Send this password to the user out-of-band (e.g. Slack DM). It is shown only once.
+              {L(
+                "Send this password to the user out-of-band (e.g. Slack DM). It is shown only once.",
+              )}
             </DialogDescription>
           </DialogHeader>
           {resetResult !== null && <CopyableValue value={resetResult.new_password} />}
@@ -409,9 +412,9 @@ export function MembersPage() {
               {deleteCandidate}?
             </DialogTitle>
             <DialogDescription>
-              This deletes the user account and revokes all their session permissions. Sessions they
-              own become inaccessible unless another user has manage rights on them. This action
-              cannot be undone.
+              {L(
+                "This deletes the user account and revokes all their session permissions. Sessions they\n              own become inaccessible unless another user has manage rights on them. This action\n              cannot be undone.",
+              )}
             </DialogDescription>
           </DialogHeader>
           {actionError !== null && (

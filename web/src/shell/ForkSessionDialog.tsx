@@ -739,7 +739,7 @@ export function ForkSessionForm({
                   htmlFor="fork-session-title"
                   className="text-xs font-medium text-muted-foreground"
                 >
-                  Name (optional)
+                  {L("Name (optional)")}
                 </label>
                 <input
                   id="fork-session-title"
@@ -793,9 +793,9 @@ export function ForkSessionForm({
                           >
                             <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
                             <span>
-                              This directory differs from the original session's. Earlier file
-                              references in the transcript may not apply — the agent will need to
-                              re-orient.
+                              {L(
+                                "This directory differs from the original session's. Earlier file\n                              references in the transcript may not apply — the agent will need to\n                              re-orient.",
+                              )}
                             </span>
                           </p>
                         )}
@@ -813,7 +813,7 @@ export function ForkSessionForm({
                       className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
                     >
                       <GitBranchIcon className="size-3.5" />
-                      Git worktree (optional)
+                      {L("Git worktree (optional)")}
                     </label>
                     <input
                       id="fork-session-branch"

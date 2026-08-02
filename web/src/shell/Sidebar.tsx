@@ -3880,7 +3880,9 @@ function ProjectFolderMenu({
           </DialogHeader>
           {deleteProject.isError && (
             <p className="text-sm text-destructive" role="alert">
-              Some sessions couldn't be archived (you may not own them); the rest were archived.
+              {L(
+                "Some sessions couldn't be archived (you may not own them); the rest were archived.",
+              )}
             </p>
           )}
           <DialogFooter className="border-t-0 bg-transparent">
@@ -4330,7 +4332,7 @@ function BulkActionBar({
               disabled={bulkDelete.isPending}
             >
               {L("Delete")}
-              {ownedSelected.length} session(s)
+              {ownedSelected.length} {L("session(s)")}
             </Button>
           </DialogFooter>
         </DialogContent>

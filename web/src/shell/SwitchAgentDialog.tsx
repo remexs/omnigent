@@ -145,8 +145,9 @@ export function SwitchAgentDialog({
         <DialogHeader>
           <DialogTitle>{L("Switch agent")}</DialogTitle>
           <DialogDescription>
-            Continue this session on a different agent. The conversation, comments, and files stay;
-            the next message runs on the new agent.
+            {L(
+              "Continue this session on a different agent. The conversation, comments, and files stay;\n            the next message runs on the new agent.",
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -194,7 +195,8 @@ export function SwitchAgentDialog({
         {resetsModelSettings && (
           <p data-testid="switch-agent-reset-warning" className="text-xs text-muted-foreground">
             {L("Model &amp; reasoning effort will reset to")}
-            {chosen?.display_name}'s defaults (different provider).
+            {chosen?.display_name}
+            {L("'s defaults (different provider).")}
           </p>
         )}
 

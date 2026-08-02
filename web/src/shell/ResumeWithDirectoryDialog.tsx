@@ -262,8 +262,9 @@ export function ResumeWithDirectoryDialog({
         <DialogHeader>
           <DialogTitle>{L("Resume this session")}</DialogTitle>
           <DialogDescription>
-            This clone hasn't picked a working directory yet. Choose a host and directory to
-            continue the conversation against your files.
+            {L(
+              "This clone hasn't picked a working directory yet. Choose a host and directory to\n            continue the conversation against your files.",
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -274,8 +275,9 @@ export function ResumeWithDirectoryDialog({
         ) : showCliFallback ? (
           <div className="flex flex-col gap-2" data-testid="resume-dir-cli-fallback">
             <p className="text-xs text-muted-foreground">
-              The original session's host is offline, so there's nothing to launch a runner on.
-              Reconnect it from your terminal — then send your message again to pick a directory.
+              {L(
+                "The original session's host is offline, so there's nothing to launch a runner on.\n              Reconnect it from your terminal — then send your message again to pick a directory.",
+              )}
             </p>
             <CliCommandBlock
               command={buildReconnectCommand({
@@ -350,8 +352,9 @@ export function ResumeWithDirectoryDialog({
                         {conflictingSessions.length === 1
                           ? L("1 other agent is")
                           : `${conflictingSessions.length} other agents are`}{" "}
-                        working in this directory. Write operations may conflict. Name a git branch
-                        below to work in an isolated copy.
+                        {L(
+                          "working in this directory. Write operations may conflict. Name a git branch\n                        below to work in an isolated copy.",
+                        )}
                       </span>
                     </p>
                   )}
@@ -362,8 +365,9 @@ export function ResumeWithDirectoryDialog({
                     >
                       <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
                       <span>
-                        This directory differs from the original session's. Earlier file references
-                        in the transcript may not apply — the agent will need to re-orient.
+                        {L(
+                          "This directory differs from the original session's. Earlier file references\n                        in the transcript may not apply — the agent will need to re-orient.",
+                        )}
                       </span>
                     </p>
                   )}
@@ -381,7 +385,7 @@ export function ResumeWithDirectoryDialog({
                 className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
               >
                 <GitBranchIcon className="size-3.5" />
-                Git worktree (optional)
+                {L("Git worktree (optional)")}
               </label>
               <input
                 id="resume-dir-branch"
@@ -405,9 +409,9 @@ export function ResumeWithDirectoryDialog({
                 />
               )}
               <p className="text-xs text-muted-foreground">
-                Creates a git worktree for a new branch in an isolated directory — keeps the clone
-                from fighting the original over the same files. Leave blank to start in the picked
-                directory.
+                {L(
+                  "Creates a git worktree for a new branch in an isolated directory — keeps the clone\n                from fighting the original over the same files. Leave blank to start in the picked\n                directory.",
+                )}
               </p>
             </div>
 

@@ -1502,9 +1502,9 @@ function LocalCliSection() {
           )}
 
           <p className="text-xs text-muted-foreground">
-            For security, a custom path can only be set from the connect screen — this prevents a
-            connected server from pointing the app at a different binary. Open it from the Server
-            menu (Change Server…) and use the settings gear.
+            {L(
+              "For security, a custom path can only be set from the connect screen — this prevents a\n            connected server from pointing the app at a different binary. Open it from the Server\n            menu (Change Server…) and use the settings gear.",
+            )}
           </p>
 
           {status.source === "configured" && (

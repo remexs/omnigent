@@ -943,9 +943,11 @@ export function AgentHarnessPicker({
         className="ml-auto self-center border-amber-300 bg-amber-50 text-[11px] text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400"
         data-testid={`new-chat-landing-agent-warning-${agent.id}`}
       >
-        {harnessWarningBadgeText(
-          harnessUnavailableReasonOnHost(agent.harness, host),
-          collapsedBadge,
+        {L(
+          harnessWarningBadgeText(
+            harnessUnavailableReasonOnHost(agent.harness, host),
+            collapsedBadge,
+          ),
         )}
       </Badge>
     ) : null;
@@ -1604,8 +1606,9 @@ function HarnessConfigModal({
                 >
                   <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
                   <span>
-                    Danger: this session runs Codex with approvals and the sandbox disabled. It can
-                    edit any file and run any command without asking.
+                    {L(
+                      "Danger: this session runs Codex with approvals and the sandbox disabled. It can\n                    edit any file and run any command without asking.",
+                    )}
                   </span>
                 </div>
               )}
@@ -1649,9 +1652,11 @@ function HarnessConfigModal({
                             className="border-amber-300 bg-amber-50 text-[11px] text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400"
                             data-testid={`new-chat-landing-harness-warning-${id}`}
                           >
-                            {harnessWarningBadgeText(
-                              harnessUnavailableReasonOnHost(id, host),
-                              collapsedBadge,
+                            {L(
+                              harnessWarningBadgeText(
+                                harnessUnavailableReasonOnHost(id, host),
+                                collapsedBadge,
+                              ),
                             )}
                           </Badge>
                         )}
@@ -3791,7 +3796,7 @@ export function NewChatLandingScreen() {
                           htmlFor="landing-repo-url"
                           className="text-xs font-medium text-foreground"
                         >
-                          Repository (optional)
+                          {L("Repository (optional)")}
                         </label>
                         {databricksGitCredentialsTooltipContent && (
                           <Tooltip>
@@ -3829,8 +3834,9 @@ export function NewChatLandingScreen() {
                         data-testid="new-chat-landing-repo-branch-input"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Cloned into the sandbox as the session's working directory. Leave blank to
-                        start in an empty workspace.
+                        {L(
+                          "Cloned into the sandbox as the session's working directory. Leave blank to\n                        start in an empty workspace.",
+                        )}
                       </p>
                     </div>
                   </PopoverContent>
@@ -3909,14 +3915,15 @@ export function NewChatLandingScreen() {
                         htmlFor="landing-branch-name"
                         className="text-xs font-medium text-foreground"
                       >
-                        Git worktree branch (optional)
+                        {L("Git worktree branch (optional)")}
                       </label>
                       {/* Help text sits above the field. The warning for a picked
                         existing worktree stays below the input (contextual to the
                         selection). */}
                       <p className="text-xs text-muted-foreground">
-                        New branch name, or pick an existing worktree. Leave blank to start directly
-                        in the working directory.
+                        {L(
+                          "New branch name, or pick an existing worktree. Leave blank to start directly\n                        in the working directory.",
+                        )}
                       </p>
                       {/* The branch field is a combobox: focusing it reveals the
                         repo's existing worktrees, and typing filters them.
@@ -4093,8 +4100,9 @@ export function NewChatLandingScreen() {
             >
               <TriangleAlertIcon className="size-3.5 shrink-0" />
               <span>
-                Codex will run with approvals and the sandbox disabled — it can edit any file and
-                run any command without asking.
+                {L(
+                  "Codex will run with approvals and the sandbox disabled — it can edit any file and\n                run any command without asking.",
+                )}
               </span>
             </p>
           )}

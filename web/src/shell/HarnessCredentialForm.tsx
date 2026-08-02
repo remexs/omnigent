@@ -180,7 +180,7 @@ export function HarnessCredentialForm({
     node: (
       <CredentialOption icon={<Waypoints />} label={L("Connect a gateway")}>
         <p className="text-xs text-muted-foreground">
-          Route through an OpenAI-compatible proxy (e.g. OpenRouter).
+          {L("Route through an OpenAI-compatible proxy (e.g. OpenRouter).")}
         </p>
         <form
           className="flex flex-col gap-2"

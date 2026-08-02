@@ -629,8 +629,9 @@ export function PoliciesPage() {
               {deleteCandidate?.name}?
             </DialogTitle>
             <DialogDescription>
-              This removes the global policy from all sessions. Existing session-level policies with
-              the same handler are unaffected.
+              {L(
+                "This removes the global policy from all sessions. Existing session-level policies with\n              the same handler are unaffected.",
+              )}
             </DialogDescription>
           </DialogHeader>
           {actionError !== null && (

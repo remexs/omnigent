@@ -153,7 +153,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
         <div className="min-w-0 flex-1">
           {visibleStatus.state === "available" && (
             <p className="font-medium text-foreground">
-              Omnigent {visibleStatus.info?.version ?? "update"} {L("is available")}
+              {L("Omnigent")} {visibleStatus.info?.version ?? "update"} {L("is available")}
             </p>
           )}
           {visibleStatus.state === "downloading" && (
@@ -172,7 +172,7 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           {visibleStatus.state === "downloaded" && (
             <>
               <p className="font-medium text-foreground">
-                Omnigent {visibleStatus.info?.version ?? "update"} {L("is ready to install")}
+                {L("Omnigent")} {visibleStatus.info?.version ?? "update"} {L("is ready to install")}
               </p>
               {autoInstall && (
                 <p className="mt-0.5 text-xs text-muted-foreground">

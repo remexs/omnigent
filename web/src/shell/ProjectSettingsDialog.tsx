@@ -428,8 +428,9 @@ export function ProjectSettingsDialog({
               role="alert"
               data-testid="project-settings-load-error"
             >
-              Couldn't load this project's settings. Close and reopen to try again — saving is
-              disabled so your existing defaults aren't overwritten.
+              {L(
+                "Couldn't load this project's settings. Close and reopen to try again — saving is\n              disabled so your existing defaults aren't overwritten.",
+              )}
             </p>
           )}
           {updateConfig.isError && (

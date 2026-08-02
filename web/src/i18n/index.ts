@@ -53,9 +53,29 @@ export function setLanguage(lang: Language): void {
  * Translate a UI string. When `params` are given, `{name}` placeholders in
  * both the translation and the English fallback are substituted.
  */
+/**
+ * Normalize a key for dictionary lookup: fold runs of whitespace (including
+ * newlines from multi-line JSX text) into a single space. Component keys carry
+ * whatever indentation the JSX tree had; the dictionary stores the folded form,
+ * so both sides match regardless of source formatting.
+ */
+function normalizeKey(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Translate a UI string. When `params` are given, `{name}` placeholders in
+ * both the translation and the English fallback are substituted.
+ */
 export function L(text: string, params?: Record<string, string | number>): string {
   const lang = getLanguage();
-  let out = lang === "zh-CN" ? (dictionaries[lang][text] ?? text) : text;
+  let out: string;
+  if (lang === "zh-CN") {
+    const dict = dictionaries[lang];
+    out = dict[text] ?? dict[normalizeKey(text)] ?? text;
+  } else {
+    out = text;
+  }
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       out = out.replaceAll(`{${key}}`, String(value));

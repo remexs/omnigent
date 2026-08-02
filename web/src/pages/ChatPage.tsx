@@ -1737,7 +1737,7 @@ function MainAgentSurface({
                 <ConversationEmptyState>
                   <div className="space-y-1.5">
                     <h3 className="text-2xl font-medium tracking-[-0.02em]">
-                      What should we work on?
+                      {L("What should we work on?")}
                     </h3>
                     <p className="text-muted-foreground text-base">
                       {agentsError
@@ -5242,15 +5242,15 @@ export function Composer({
                   ? isReadOnly
                   : !hasDraft || disabled || isReadOnly || hasPendingElicitation
               }
-              title={showInterruptButton ? L("Interrupt") : "Send"}
-              aria-label={showInterruptButton ? L("Interrupt") : "Send"}
+              title={showInterruptButton ? L("Interrupt") : L("Send")}
+              aria-label={showInterruptButton ? L("Interrupt") : L("Send")}
             >
               {showInterruptButton ? (
                 <SquareIcon className="size-4 fill-current" />
               ) : (
                 <ArrowUpIcon className="size-4" />
               )}
-              <span className="sr-only">{showInterruptButton ? L("Interrupt") : "Send"}</span>
+              <span className="sr-only">{showInterruptButton ? L("Interrupt") : L("Send")}</span>
             </Button>
           </div>
         </div>

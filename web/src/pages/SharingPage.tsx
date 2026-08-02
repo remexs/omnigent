@@ -115,9 +115,9 @@ export function SharingPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-semibold">{L("Session sharing")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Control whether users on this server can share sessions with others. Applies server-wide
-            and takes effect immediately. Changes affect only new shares — existing grants
-            (including already-public sessions) keep working until revoked.
+            {L(
+              "Control whether users on this server can share sessions with others. Applies server-wide\n            and takes effect immediately. Changes affect only new shares — existing grants\n            (including already-public sessions) keep working until revoked.",
+            )}
           </p>
         </div>
 
@@ -171,9 +171,9 @@ export function SharingPage() {
               <div className="pr-4">
                 <p className="text-sm font-medium">{L("Public access")}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Allow sharing a session with anyone who has the link (public read access). When
-                  off, the Share dialog's "Public access" toggle is hidden and new public grants are
-                  rejected; sessions already shared publicly stay public until revoked.
+                  {L(
+                    'Allow sharing a session with anyone who has the link (public read access). When\n                  off, the Share dialog\'s "Public access" toggle is hidden and new public grants are\n                  rejected; sessions already shared publicly stay public until revoked.',
+                  )}
                 </p>
                 {!publicEditable && (
                   <p className="mt-1 text-xs text-muted-foreground">
