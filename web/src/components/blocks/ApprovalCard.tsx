@@ -310,7 +310,8 @@ export function ApprovalCard({
           data-testid="approval-card-remember"
         >
           <CheckIcon className="mr-1 size-3.5" />
-          {L("Approve &amp; don't ask again for")}{rememberTarget}
+          {L("Approve &amp; don't ask again for")}
+          {rememberTarget}
         </Button>
       )}
       <Button size="sm" variant="outline" onClick={() => submitBinary("decline")}>

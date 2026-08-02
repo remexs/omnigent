@@ -229,7 +229,8 @@ export function AskUserQuestionForm({
     <div className="flex flex-col gap-2 text-foreground" data-testid="ask-user-question-form">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span data-testid="ask-user-question-progress">
-          {L("Question")}{currentIndex + 1} of {questions.length}:
+          {L("Question")}
+          {currentIndex + 1} of {questions.length}:
         </span>
         {current.header && (
           <span className="text-muted-foreground text-xs rounded bg-muted px-1.5 py-0.5">

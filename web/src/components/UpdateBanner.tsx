@@ -159,7 +159,8 @@ export function UpdateBanner({ variant = "floating" }: { variant?: "floating" | 
           {visibleStatus.state === "downloading" && (
             <>
               <p className="font-medium text-foreground">
-                {L("Downloading Omnigent update…")}{progress}%
+                {L("Downloading Omnigent update…")}
+                {progress}%
               </p>
               <Progress
                 value={progress}

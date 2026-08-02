@@ -100,7 +100,10 @@ export function GoalStatusPill({ goal }: { goal: Goal }) {
       className="inline-flex items-center gap-1 text-xs font-medium text-foreground"
     >
       <TargetIcon className="size-3.5 shrink-0" />
-      <span>{L("Goal")}{formatGoalStatus(goal.status)}</span>
+      <span>
+        {L("Goal")}
+        {formatGoalStatus(goal.status)}
+      </span>
     </span>
   );
 }

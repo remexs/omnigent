@@ -103,7 +103,10 @@ export function ScheduledTaskRow({
           {nextRun && (
             <>
               {" · "}
-              <span data-testid="task-next-run">{L("Next run")}{nextRun}</span>
+              <span data-testid="task-next-run">
+                {L("Next run")}
+                {nextRun}
+              </span>
             </>
           )}
         </span>

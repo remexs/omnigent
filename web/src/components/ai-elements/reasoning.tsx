@@ -117,7 +117,12 @@ const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
   if (duration === undefined) {
     return <span>{L("Thought for a few seconds")}</span>;
   }
-  return <span>{L("Thought for")}{duration.toFixed(1)} seconds</span>;
+  return (
+    <span>
+      {L("Thought for")}
+      {duration.toFixed(1)} seconds
+    </span>
+  );
 };
 
 export const ReasoningTrigger = memo(

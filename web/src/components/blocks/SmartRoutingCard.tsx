@@ -236,7 +236,9 @@ export function SmartRoutingCard({ arguments: args, output, state }: SmartRoutin
           <CodeBlock code={prettyOutput} language="json">
             <CodeBlockHeader>
               <CodeBlockTitle className="min-w-0">
-                <span className="truncate font-medium uppercase tracking-wide">{L("Response")}</span>
+                <span className="truncate font-medium uppercase tracking-wide">
+                  {L("Response")}
+                </span>
               </CodeBlockTitle>
             </CodeBlockHeader>
           </CodeBlock>

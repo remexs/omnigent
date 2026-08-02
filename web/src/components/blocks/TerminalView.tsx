@@ -421,7 +421,10 @@ function StatusOverlay({
       )}
       {state.kind === "closed" && !reconnectPending && (
         <div className="flex flex-wrap items-center justify-center gap-2 px-3">
-          <span>{L("Bridge closed:")}{state.reason}</span>
+          <span>
+            {L("Bridge closed:")}
+            {state.reason}
+          </span>
           {onResume && (
             <Button
               type="button"

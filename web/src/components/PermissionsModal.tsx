@@ -149,7 +149,9 @@ export function PermissionsModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">{L("Sharing unavailable")}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              {L("Sharing unavailable")}
+            </DialogTitle>
             <DialogDescription>
               Sharing has been disabled for this Omnigent server.
             </DialogDescription>
@@ -637,7 +639,9 @@ function GrantRow({
           <SelectContent>
             <SelectItem value="1">{L("Read")}</SelectItem>
             <SelectItem value="2">{L("Edit")}</SelectItem>
-            {canDelegateApprovals && <SelectItem value="2-approve">{L("Edit + approve")}</SelectItem>}
+            {canDelegateApprovals && (
+              <SelectItem value="2-approve">{L("Edit + approve")}</SelectItem>
+            )}
           </SelectContent>
         </Select>
       )}

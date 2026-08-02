@@ -31,7 +31,9 @@ function describe(state: SessionState): Visual {
         ariaLabel: tooltip,
         tooltip,
         render: () => (
-          <Badge className="border-transparent bg-warning/25 text-warning">{L("Needs response")}</Badge>
+          <Badge className="border-transparent bg-warning/25 text-warning">
+            {L("Needs response")}
+          </Badge>
         ),
       };
     }

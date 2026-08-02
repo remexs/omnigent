@@ -791,7 +791,9 @@ function McpServerManagerDialog({
   function notifyRestart() {
     onDirty();
     showToast(
-      <span className="text-sm">{L("MCP servers updated. Restart the session to apply changes.")}</span>,
+      <span className="text-sm">
+        {L("MCP servers updated. Restart the session to apply changes.")}
+      </span>,
     );
   }
 
@@ -834,7 +836,9 @@ function McpServerManagerDialog({
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{L("Manage MCP Servers")}</DialogTitle>
-          <DialogDescription>{L("Add, edit, or remove MCP servers for this session.")}</DialogDescription>
+          <DialogDescription>
+            {L("Add, edit, or remove MCP servers for this session.")}
+          </DialogDescription>
         </DialogHeader>
         {dirty && (
           <div className="flex items-center gap-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-700 dark:text-yellow-400">
@@ -1361,7 +1365,9 @@ export function AgentInfoContent({
             title={owner}
           >
             {owner}
-            {owner === viewerId && <span className="ml-1 text-muted-foreground/60">{L("(you)")}</span>}
+            {owner === viewerId && (
+              <span className="ml-1 text-muted-foreground/60">{L("(you)")}</span>
+            )}
           </span>
         </div>
       )}

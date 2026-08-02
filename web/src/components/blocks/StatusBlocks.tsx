@@ -44,7 +44,8 @@ export function ErrorBanner({ message, source, code }: ErrorBannerProps) {
     >
       <AlertCircleIcon />
       <AlertTitle className="min-w-0 break-words [overflow-wrap:anywhere]">
-        {L("Error")}{source ? ` · ${source}` : ""}
+        {L("Error")}
+        {source ? ` · ${source}` : ""}
         {code && message ? ` · ${code}` : ""}
       </AlertTitle>
       <AlertDescription className="min-w-0 max-w-full overflow-hidden">
@@ -69,7 +70,10 @@ export function PolicyDeniedBanner({ reason, phase }: PolicyDeniedBannerProps) {
   return (
     <Alert>
       <ShieldXIcon />
-      <AlertTitle>{L("Blocked by policy")}{phase ? ` · ${phase}` : ""}</AlertTitle>
+      <AlertTitle>
+        {L("Blocked by policy")}
+        {phase ? ` · ${phase}` : ""}
+      </AlertTitle>
       <AlertDescription>{reason}</AlertDescription>
     </Alert>
   );
@@ -96,7 +100,9 @@ export function RetryIndicator({
     <div className="flex items-center gap-2 text-muted-foreground text-xs">
       <RotateCcwIcon className="size-3" />
       <span>
-        {L("Retrying")}{source} {L("· attempt")}{attempt}/{maxAttempts}
+        {L("Retrying")}
+        {source} {L("· attempt")}
+        {attempt}/{maxAttempts}
         {delaySeconds > 0 ? ` · waiting ${delaySeconds.toFixed(1)}s` : ""}
       </span>
     </div>
@@ -142,7 +148,8 @@ export function RoutingDecisionChip({ model, applied, rationale }: RoutingDecisi
       <span className="flex items-center gap-1.5">
         <BrainCircuitIcon className="size-3 shrink-0" />
         <span>
-          {L("Intelligent model router")}{" · "}
+          {L("Intelligent model router")}
+          {" · "}
           {!applied && <span>{L("would have picked")}</span>}
           <span className="font-medium text-foreground">{short}</span>
         </span>

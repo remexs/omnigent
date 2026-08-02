@@ -433,7 +433,12 @@ function OutputSection({ output }: { output: string }) {
           (!canExpand || isExpanded) && "max-h-[36rem] overflow-auto",
         )}
       >
-        <CodePanel title={L("Output")} text={preview.text} copyText={output} copyLabel="Copy output" />
+        <CodePanel
+          title={L("Output")}
+          text={preview.text}
+          copyText={output}
+          copyLabel="Copy output"
+        />
         {canExpand && !isExpanded && (
           <div className="pointer-events-none absolute inset-x-px bottom-px h-16 rounded-b-md bg-gradient-to-t from-background to-transparent" />
         )}
