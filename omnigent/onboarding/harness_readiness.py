@@ -308,6 +308,40 @@ _AUTH_AWARE_NATIVE_HARNESSES: dict[str, str] = {
 }
 
 
+def _pi_native_configured() -> bool:
+    """Whether pi itself carries a usable credential in its own config dir.
+
+    pi authenticates from ``~/.pi/agent`` (or ``PI_CODING_AGENT_DIR``):
+    ``auth.json`` holds provider API keys, and ``models-store.json`` the
+    provider/model catalog. A user who ran ``pi /login`` or pre-seeded an
+    ``opencode-go`` provider there is launchable even without an omnigent
+    ``providers:`` entry — the launch simply runs pi against its own config.
+
+    :returns: ``True`` when pi's own config dir has a non-empty auth or
+        models store.
+    """
+    import os
+    from pathlib import Path
+
+    agent_dir = Path(os.environ.get("PI_CODING_AGENT_DIR") or Path.home() / ".pi" / "agent")
+    auth = agent_dir / "auth.json"
+    models = agent_dir / "models-store.json"
+    try:
+        if auth.is_file() and auth.stat().st_size > 2:
+            import json
+
+            data = json.loads(auth.read_text(encoding="utf-8"))
+            if any(
+                isinstance(v, dict) and (v.get("key") or v.get("token")) for v in data.values()
+            ):
+                return True
+        if models.is_file() and models.stat().st_size > 2:
+            return True
+    except Exception:
+        return False
+    return False
+
+
 def _family_provider_configured(harness: str) -> bool:
     """Whether a non-subscription default provider ENTRY serves *harness*'s family.
 
@@ -422,10 +456,18 @@ def _harness_availability(canonical: str) -> HarnessAvailability:
         # provider (an API key / gateway, incl. one set from the UI). So the
         # two-step signal is binary + provider: installed-but-no-provider is
         # the yellow "needs-auth" state the setup dialog acts on.
+        #
+        # A user who configured pi itself (its own ~/.pi/agent auth.json /
+        # models-store.json — e.g. ``pi /login`` or a pre-seeded opencode-go
+        # provider) is equally launchable even without an omnigent providers:
+        # entry, so treat that as configured too. The launch then runs pi
+        # against its own config (no HARNESS_PI_GATEWAY injection).
         binary_state = _binary_availability_reason(PI_KEY)
         if binary_state is not True:
             return binary_state
-        return True if _family_provider_configured(PI_SURFACE) else "needs-auth"
+        if _family_provider_configured(PI_SURFACE):
+            return True
+        return True if _pi_native_configured() else "needs-auth"
     return _harness_availability_core(canonical)
 
 
