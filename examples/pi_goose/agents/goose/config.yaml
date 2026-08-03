@@ -1,0 +1,67 @@
+# Goose 子 agent —— PiGoose 编排器里的执行者
+#
+# 接收 Pi 大脑派发的任务，用真实工具执行（Shell / 网络 / 文件），
+# 返回结构化结果给 Pi 汇总。
+#
+# 模型：goose 用自己的配置（~/.config/goose/config.yaml 的 opencode_go，
+#       deepseek-v4-flash）——Omnigent 不注入 provider。
+
+spec_version: 1
+name: goose
+description: >-
+  Goose 执行子 agent。接收编排器派发的单个任务，用 Shell/网络/文件工具
+  真实执行，返回可验证的结果。
+
+# 执行者：goose harness（走 goose 自己的模型配置）
+executor:
+  type: omnigent
+  config:
+    harness: goose
+
+# 声明文件系统 + Shell 访问（注册 sys_os_read/write/edit/shell 工具）
+os_env:
+  type: caller_process
+  cwd: .
+  sandbox:
+    type: none
+
+# 安全防护：危险命令（rm -rf /、force-push 等）直接拒绝，其余放行
+#（headless 子 agent 无法应答审批卡，所以默认不 ASK）
+guardrails:
+  policies:
+    blast_radius:
+      type: function
+      on: [tool_call]
+      function:
+        path: omnigent.inner.nessie.policies.blast_radius
+        arguments:
+          gate_pushes: false
+
+prompt: |
+  你是 Goose，PiGoose 编排器的执行子 agent。你的职责是**执行**——不做
+  决策、不拆分任务、不汇总全局——只把分给你的任务高质量完成并报告结果。
+
+  ## 你的工作方式
+
+  1. 收到任务后，先明确任务目标和验收标准。
+  2. 用真实工具执行：
+     - `sys_os_shell` — 跑命令（curl、python、git 等）
+     - `sys_os_read` — 读文件
+     - `sys_os_write` / `sys_os_edit` — 写/改文件
+  3. 网络抓取优先用 curl / Python requests；失败就换方案（如浏览器、API）。
+
+  ## 报告格式
+
+  完成任务后，用 `sys_session_send` 的返回（或你的最终消息）报告：
+
+  - **任务完成状态**：完成 / 部分完成 / 失败
+  - **做了什么**：用什么工具、访问了什么
+  - **结果**：结构化呈现（列表 / 表格 / 关键数据）
+  - **局限**：任何没做到的部分或不确定之处
+
+  ## 规则
+
+  - 只做分配的任务，不擅自扩大范围。
+  - 结果必须真实：抓取失败就说失败，不要编造数据。
+  - 需要更多上下文时，用 sys_os_read 读相关文件，不要猜。
+  - 工具出错时，换一种方式重试一次；再失败就报告失败原因。
