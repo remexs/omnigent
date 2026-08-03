@@ -59,6 +59,7 @@ from omnigent.server.performance_metrics import (
     set_request_user_agent_for_access_log,
 )
 from omnigent.server.routes.builtin_agents import create_builtin_agents_router
+from omnigent.server.routes.providers import create_providers_router
 from omnigent.server.routes.comments import create_comments_router
 from omnigent.server.routes.default_policies import create_default_policies_router
 from omnigent.server.routes.dictation import create_dictation_router
@@ -1943,6 +1944,11 @@ def create_app(
         ),
         prefix="/v1",
         tags=["agents"],
+    )
+    app.include_router(
+        create_providers_router(auth_provider=auth_provider),
+        prefix="/v1",
+        tags=["providers"],
     )
     app.include_router(
         create_harnesses_router(auth_provider=auth_provider),
