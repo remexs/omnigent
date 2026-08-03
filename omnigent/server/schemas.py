@@ -287,6 +287,17 @@ class AgentObject(BaseModel):
     skills: list[SkillSummary] = Field(default_factory=list)
     terminals: list[str] = Field(default_factory=list)
     builtin: bool = False
+    # ── Management-view fields (populated by the agents-management API) ──
+    # Whether the agent may spawn child sessions (``spawn: true``).
+    spawn: bool = False
+    # Declared sub-agent names (``tools.agents``), e.g. ``["goose"]``.
+    sub_agents: list[str] = Field(default_factory=list)
+    # Executor harness id from the spec, e.g. ``"pi"`` / ``"goose"``.
+    executor_harness: str | None = None
+    # Raw config.yaml content (for the management editor).
+    config_yaml: str | None = None
+    # Whether this agent is an orchestrator (spawns sub-agents).
+    is_orchestrator: bool = False
 
 
 # ── Session Policies ───────────────────────────────────────────

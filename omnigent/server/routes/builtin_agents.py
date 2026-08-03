@@ -20,7 +20,9 @@ through session creation.
 
 from __future__ import annotations
 
+import asyncio
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Query, Request
 
@@ -91,12 +93,22 @@ def _to_agent_object(agent: Agent, agent_cache: AgentCache) -> AgentObject:
         # Kind for the Add Agent picker (Codex vs Claude). Stays None
         # when the bundle can't be loaded (the except below).
         harness = loaded.spec.executor.harness_kind
-    except Exception:  # noqa: BLE001 — spec load failure must not break the list
+        # Management-view fields: orchestrator shape + raw config.
+        spawn = bool(getattr(loaded.spec, "spawn", False))
+        tools_obj = getattr(loaded.spec, "tools", None)
+        sub_agents = list(getattr(tools_obj, "agents", None) or [])
+        executor_harness = harness  # harness_kind is the canonical executor id
+        config_yaml = _read_bundle_config(agent_cache, agent.id, agent.bundle_location)
+    except Exception:
         _logger.debug(
             "Failed to load spec for agent %s; mcp_servers/skills will be empty",
             agent.id,
             exc_info=True,
         )
+        spawn = False
+        sub_agents = []
+        executor_harness = None
+        config_yaml = None
     return AgentObject(
         id=agent.id,
         name=agent.name,
@@ -115,12 +127,101 @@ def _to_agent_object(agent: Agent, agent_cache: AgentCache) -> AgentObject:
         # by a same-named ``omnigent run`` upload, but lets a newer
         # upload supersede the latter.
         builtin=agent.session_id is None and agent.id == builtin_agent_id(agent.name),
+        spawn=spawn,
+        sub_agents=sub_agents,
+        executor_harness=executor_harness,
+        config_yaml=config_yaml,
+        is_orchestrator=bool(spawn or sub_agents),
     )
+
+
+def _read_bundle_config(
+    agent_cache: AgentCache,
+    agent_id: str,
+    bundle_location: str,
+) -> str | None:
+    """Read the raw ``config.yaml`` from an agent's extracted bundle.
+
+    :param agent_cache: The agent cache (holds the extracted workdir).
+    :param agent_id: Agent identifier.
+    :param bundle_location: Artifact store key.
+    :returns: The raw config text, or ``None`` if unavailable.
+    """
+    try:
+        loaded = agent_cache.load(agent_id, bundle_location, expand_env=False)
+        cfg = loaded.workdir / "config.yaml"
+        if cfg.is_file():
+            return cfg.read_text(encoding="utf-8")
+        return None
+    except Exception:  # noqa: BLE001 — read failure degrades to None
+        return None
+
+
+def _replace_agent_config(
+    agent_store: Any,
+    agent_cache: AgentCache,
+    artifact_store: Any,
+    agent_id: str,
+    new_config: str,
+) -> None:
+    """Replace an agent's ``config.yaml`` and re-register the bundle.
+
+    Reads the current bundle, swaps ``config.yaml``, repacks a fresh
+    tarball, and updates the store + cache so the change takes effect
+    immediately (and survives restart, since the artifact is persisted).
+
+    :param agent_store: The agent store.
+    :param agent_cache: The agent cache.
+    :param artifact_store: The artifact store holding bundles.
+    :param agent_id: Agent identifier.
+    :param new_config: Replacement ``config.yaml`` text.
+    :raises ValueError: If the new config fails to parse.
+    """
+    import gzip
+    import hashlib
+    import io
+    import shutil
+    import tarfile
+    import tempfile
+    from pathlib import Path
+
+    from omnigent.spec import load as load_spec_dir
+
+    agent = agent_store.get(agent_id)
+    if agent is None:
+        raise ValueError(f"Agent not found: {agent_id!r}")
+    loaded = agent_cache.load(agent.id, agent.bundle_location, expand_env=False)
+    workdir = loaded.workdir
+
+    # Validate the new config by writing it into a staging copy.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        staging = Path(tmpdir) / "bundle"
+        shutil.copytree(workdir, staging)
+        (staging / "config.yaml").write_text(new_config, encoding="utf-8")
+        try:
+            load_spec_dir(staging)
+        except Exception as exc:
+            raise ValueError(f"Invalid config.yaml: {exc}") from exc
+
+        buf = io.BytesIO()
+        with (
+            gzip.GzipFile(fileobj=buf, mode="wb", mtime=0) as gz,
+            tarfile.open(fileobj=gz, mode="w") as tar,
+        ):
+            tar.add(str(staging), arcname=".")
+        bundle_bytes = buf.getvalue()
+
+    bundle_hash = hashlib.sha256(bundle_bytes).hexdigest()
+    new_loc = f"{agent.id}/{bundle_hash}"
+    artifact_store.put(new_loc, bundle_bytes)
+    agent_store.update(agent.id, bundle_location=new_loc)
+    agent_cache.replace(agent.id, new_loc, bundle_bytes, expand_env=True)
 
 
 def create_builtin_agents_router(
     agent_store: AgentStore,
     agent_cache: AgentCache,
+    artifact_store: Any,
     *,
     auth_provider: AuthProvider | None = None,
 ) -> APIRouter:
@@ -166,5 +267,115 @@ def create_builtin_agents_router(
             last_id=page.last_id,
             has_more=page.has_more,
         )
+
+    @router.get("/agents/{agent_id}")
+    async def get_agent_detail(
+        agent_id: str,
+        request: Request,
+    ) -> AgentObject:
+        """Fetch a single built-in agent with its spec-derived fields.
+
+        Loads the agent from the store and resolves its spec (harness,
+        spawn flag, declared sub-agents, and raw config) so the management
+        UI can render an editable view.
+
+        :param agent_id: Durable agent identifier (hex).
+        :param request: The incoming FastAPI request (for auth).
+        :returns: The :class:`AgentObject` for the agent.
+        """
+        _require_user(request, auth_provider)
+        agent = await asyncio.to_thread(agent_store.get, agent_id)
+        if agent is None:
+            from omnigent.errors import ErrorCode, OmnigentError
+
+            raise OmnigentError(
+                f"Agent not found: {agent_id!r}",
+                code=ErrorCode.NOT_FOUND,
+            )
+        return _to_agent_object(agent, agent_cache)
+
+    @router.delete("/agents/{agent_id}")
+    async def delete_builtin_agent(
+        agent_id: str,
+        request: Request,
+    ) -> dict:
+        """Delete a built-in agent (admin only).
+
+        Removes the agent row and its stored bundle. Built-in agents
+        seeded by the server (deterministic id) cannot be deleted — they
+        re-register on next boot; only operator-registered agents
+        (``--agent``) are removable.
+
+        :param agent_id: Durable agent identifier (hex).
+        :param request: The incoming FastAPI request (for auth).
+        :returns: ``{"deleted": true}`` on success.
+        """
+        _require_user(request, auth_provider)
+        from omnigent.errors import ErrorCode, OmnigentError
+
+        agent = await asyncio.to_thread(agent_store.get, agent_id)
+        if agent is None:
+            raise OmnigentError(
+                f"Agent not found: {agent_id!r}",
+                code=ErrorCode.NOT_FOUND,
+            )
+        # Refuse to delete server-seeded built-ins: they re-register on
+        # next boot and deleting them would only confuse the UI.
+        if agent.id == builtin_agent_id(agent.name):
+            raise OmnigentError(
+                f"Agent {agent.name!r} is a server-seeded built-in and cannot be deleted.",
+                code=ErrorCode.INVALID_INPUT,
+            )
+        await asyncio.to_thread(agent_store.delete, agent_id)
+        return {"deleted": True}
+
+    @router.put("/agents/{agent_id}/config")
+    async def update_agent_config(
+        agent_id: str,
+        request: Request,
+    ) -> AgentObject:
+        """Replace an agent's config.yaml from the management UI.
+
+        Reads the new YAML body, repackages the agent bundle with the
+        updated config, and re-registers it (bumping version). Only
+        operator-registered (non-seeded) agents accept edits; seeded
+        built-ins re-register on next boot and would discard changes.
+
+        :param agent_id: Durable agent identifier (hex).
+        :param request: The incoming FastAPI request (body = YAML).
+        :returns: The updated :class:`AgentObject`.
+        """
+        _require_user(request, auth_provider)
+        from omnigent.errors import ErrorCode, OmnigentError
+
+        agent = await asyncio.to_thread(agent_store.get, agent_id)
+        if agent is None:
+            raise OmnigentError(
+                f"Agent not found: {agent_id!r}",
+                code=ErrorCode.NOT_FOUND,
+            )
+        if agent.id == builtin_agent_id(agent.name):
+            raise OmnigentError(
+                f"Agent {agent.name!r} is server-seeded; edit its source bundle instead.",
+                code=ErrorCode.INVALID_INPUT,
+            )
+        raw = (await request.body()).decode("utf-8").strip()
+        if not raw:
+            raise OmnigentError("Empty config body", code=ErrorCode.INVALID_INPUT)
+        try:
+            await asyncio.to_thread(
+                _replace_agent_config,
+                agent_store,
+                agent_cache,
+                artifact_store,
+                agent_id,
+                raw,
+            )
+        except ValueError as exc:
+            raise OmnigentError(str(exc), code=ErrorCode.INVALID_INPUT) from exc
+        updated = await asyncio.to_thread(agent_store.get, agent_id)
+        if updated is None:
+            raise OmnigentError("Agent vanished after update", code=ErrorCode.NOT_FOUND)
+        return _to_agent_object(updated, agent_cache)
 
     return router

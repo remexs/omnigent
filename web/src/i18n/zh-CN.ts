@@ -1637,4 +1637,14 @@ export const zhCN: Record<string, string> = {
   "needs setup": "需要配置",
   "needs auth": "需要认证",
   outdated: "版本过旧",
+  Orchestrator: "编排器",
+  "Built-in": "内置",
+  "Other agents": "其他智能体",
+  "Config (YAML)": "配置 (YAML)",
+  "Delete this agent?": "删除此智能体？",
+  "Agents registered on this server. Expand one to view or edit its config.":
+    "此服务器上注册的智能体。展开可查看或编辑其配置。",
+  Created: "创建时间",
+  Spawn: "派发",
+  "Sub-agents": "子智能体",
 };

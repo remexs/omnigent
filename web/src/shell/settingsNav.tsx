@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import {
   ArchiveIcon,
   ArrowLeftIcon,
+  BotIcon,
   DownloadIcon,
   GitBranchIcon,
   KeyboardIcon,
@@ -39,6 +40,7 @@ export type SettingsSectionId =
   | "members"
   | "policies"
   | "sharing"
+  | "agents"
   | "archived"
   | "cli"
   | "updates";
@@ -51,6 +53,7 @@ const SECTION_IDS: readonly SettingsSectionId[] = [
   "members",
   "policies",
   "sharing",
+  "agents",
   "archived",
   "cli",
   "updates",
@@ -87,6 +90,7 @@ export function settingsNavGroups(
   const general: SettingsNavItem[] = [
     { id: "appearance", label: L("Appearance"), icon: PaletteIcon },
     { id: "git", label: L("Git"), icon: GitBranchIcon },
+    { id: "agents", label: L("Agents"), icon: BotIcon },
     { id: "shortcuts", label: L("Keyboard shortcuts"), icon: KeyboardIcon, hideOnMobile: true },
   ];
   if (hasAuthSession) {
