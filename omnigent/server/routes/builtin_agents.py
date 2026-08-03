@@ -378,4 +378,97 @@ def create_builtin_agents_router(
             raise OmnigentError("Agent vanished after update", code=ErrorCode.NOT_FOUND)
         return _to_agent_object(updated, agent_cache)
 
+    @router.post("/agents")
+    async def register_agent(request: Request) -> dict:
+        """Register a built-in agent from config YAML (+ optional sub-agents).
+
+        The request body is either:
+        - ``application/yaml``: a complete agent ``config.yaml``.
+        - ``application/json``: ``{"config_yaml": "...", "sub_agents":
+          {"<name>": "...config yaml..."}}``
+          so the workflow editor can register an orchestrator together with
+          its sub-agent definitions in one call.
+
+        The config(s) are materialized into a bundle (``config.yaml`` +
+        ``agents/<name>/config.yaml``), validated, and registered as a
+        built-in agent so any host can launch it without a restart.
+
+        :param request: The incoming FastAPI request.
+        :returns: ``{"agent_id": ..., "name": ...}`` on success.
+        """
+        _require_user(request, auth_provider)
+        from omnigent.errors import ErrorCode, OmnigentError
+        from omnigent.spec import load as load_spec_dir
+
+        content_type = request.headers.get("content-type", "").split(";", 1)[0].lower()
+        import tempfile
+        from pathlib import Path
+
+        if content_type == "application/json":
+            payload = await request.json()
+            raw = str(payload.get("config_yaml", "")).strip()
+            sub_agent_configs: dict[str, str] = {}
+            for name, cfg in (payload.get("sub_agents") or {}).items():
+                if isinstance(cfg, str) and cfg.strip():
+                    sub_agent_configs[str(name)] = cfg.strip()
+        else:
+            raw = (await request.body()).decode("utf-8").strip()
+            sub_agent_configs = {}
+        if not raw:
+            raise OmnigentError("Empty config body", code=ErrorCode.INVALID_INPUT)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            bundle_dir = Path(tmpdir) / "bundle"
+            bundle_dir.mkdir()
+            (bundle_dir / "config.yaml").write_text(raw, encoding="utf-8")
+            for sub_name, sub_cfg in sub_agent_configs.items():
+                sub_dir = bundle_dir / "agents" / sub_name
+                sub_dir.mkdir(parents=True, exist_ok=True)
+                (sub_dir / "config.yaml").write_text(sub_cfg, encoding="utf-8")
+            try:
+                spec = load_spec_dir(bundle_dir)
+            except Exception as exc:
+                raise OmnigentError(
+                    f"Invalid config.yaml: {exc}", code=ErrorCode.INVALID_INPUT
+                ) from exc
+            if not spec.name:
+                raise OmnigentError(
+                    "config.yaml must declare a name", code=ErrorCode.INVALID_INPUT
+                )
+            # Repack into a bundle tarball.
+            import gzip
+            import hashlib
+            import io
+            import tarfile
+
+            buf = io.BytesIO()
+            with (
+                gzip.GzipFile(fileobj=buf, mode="wb", mtime=0) as gz,
+                tarfile.open(fileobj=gz, mode="w") as tar,
+            ):
+                tar.add(str(bundle_dir), arcname=".")
+            bundle_bytes = buf.getvalue()
+
+        bundle_hash = hashlib.sha256(bundle_bytes).hexdigest()
+        existing = agent_store.get_by_name(spec.name)
+        if existing is not None:
+            new_loc = f"{existing.id}/{bundle_hash}"
+            artifact_store.put(new_loc, bundle_bytes)
+            agent_store.update(existing.id, bundle_location=new_loc)
+            agent_cache.replace(existing.id, new_loc, bundle_bytes, expand_env=True)
+            return {"agent_id": existing.id, "name": spec.name, "updated": True}
+
+        from omnigent.db.utils import generate_agent_id
+
+        agent_id = generate_agent_id()
+        loc = f"{agent_id}/{bundle_hash}"
+        artifact_store.put(loc, bundle_bytes)
+        agent_store.create(
+            agent_id=agent_id,
+            name=spec.name,
+            bundle_location=loc,
+            description=spec.description,
+        )
+        return {"agent_id": agent_id, "name": spec.name, "updated": False}
+
     return router

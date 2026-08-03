@@ -1648,7 +1648,8 @@ export const zhCN: Record<string, string> = {
   Spawn: "派发",
   "Sub-agents": "子智能体",
   "Model providers": "模型提供商",
-  "Configure OpenAI-compatible endpoints used by pi, goose, codex, and claude-sdk.": "配置 pi、goose、codex 和 claude-sdk 使用的 OpenAI 兼容端点。",
+  "Configure OpenAI-compatible endpoints used by pi, goose, codex, and claude-sdk.":
+    "配置 pi、goose、codex 和 claude-sdk 使用的 OpenAI 兼容端点。",
   "New provider": "新建提供商",
   "Edit provider": "编辑提供商",
   "Base URL": "基础 URL",
@@ -1656,6 +1657,11 @@ export const zhCN: Record<string, string> = {
   "Default model": "默认模型",
   "Default provider": "默认提供商",
   "No providers configured": "未配置提供商",
-  "Family": "家族",
-  "Kind": "类型",
+  Family: "家族",
+  Kind: "类型",
+  "New orchestrator": "新建编排器",
+  "Brain harness": "大脑运行时",
+  "What this orchestrator does": "此编排器的用途",
+  "Add sub-agent": "添加子智能体",
+  "Create orchestrator": "创建编排器",
 };

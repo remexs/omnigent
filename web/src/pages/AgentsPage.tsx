@@ -1,12 +1,13 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BotIcon, RefreshCwIcon, Trash2Icon, ChevronDownIcon } from "lucide-react";
+import { BotIcon, PlusIcon, RefreshCwIcon, Trash2Icon, ChevronDownIcon, XIcon } from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
 import { L } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 /**
  * Server-registered agent with management fields.
@@ -189,6 +190,180 @@ function AgentDetailCard({ agent }: { agent: ManagedAgent }) {
 }
 
 /**
+ * Visual orchestrator builder: pick a brain harness, add sub-agents,
+ * and generate the agent config.yaml — registered via POST /v1/agents.
+ */
+function OrchestratorForm({ onDone }: { onDone: () => void }) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [brainHarness, setBrainHarness] = useState("pi");
+  const [subAgents, setSubAgents] = useState<string[]>(["goose"]);
+  const [prompt, setPrompt] = useState(
+    "你是编排大脑。分析用户需求并拆分成任务，用 sys_session_send 派发给子 agent 执行，汇总结果回复用户。",
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const setSubAgent = (i: number, v: string) =>
+    setSubAgents((prev) => prev.map((s, idx) => (idx === i ? v : s)));
+  const addSubAgent = () => setSubAgents((prev) => [...prev, ""]);
+  const removeSubAgent = (i: number) => setSubAgents((prev) => prev.filter((_, idx) => idx !== i));
+
+  const buildYaml = useCallback((): string => {
+    const agents = subAgents.map((s) => s.trim()).filter(Boolean);
+    const lines = [
+      "spec_version: 1",
+      `name: ${name.trim()}`,
+      `description: ${description.trim() || name.trim()}`,
+      "",
+      "# 编排器：分析需求、拆分任务、派发子 agent、汇总结果",
+      "spawn: true",
+      "",
+      "executor:",
+      "  type: omnigent",
+      "  config:",
+      `    harness: ${brainHarness}`,
+      "",
+    ];
+    if (agents.length > 0) {
+      lines.push("tools:", "  agents:");
+      for (const a of agents) lines.push(`    - ${a}`);
+      lines.push("");
+    }
+    lines.push("prompt: |");
+    for (const line of prompt.split("\n")) {
+      lines.push(`  ${line}`);
+    }
+    return lines.join("\n");
+  }, [name, description, brainHarness, subAgents, prompt]);
+
+  const save = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const yaml = buildYaml();
+      // Generate a sub-agent config for each declared sub-agent.
+      const subAgentsTrim = subAgents.map((s) => s.trim()).filter(Boolean);
+      const sub_agents: Record<string, string> = {};
+      for (const sa of subAgentsTrim) {
+        sub_agents[sa] = [
+          `spec_version: 1`,
+          `name: ${sa}`,
+          `description: 子 agent（${sa}），由编排器派发任务执行。`,
+          "",
+          "executor:",
+          "  type: omnigent",
+          "  config:",
+          `    harness: ${sa}`,
+          "",
+          "os_env:",
+          "  type: caller_process",
+          "  cwd: .",
+          "  sandbox:",
+          "    type: none",
+          "",
+          "prompt: |",
+          "  你是执行子 agent。接收编排器派发的单个任务，用真实工具执行，",
+          "  返回结构化结果。",
+        ].join("\n");
+      }
+      const res = await authenticatedFetch("/v1/agents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config_yaml: yaml, sub_agents }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error((body as { error?: string })?.error ?? `${res.status}`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ["managed-agents"] });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [buildYaml, subAgents, onDone, queryClient]);
+
+  const canSave = name.trim().length > 0 && subAgents.some((s) => s.trim());
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">{L("New orchestrator")}</span>
+        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
+          <XIcon className="size-3.5" />
+        </Button>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="space-y-1">
+          <span className="text-sm">{L("Name")}</span>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="my-workflow" />
+        </label>
+        <label className="space-y-1">
+          <span className="text-sm">{L("Brain harness")}</span>
+          <select
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+            value={brainHarness}
+            onChange={(e) => setBrainHarness(e.target.value)}
+          >
+            <option value="pi">pi</option>
+            <option value="goose">goose</option>
+            <option value="opencode">opencode</option>
+            <option value="claude-sdk">claude-sdk</option>
+          </select>
+        </label>
+      </div>
+
+      <label className="space-y-1">
+        <span className="text-sm">{L("Description")}</span>
+        <Input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={L("What this orchestrator does")}
+        />
+      </label>
+
+      <div className="space-y-1.5">
+        <span className="text-sm font-medium">{L("Sub-agents")}</span>
+        {subAgents.map((s, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <div key={i} className="flex items-center gap-2">
+            <Input value={s} onChange={(e) => setSubAgent(i, e.target.value)} placeholder="goose" />
+            <Button type="button" variant="ghost" size="sm" onClick={() => removeSubAgent(i)}>
+              <XIcon className="size-3.5" />
+            </Button>
+          </div>
+        ))}
+        <Button type="button" variant="outline" size="sm" onClick={addSubAgent}>
+          <PlusIcon className="size-3.5" />
+          {L("Add sub-agent")}
+        </Button>
+      </div>
+
+      <label className="space-y-1">
+        <span className="text-sm">{L("Prompt")}</span>
+        <textarea
+          className="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 font-mono text-xs"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        />
+      </label>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <div className="flex items-center justify-end gap-2">
+        <Button type="button" size="sm" disabled={!canSave || saving} onClick={save}>
+          {saving ? L("Saving…") : L("Create orchestrator")}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+/**
  * Agents management section (Settings → Agents).
  *
  * Lists every built-in / operator-registered agent on the server with
@@ -198,6 +373,7 @@ function AgentDetailCard({ agent }: { agent: ManagedAgent }) {
  */
 export function AgentsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showForm, setShowForm] = useState(false);
   const {
     data: agents = [],
     isLoading,
@@ -218,7 +394,7 @@ export function AgentsPage() {
       title={L("Agents")}
       description={L("Agents registered on this server. Expand one to view or edit its config.")}
     >
-      <div className="mb-4 flex items-center justify-end">
+      <div className="mb-4 flex items-center justify-end gap-2">
         <Button
           type="button"
           variant="outline"
@@ -228,7 +404,17 @@ export function AgentsPage() {
           <RefreshCwIcon className="size-3.5" />
           {L("Refresh")}
         </Button>
+        <Button type="button" size="sm" onClick={() => setShowForm((v) => !v)}>
+          <PlusIcon className="size-3.5" />
+          {L("New orchestrator")}
+        </Button>
       </div>
+
+      {showForm && (
+        <div className="mb-6">
+          <OrchestratorForm onDone={() => setShowForm(false)} />
+        </div>
+      )}
 
       {isLoading && <p className="text-sm text-muted-foreground">{L("Loading…")}</p>}
       {error && (
