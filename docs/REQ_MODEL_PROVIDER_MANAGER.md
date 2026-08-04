@@ -53,6 +53,28 @@ Omnigent 底层引擎**支持**任意 OpenAI 兼容端点（`providers:` 块的 
 3. 配置持久化到 config.yaml，重启后仍在
 4. 界面中文，符合现有风格
 
+
+## Provider 的正式定义（2026-08-03 确认）
+
+**Provider = 公司统一的公共模型代理（model gateway）。**
+
+- 所有 agent（pi / goose / codex / claude-sdk）**默认共享**一个公共模型，
+  由公司统一网关提供（统一鉴权 / 限流 / 审计 / 模型升级）。
+- 每个 agent 无需各自配密钥 —— 走公司网关。
+- **个体可选择性不使用公司模型**：
+  - agent YAML 的 `executor.auth: {type: provider, name: <private>}`
+  - 运行参数 `omnigent run --model <private>/<model>`
+
+实现机制（`omnigent/onboarding/provider_config.py`）：
+- `providers:` 块定义公共模型（`kind: key/gateway/local` + `base_url` + `api_key` + `models.default`）
+- `default: true` → `get_default_provider()` → 所有 harness 默认解析到它
+- 个体覆盖优先级：`spec.executor.auth` > 默认 provider > ambient
+
+已实测（2026-08-03）：在协调服务器添加 deepseek provider（key 类型，
+base_url=https://api.deepseek.com），本机 pi 被接管并通过该 provider
+成功调用模型（「模型调用成功」）。修复了 key 用错（deepseek vs
+opencode 两个 key）和模型名格式（不带 provider 前缀）两个坑。
+
 ## 备注
 
 - 当前紧急优先级：先让 pi 用自己的 `~/.pi/agent` 配置跑通（见
