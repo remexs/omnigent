@@ -48,28 +48,16 @@ function familySummary(p: ProviderWire): string {
 }
 
 /** Add/edit provider form. */
-function ProviderForm({
-  initial,
-  onDone,
-}: {
-  initial?: ProviderWire | null;
-  onDone: () => void;
-}) {
+function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDone: () => void }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [kind, setKind] = useState(initial?.kind ?? "key");
   const [family, setFamily] = useState(
     initial && Object.keys(initial.families)[0] ? Object.keys(initial.families)[0] : "openai",
   );
-  const [baseUrl, setBaseUrl] = useState(
-    initial?.families[family]?.base_url ?? "",
-  );
+  const [baseUrl, setBaseUrl] = useState(initial?.families[family]?.base_url ?? "");
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState(
-    initial?.families[family]?.models?.default ?? "",
-  );
-  const [isDefault, setIsDefault] = useState(
-    (initial?.default_families?.length ?? 0) > 0,
-  );
+  const [model, setModel] = useState(initial?.families[family]?.models?.default ?? "");
+  const [isDefault, setIsDefault] = useState((initial?.default_families?.length ?? 0) > 0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -122,7 +110,12 @@ function ProviderForm({
       <div className="grid gap-2 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm">{L("Name")}</span>
-          <Input value={name} onChange={(e) => setName(e.target.value)} disabled={isEdit} placeholder="my-provider" />
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isEdit}
+            placeholder="my-provider"
+          />
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Kind")}</span>
@@ -150,20 +143,37 @@ function ProviderForm({
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Base URL")}</span>
-          <Input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://api.example.com/v1" />
+          <Input
+            value={baseUrl}
+            onChange={(e) => setBaseUrl(e.target.value)}
+            placeholder="https://api.example.com/v1"
+          />
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("API key")}</span>
-          <Input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={isEdit ? "••••••••" : ""} />
+          <Input
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder={isEdit ? "••••••••" : ""}
+          />
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Default model")}</span>
-          <Input value={model} onChange={(e) => setModel(e.target.value)} placeholder="deepseek-v4-flash" />
+          <Input
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            placeholder="deepseek-v4-flash"
+          />
         </label>
       </div>
 
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={isDefault}
+          onChange={(e) => setIsDefault(e.target.checked)}
+        />
         {L("Default provider")}
       </label>
 
@@ -190,14 +200,21 @@ export function ProvidersPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<ProviderWire | null>(null);
-  const { data: providers = [], isLoading, error } = useQuery({
+  const {
+    data: providers = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["providers", refreshKey],
     queryFn: fetchProviders,
     staleTime: 10_000,
   });
   const queryClient = useQueryClient();
 
-  const sorted = useMemo(() => [...providers].sort((a, b) => a.name.localeCompare(b.name)), [providers]);
+  const sorted = useMemo(
+    () => [...providers].sort((a, b) => a.name.localeCompare(b.name)),
+    [providers],
+  );
 
   const remove = useCallback(
     async (name: string) => {
@@ -223,11 +240,23 @@ export function ProvidersPage() {
       </p>
 
       <div className="mt-6 flex items-center justify-end gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => setRefreshKey((k) => k + 1)}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setRefreshKey((k) => k + 1)}
+        >
           <RefreshCwIcon className="size-3.5" />
           {L("Refresh")}
         </Button>
-        <Button type="button" size="sm" onClick={() => { setEditing(null); setShowForm(true); }}>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => {
+            setEditing(null);
+            setShowForm(true);
+          }}
+        >
           <PlusIcon className="size-3.5" />
           {L("New provider")}
         </Button>
@@ -237,13 +266,20 @@ export function ProvidersPage() {
         <div className="mt-4">
           <ProviderForm
             initial={editing}
-            onDone={() => { setShowForm(false); setEditing(null); }}
+            onDone={() => {
+              setShowForm(false);
+              setEditing(null);
+            }}
           />
         </div>
       )}
 
       {isLoading && <p className="mt-4 text-sm text-muted-foreground">{L("Loading…")}</p>}
-      {error && <p className="mt-4 text-sm text-destructive">{L("Failed to load:")} {String(error)}</p>}
+      {error && (
+        <p className="mt-4 text-sm text-destructive">
+          {L("Failed to load:")} {String(error)}
+        </p>
+      )}
 
       {!isLoading && !error && sorted.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">{L("No providers configured")}</p>
@@ -264,7 +300,10 @@ export function ProvidersPage() {
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => { setEditing(p); setShowForm(true); }}
+                onClick={() => {
+                  setEditing(p);
+                  setShowForm(true);
+                }}
               >
                 {L("Edit")}
               </Button>

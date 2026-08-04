@@ -17,6 +17,7 @@ import {
   KeyboardIcon,
   PaletteIcon,
   PanelRightOpenIcon,
+  ServerIcon,
   Share2Icon,
   ShieldCheckIcon,
   TerminalIcon,
@@ -43,6 +44,7 @@ export type SettingsSectionId =
   | "sharing"
   | "agents"
   | "providers"
+  | "hosts"
   | "archived"
   | "cli"
   | "updates";
@@ -57,6 +59,7 @@ const SECTION_IDS: readonly SettingsSectionId[] = [
   "sharing",
   "agents",
   "providers",
+  "hosts",
   "archived",
   "cli",
   "updates",
@@ -95,6 +98,7 @@ export function settingsNavGroups(
     { id: "git", label: L("Git"), icon: GitBranchIcon },
     { id: "agents", label: L("Agents"), icon: BotIcon },
     { id: "providers", label: L("Model providers"), icon: CpuIcon },
+    { id: "hosts", label: L("Hosts"), icon: ServerIcon },
     { id: "shortcuts", label: L("Keyboard shortcuts"), icon: KeyboardIcon, hideOnMobile: true },
   ];
   if (hasAuthSession) {
