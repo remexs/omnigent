@@ -61,8 +61,7 @@ export const zhCN: Record<string, string> = {
   "All tests pass and the implementation is complete": "所有测试通过，实现已完成",
   "Antigravity needs your input": "Antigravity 需要您的输入",
   "Anyone can view this session": "任何人都可以查看此会话",
-  "Anyone with manage access can share a session at any level (read, edit, or manage) and toggle public / workspace read.":
-    "拥有管理权限的人可以以任何级别（只读、编辑或管理）分享会话，并切换公开/工作区只读。",
+  "Anyone with manage access can share a session at any level (read, edit, or manage) and toggle public / workspace read.": "拥有管理权限的人可以以任何级别（只读、编辑或管理）分享会话，并切换公开/工作区只读。",
   "Apply highlighted command": "应用高亮命令",
   "Approval required": "需要审批",
   "Approve &amp; don't ask again for": "批准并且不再询问",
@@ -117,8 +116,7 @@ export const zhCN: Record<string, string> = {
   "Choose the language used across the Omnigent interface.": "选择 Omnigent 界面使用的语言。",
   "Claude finished planning and wants to proceed.": "Claude 已完成规划，希望继续执行。",
   "Claude has questions": "Claude 有疑问",
-  "Click an element in the page, then describe what to change":
-    "点击页面中的元素，然后描述要修改的内容",
+  "Click an element in the page, then describe what to change": "点击页面中的元素，然后描述要修改的内容",
   "Click to zoom": "点击缩放",
   "Clone & start": "克隆并启动",
   "Clone session": "克隆会话",
@@ -160,10 +158,8 @@ export const zhCN: Record<string, string> = {
   "Copied to clipboard": "已复制到剪贴板",
   "Copied to clipboard.": "已复制到剪贴板。",
   "Copied!": "已复制！",
-  "Copies this session's history into a new session you own":
-    "将此会话的历史记录复制到您拥有的新会话中",
-  "Copies this session's history up to the selected response into a new session you own — messages after it aren't carried over":
-    "将本会话的历史记录复制到您拥有的新会话中（直至选中的回复）— 之后的会话内容不会包含在内",
+  "Copies this session's history into a new session you own": "将此会话的历史记录复制到您拥有的新会话中",
+  "Copies this session's history up to the selected response into a new session you own — messages after it aren't carried over": "将本会话的历史记录复制到您拥有的新会话中（直至选中的回复）— 之后的会话内容不会包含在内",
   "Copy Code": "复制代码",
   "Copy command": "复制命令",
   "Copy link": "复制链接",
@@ -192,8 +188,7 @@ export const zhCN: Record<string, string> = {
   "Create your account": "创建您的账号",
   "Creating…": "创建中…",
   "Current password": "当前密码",
-  "Current session's host is offline. Next message will resume the sandbox host which can take minutes":
-    "当前会话的主机已离线。下一条消息将恢复沙箱主机，这可能需要几分钟",
+  "Current session's host is offline. Next message will resume the sandbox host which can take minutes": "当前会话的主机已离线。下一条消息将恢复沙箱主机，这可能需要几分钟",
   "Cursor has questions": "Cursor 有疑问",
   "Custom agents": "自定义智能体",
   "Decrease code font size": "减小代码字号",
@@ -216,8 +211,7 @@ export const zhCN: Record<string, string> = {
   "Deny once": "拒绝一次",
   "Describe a task to start a new session": "描述任务以开始新会话",
   "Describe a task to start a new session…": "描述任务以开始新会话…",
-  "Desktop app update preferences for this installed Omnigent shell.":
-    "此 Omnigent 桌面外壳的更新偏好。",
+  "Desktop app update preferences for this installed Omnigent shell.": "此 Omnigent 桌面外壳的更新偏好。",
   "Desktop update": "桌面更新",
   "Dictation is busy — try again shortly": "听写功能正忙 — 请稍后重试",
   "Dictation unavailable": "听写功能不可用",
@@ -225,8 +219,7 @@ export const zhCN: Record<string, string> = {
   "Dismiss delete error": "忽略删除错误",
   "Dismiss menu": "关闭菜单",
   "Don't ask": "不再询问",
-  "Download (file was truncated — content may be incomplete)":
-    "下载（文件已被截断 — 内容可能不完整）",
+  "Download (file was truncated — content may be incomplete)": "下载（文件已被截断 — 内容可能不完整）",
   "Download failed": "下载失败",
   "Download file": "下载文件",
   "Downloading Omnigent update…": "正在下载 Omnigent 更新…",
@@ -284,8 +277,7 @@ export const zhCN: Record<string, string> = {
   "Full details": "完整详情",
   "Full screen": "全屏",
   "Gateway API key": "网关 API 密钥",
-  "Gateway base URL (e.g. https://openrouter.ai/api/v1)":
-    "网关基础 URL（例如 https://openrouter.ai/api/v1）",
+  "Gateway base URL (e.g. https://openrouter.ai/api/v1)": "网关基础 URL（例如 https://openrouter.ai/api/v1）",
   "Generate a unique branch name": "生成唯一的分支名称",
   "Generating…": "生成中…",
   "Global Policies": "全局策略",
@@ -315,8 +307,7 @@ export const zhCN: Record<string, string> = {
   "How Cursor runs commands": "Cursor 如何运行命令",
   "How Omnigent runs commands": "Omnigent 如何运行命令",
   "How to set up Databricks git credentials": "如何配置 Databricks Git 凭证",
-  "Image is too large to preview (truncated by the server).":
-    "图片太大无法预览（已被服务器截断）。",
+  "Image is too large to preview (truncated by the server).": "图片太大无法预览（已被服务器截断）。",
   "Image preview": "图片预览",
   "In [x]": "在第 [x] 行",
   "In chats": "在聊天中",
@@ -367,11 +358,9 @@ export const zhCN: Record<string, string> = {
   "Local machine": "本机",
   "Log in": "登录",
   "Log out": "退出登录",
-  "Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)":
-    "小写字母、数字、点、连字符、下划线（或小写邮箱）",
+  "Lowercase letters, digits, dots, hyphens, underscores (or a lowercase email)": "小写字母、数字、点、连字符、下划线（或小写邮箱）",
   "MCP Tools": "MCP 工具",
-  "MCP servers updated. Restart the session to apply changes.":
-    "MCP 服务器已更新。重启会话以应用更改。",
+  "MCP servers updated. Restart the session to apply changes.": "MCP 服务器已更新。重启会话以应用更改。",
   "Manage MCP Servers": "管理 MCP 服务器",
   "Manage MCP servers": "管理 MCP 服务器",
   "Manage policy": "管理策略",
@@ -385,8 +374,7 @@ export const zhCN: Record<string, string> = {
   "Missing session or elicitation ID": "缺少会话或询问 ID",
   "Model &amp; reasoning effort will reset to": "模型与推理强度将重置为",
   "Model changed": "模型已切换",
-  "Model is too large to preview (truncated by the server).":
-    "模型太大无法预览（已被服务器截断）。",
+  "Model is too large to preview (truncated by the server).": "模型太大无法预览（已被服务器截断）。",
   "Model switched": "模型已切换",
   "More actions": "更多操作",
   "Move to": "移动到",
@@ -410,8 +398,7 @@ export const zhCN: Record<string, string> = {
   "New project": "新建项目",
   "New session": "新建会话",
   "New session in project": "在项目中新建会话",
-  "New shares are capped at read (view) access. Edit and manage grants are rejected.":
-    "新分享仅限于只读（查看）权限。编辑和管理授权将被拒绝。",
+  "New shares are capped at read (view) access. Edit and manage grants are rejected.": "新分享仅限于只读（查看）权限。编辑和管理授权将被拒绝。",
   "New shell": "新建 Shell",
   "New tab": "新建标签页",
   "Next branch": "下一个分支",
@@ -422,8 +409,7 @@ export const zhCN: Record<string, string> = {
   "Next session": "下一个会话",
   "Next user message": "下一条用户消息",
   "No MCP servers": "没有 MCP 服务器",
-  "No agents available on this server. Register one with":
-    "此服务器上没有可用智能体。请通过以下方式注册：",
+  "No agents available on this server. Register one with": "此服务器上没有可用智能体。请通过以下方式注册：",
   "No archived sessions in this project on this page.": "此页面上此项目中没有已归档的会话。",
   "No archived sessions in this project.": "此项目中没有已归档的会话。",
   "No archived sessions on this page.": "此页面上没有已归档的会话。",
@@ -454,8 +440,7 @@ export const zhCN: Record<string, string> = {
   "Nothing here yet": "这里还没有内容",
   "Nothing waiting on you": "没有需要您处理的事项",
   "Numbered list": "有序列表",
-  "On a fresh install your username is your machine login (the output of":
-    "全新安装时，您的用户名是机器登录名（即",
+  "On a fresh install your username is your machine login (the output of": "全新安装时，您的用户名是机器登录名（即",
   "On days": "在以下日期",
   "Only the session owner can": "只有会话所有者才能",
   "Open command palette": "打开命令面板",
@@ -502,8 +487,7 @@ export const zhCN: Record<string, string> = {
   "Read only": "只读",
   "Read only (restricted)": "只读（受限）",
   "Read-only": "只读",
-  "Read-only, and sessions whose working directory is a home directory or the filesystem root cannot be shared at all — not even read.":
-    "只读，且工作目录位于主目录或文件系统根目录的会话完全无法分享——连只读也不行。",
+  "Read-only, and sessions whose working directory is a home directory or the filesystem root cannot be shared at all — not even read.": "只读，且工作目录位于主目录或文件系统根目录的会话完全无法分享——连只读也不行。",
   "Reasoning depth vs. speed": "推理深度与速度",
   "Reasoning effort": "推理强度",
   "Recall next prompt": "调用下一条提示",
@@ -537,12 +521,9 @@ export const zhCN: Record<string, string> = {
   "Retry sending": "重试发送",
   "Row options": "行选项",
   "Run on this machine": "在此机器上运行",
-  "Run this on the machine you want to use, then pick it from the host menu:":
-    "在要使用的机器上运行此命令，然后从主机菜单中选择它：",
-  "Runner offline — your changes will save when it reconnects":
-    "Runner 离线 — 重新连接后您的更改将自动保存",
-  "Runs an agent session on a recurring schedule. Fires on a connected host.":
-    "按重复计划运行智能体会话。在已连接的主机上触发。",
+  "Run this on the machine you want to use, then pick it from the host menu:": "在要使用的机器上运行此命令，然后从主机菜单中选择它：",
+  "Runner offline — your changes will save when it reconnects": "Runner 离线 — 重新连接后您的更改将自动保存",
+  "Runs an agent session on a recurring schedule. Fires on a connected host.": "按重复计划运行智能体会话。在已连接的主机上触发。",
   "Runs with": "与…一起运行",
   "Sandbox host": "沙箱主机",
   "Sandbox launch failed": "沙箱启动失败",
@@ -586,8 +567,7 @@ export const zhCN: Record<string, string> = {
   "Session sharing mode": "会话共享模式",
   "Session starting up": "会话启动中",
   "Session unshared": "会话已取消分享",
-  "Sessions you've archived. Restore one to the sidebar, or delete it for good.":
-    "您已归档的会话。可以恢复到侧边栏，或永久删除。",
+  "Sessions you've archived. Restore one to the sidebar, or delete it for good.": "您已归档的会话。可以恢复到侧边栏，或永久删除。",
   "Set goal": "设置目标",
   "Set up": "设置",
   "Set up auth": "配置认证",
@@ -596,8 +576,7 @@ export const zhCN: Record<string, string> = {
   "Share this session": "分享此会话",
   "Shared with me": "分享给我的",
   "Sharing has been disabled for this Omnigent server.": "此 Omnigent 服务器已禁用分享。",
-  "Sharing is disabled. No new grants can be created and the Share control is hidden.":
-    "分享已禁用。无法创建新的授权，分享按钮已隐藏。",
+  "Sharing is disabled. No new grants can be created and the Share control is hidden.": "分享已禁用。无法创建新的授权，分享按钮已隐藏。",
   "Sharing is unavailable from a local server.": "本地服务器不支持分享。",
   "Sharing unavailable": "分享不可用",
   "Shell command": "Shell 命令",
@@ -627,8 +606,7 @@ export const zhCN: Record<string, string> = {
   "Sort:": "排序：",
   "Speed up common actions with the keyboard.": "使用键盘加速常用操作。",
   "Start a new conversation": "开始新会话",
-  "Start each new session in a fresh randomly-named git worktree (vs. directly in the workspace)":
-    "在每个新会话中使用全新随机命名的 Git worktree（而不是直接在工作区中）",
+  "Start each new session in a fresh randomly-named git worktree (vs. directly in the workspace)": "在每个新会话中使用全新随机命名的 Git worktree（而不是直接在工作区中）",
   "Start session": "启动会话",
   "Starting…": "启动中…",
   "Stop generating": "停止生成",
@@ -645,20 +623,16 @@ export const zhCN: Record<string, string> = {
   "Terminal closed": "终端已关闭",
   "Terminal running": "终端运行中",
   "Terminal theme": "终端主题",
-  "That sign-in link has expired. Enter your password to sign in.":
-    "该登录链接已过期。请输入密码登录。",
-  "That sign-in link is no longer valid. Enter your password to sign in.":
-    "该登录链接已失效。请输入密码登录。",
-  "The Omnigent command-line tool this app uses to run a local server and connect this machine as a runner.":
-    "本应用用于运行本地服务器并将此机器作为 runner 连接的 Omnigent 命令行工具。",
+  "That sign-in link has expired. Enter your password to sign in.": "该登录链接已过期。请输入密码登录。",
+  "That sign-in link is no longer valid. Enter your password to sign in.": "该登录链接已失效。请输入密码登录。",
+  "The Omnigent command-line tool this app uses to run a local server and connect this machine as a runner.": "本应用用于运行本地服务器并将此机器作为 runner 连接的 Omnigent 命令行工具。",
   "Theme contrast": "主题对比度",
   "Theme palette": "主题调色板",
   "Thinking…": "思考中…",
   "This deletes the project": "这将删除项目",
   "This file has been deleted.": "此文件已被删除。",
   "This file was modified externally while you were editing.": "此文件在您编辑时被外部修改。",
-  "This server allows read-only sharing — invite others to view this session.":
-    "此服务器允许只读分享 — 邀请其他人查看此会话。",
+  "This server allows read-only sharing — invite others to view this session.": "此服务器允许只读分享 — 邀请其他人查看此会话。",
   "This terminates the running session for": "这将终止正在运行的会话：",
   "This will delete the session permanently.": "这将永久删除会话。",
   "Thought for": "思考了",
@@ -694,8 +668,7 @@ export const zhCN: Record<string, string> = {
   "Update goal": "更新目标",
   "Update mode": "更新模式",
   "Update settings are unavailable.": "更新设置不可用。",
-  "Update this recurring agent session. It fires on a connected host.":
-    "更新此重复智能体会话。它在已连接的主机上触发。",
+  "Update this recurring agent session. It fires on a connected host.": "更新此重复智能体会话。它在已连接的主机上触发。",
   "Updating…": "更新中…",
   "Upload failed": "上传失败",
   "Upload file": "上传文件",
@@ -749,8 +722,7 @@ export const zhCN: Record<string, string> = {
   "this machine": "此机器",
   "this machine · select to connect": "此机器 · 选择以连接",
   "to finish setting up": "以完成设置",
-  "working in this directory, so writes may conflict. Name a":
-    "在此目录中工作，写入可能会冲突。命名一个",
+  "working in this directory, so writes may conflict. Name a": "在此目录中工作，写入可能会冲突。命名一个",
   "would have picked": "本来会选择",
   "· advisory": "· 建议",
   "· applied": "· 已应用",
@@ -781,8 +753,7 @@ export const zhCN: Record<string, string> = {
   "Raw Markdown source": "原始 Markdown 源码",
   "Rendered preview": "渲染预览",
   "Respond to the pending request above to continue": "回复上面的待处理请求以继续",
-  "Runs Codex with no approval prompts and no command sandbox":
-    "运行 Codex，无需审批提示，也无命令沙箱",
+  "Runs Codex with no approval prompts and no command sandbox": "运行 Codex，无需审批提示，也无命令沙箱",
   "Runs everything without prompts or safety checks": "运行一切，无需提示或安全检查",
   "Security verification failed.": "安全验证失败。",
   "Select agent": "选择智能体",
@@ -841,60 +812,45 @@ export const zhCN: Record<string, string> = {
   "Address All": "回复全部",
   "Advanced settings": "高级设置",
   "Agent is asleep": "智能体已休眠",
-  "Agent is asleep — files shown live from the host. Send a message to wake it.":
-    "智能体已休眠 — 文件从主机实时显示。发送消息以唤醒它。",
-  "All files are hidden — click the eye icon to reveal them.":
-    "所有文件都已隐藏 — 点击眼睛图标以显示它们。",
+  "Agent is asleep — files shown live from the host. Send a message to wake it.": "智能体已休眠 — 文件从主机实时显示。发送消息以唤醒它。",
+  "All files are hidden — click the eye icon to reveal them.": "所有文件都已隐藏 — 点击眼睛图标以显示它们。",
   "Applies only after you choose to download an update.": "仅在选择下载更新后生效。",
   "Approve and remember": "批准并记住",
-  "Approvers can authorize actions that use your session credentials.":
-    "审批人可以授权使用您会话凭证的操作。",
-  "Auto-filled as the base when you name a new worktree branch. Leave blank to not auto-fill.":
-    "命名新 worktree 分支时自动填充为基础。留空则不自动填充。",
+  "Approvers can authorize actions that use your session credentials.": "审批人可以授权使用您会话凭证的操作。",
+  "Auto-filled as the base when you name a new worktree branch. Leave blank to not auto-fill.": "命名新 worktree 分支时自动填充为基础。留空则不自动填充。",
   "Back to Omnigent": "返回 Omnigent",
-  "Branches are not cleaned up. Use single-session delete for branch surgery.":
-    "不会清理分支。如需分支手术，请使用单个会话删除。",
-  "Change how this session runs. Model, effort, and smart routing apply to the next turn.":
-    "更改此会话的运行方式。模型、推理强度和智能路由将应用于下一轮。",
+  "Branches are not cleaned up. Use single-session delete for branch surgery.": "不会清理分支。如需分支手术，请使用单个会话删除。",
+  "Change how this session runs. Model, effort, and smart routing apply to the next turn.": "更改此会话的运行方式。模型、推理强度和智能路由将应用于下一轮。",
   "Check for updates now": "立即检查更新",
   "Checking remaining sessions…": "正在检查剩余会话…",
-  "Choose a preset, then tune it across light and dark mode.":
-    "选择预设，然后在浅色和深色模式下微调。",
+  "Choose a preset, then tune it across light and dark mode.": "选择预设，然后在浅色和深色模式下微调。",
   "Click to show": "点击显示",
   "Copy output": "复制输出",
   "Copy parameters": "复制参数",
   "Couldn't stop the session": "无法停止会话",
-  "Create a task to run an agent session automatically on a recurring schedule.":
-    "创建任务，按重复计划自动运行智能体会话。",
-  "Create an empty project, then file sessions into it from a session's menu.":
-    "创建空项目，然后从会话菜单将会话归入其中。",
-  "Defaults to the host&apos;s home directory. Pick a directory to pin it.":
-    "默认为主机的主目录。选择目录以固定它。",
+  "Create a task to run an agent session automatically on a recurring schedule.": "创建任务，按重复计划自动运行智能体会话。",
+  "Create an empty project, then file sessions into it from a session's menu.": "创建空项目，然后从会话菜单将会话归入其中。",
+  "Defaults to the host&apos;s home directory. Pick a directory to pin it.": "默认为主机的主目录。选择目录以固定它。",
   "Describe a task, or try a skill": "描述任务，或尝试技能",
   "Discard changes": "放弃更改",
   "Drop here to remove from project": "拖放到此处以从项目中移除",
-  "Enter a URL above to get started — the agent will open pages here too.":
-    "在上方输入 URL 以开始 — 智能体也会在这里打开页面。",
+  "Enter a URL above to get started — the agent will open pages here too.": "在上方输入 URL 以开始 — 智能体也会在这里打开页面。",
   "Existing worktrees": "现有 worktree",
   "Expand all": "全部展开",
   "Failed to load agents.": "加载智能体失败。",
   "Failed to load the diff.": "加载差异失败。",
   "Failed to load the editor.": "加载编辑器失败。",
   "Follow your system, or force light or dark.": "跟随系统，或强制浅色/深色。",
-  "Font for the code editor and terminal. Leave blank for the default.":
-    "代码编辑器和终端的字体。留空则使用默认字体。",
+  "Font for the code editor and terminal. Leave blank for the default.": "代码编辑器和终端的字体。留空则使用默认字体。",
   "Global policies applied to all sessions.": "应用于所有会话的全局策略。",
   "Grant admin privileges": "授予管理员权限",
   "Hide unconfigured harnesses": "隐藏未配置的运行时",
   "Invite member": "邀请成员",
   "Keep editing": "继续编辑",
   "Keep mine": "保留我的",
-  "Leave on Default to use the agent&apos;s configured model and effort.":
-    "保持默认以使用智能体配置的模型和推理强度。",
-  "Leave unset to run on your connected host when the task fires.":
-    "留空则在任务触发时在您连接的主机上运行。",
-  "Lets the canvas show through the conversation and workspace rails.":
-    "让画布透过会话栏和工作区栏显示。",
+  "Leave on Default to use the agent&apos;s configured model and effort.": "保持默认以使用智能体配置的模型和推理强度。",
+  "Leave unset to run on your connected host when the task fires.": "留空则在任务触发时在您连接的主机上运行。",
+  "Lets the canvas show through the conversation and workspace rails.": "让画布透过会话栏和工作区栏显示。",
   "Load latest": "加载最新",
   "Loading 3D preview…": "加载 3D 预览…",
   "Loading automations…": "加载自动化…",
@@ -906,18 +862,16 @@ export const zhCN: Record<string, string> = {
   "Loading inbox…": "加载收件箱…",
   "Loading the original session's directory…": "加载原始会话的目录…",
   "Loading...": "加载中…",
-  "Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.":
-    "小写字母、数字、点、连字符、下划线——或小写邮箱。",
+  "Lowercase letters, digits, dots, hyphens, underscores — or a lowercase email.": "小写字母、数字、点、连字符、下划线——或小写邮箱。",
   "Managed by this deployment and can't be changed here.": "由此部署管理，无法在此更改。",
   "Mark as unread": "标记为未读",
   "Member management is not available in single-user mode.": "单用户模式不支持成员管理。",
   "Models unavailable": "模型不可用",
   "New task": "新建任务",
   "No addressed comments.": "没有已处理的评论。",
-  'No changed files match "': '没有匹配的已更改文件："',
-  'No files match "': '没有匹配的文件："',
-  "No global policies configured. Add one to apply it to all sessions.":
-    "未配置全局策略。添加一个以应用到所有会话。",
+  "No changed files match \"": "没有匹配的已更改文件：\"",
+  "No files match \"": "没有匹配的文件：\"",
+  "No global policies configured. Add one to apply it to all sessions.": "未配置全局策略。添加一个以应用到所有会话。",
   "No goal set.": "未设置目标。",
   "No hosts connected yet.": "还没有连接的主机。",
   "No open comments.": "没有打开的评论。",
@@ -927,8 +881,7 @@ export const zhCN: Record<string, string> = {
   "Only the session owner can delete this session": "只有会话所有者才能删除此会话",
   "Only the session owner can rename this session": "只有会话所有者才能重命名此会话",
   "Only the session owner can stop this session": "只有会话所有者才能停止此会话",
-  "Only the session owner or a delegated approver can approve. You can still reject.":
-    "只有会话所有者或受委派的审批人可以批准。您仍然可以拒绝。",
+  "Only the session owner or a delegated approver can approve. You can still reject.": "只有会话所有者或受委派的审批人可以批准。您仍然可以拒绝。",
   "Open approval page": "打开审批页面",
   "Open file": "打开文件",
   "Open in mobile app": "在移动应用中打开",
@@ -944,16 +897,13 @@ export const zhCN: Record<string, string> = {
   "Resolve at fire time": "触发时解析",
   "Restart the session to apply your changes.": "重启会话以应用您的更改。",
   "Rich HTML output hidden — showing plain text.": "富 HTML 输出已隐藏 — 显示纯文本。",
-  "Run agent sessions on a recurring schedule. Tasks fire on a connected host.":
-    "按重复计划运行智能体会话。任务在已连接的主机上触发。",
+  "Run agent sessions on a recurring schedule. Tasks fire on a connected host.": "按重复计划运行智能体会话。任务在已连接的主机上触发。",
   "Run now": "立即运行",
-  "Runner offline — changes save and commenting resumes once it reconnects.":
-    "Runner 离线 — 重新连接后更改将保存并恢复评论。",
+  "Runner offline — changes save and commenting resumes once it reconnects.": "Runner 离线 — 重新连接后更改将保存并恢复评论。",
   "Save failed": "保存失败",
   "Save your changes to enable commenting on selections.": "保存更改以启用对所选内容的评论。",
   "Scale text and spacing across the rest of the interface.": "缩放界面其他部分的文字和间距。",
-  "Scan with your phone's camera to open this session in the Omnigent app.":
-    "用手机相机扫描以在 Omnigent 应用中打开此会话。",
+  "Scan with your phone's camera to open this session in the Omnigent app.": "用手机相机扫描以在 Omnigent 应用中打开此会话。",
   "Select a host to choose a directory.": "请先选择主机以选择目录。",
   "Separates text, borders, and surfaces.": "分隔文本、边框和表面。",
   "Shell not available.": "Shell 不可用。",
@@ -961,36 +911,27 @@ export const zhCN: Record<string, string> = {
   "Some actions failed. Retry or dismiss.": "部分操作失败。重试或关闭。",
   "Start a new chat": "开始新会话",
   "Start goal": "开始目标",
-  "Starts in existing worktree, edit the name to create a new one.":
-    "在现有 worktree 中开始，编辑名称以创建新的。",
+  "Starts in existing worktree, edit the name to create a new one.": "在现有 worktree 中开始，编辑名称以创建新的。",
   "Stop session": "停止会话",
   "Switch to the source view to inspect the raw file.": "切换到源码视图以检查原始文件。",
   "System instructions": "系统指令",
-  "The URL you followed doesn't match any route in this app.":
-    "您访问的 URL 不匹配此应用中的任何路由。",
+  "The URL you followed doesn't match any route in this app.": "您访问的 URL 不匹配此应用中的任何路由。",
   "The keyboard shortcuts available in the chat.": "聊天中可用的键盘快捷键。",
-  "The sharing mode is managed by this deployment and can't be changed here.":
-    "分享模式由此部署管理，无法在此更改。",
+  "The sharing mode is managed by this deployment and can't be changed here.": "分享模式由此部署管理，无法在此更改。",
   "Theme is controlled by the host application.": "主题由宿主应用控制。",
   "Thinking...": "思考中…",
   "This schedule can&apos;t be edited in this form yet.": "此计划暂无法在此表单中编辑。",
-  "This will reset every appearance choice back to its default.":
-    "这将把所有外观设置重置为默认值。",
+  "This will reset every appearance choice back to its default.": "这将把所有外观设置重置为默认值。",
   "Token budget": "Token 预算",
-  "Too many entries to list fully — type a path above to jump directly.":
-    "条目过多无法完整列出 — 在上方输入路径可直接跳转。",
+  "Too many entries to list fully — type a path above to jump directly.": "条目过多无法完整列出 — 在上方输入路径可直接跳转。",
   "Tools and policies configured for the active agent.": "为当前智能体配置的工具和策略。",
   "Use a light or dark terminal, or match the app.": "使用浅色或深色终端，或跟随应用。",
-  "Use any font installed on this device. Leave blank for the system default.":
-    "使用此设备上安装的任何字体。留空则使用系统默认。",
+  "Use any font installed on this device. Leave blank for the system default.": "使用此设备上安装的任何字体。留空则使用系统默认。",
   "Use it": "使用",
-  "Uses this agent&apos;s default model, effort, and permission settings":
-    "使用此智能体的默认模型、推理强度和权限设置",
+  "Uses this agent&apos;s default model, effort, and permission settings": "使用此智能体的默认模型、推理强度和权限设置",
   "Waiting for output": "等待输出",
-  "When an agent needs your input or someone comments on a file, it will show up here.":
-    "当智能体需要您的输入或有人评论文件时，会显示在这里。",
-  "Whether new chats open with the Files / Agents / Shells panel visible. Existing chats keep their last layout.":
-    "新会话是否默认显示文件/智能体/Shell 面板。现有会话保留上次布局。",
+  "When an agent needs your input or someone comments on a file, it will show up here.": "当智能体需要您的输入或有人评论文件时，会显示在这里。",
+  "Whether new chats open with the Files / Agents / Shells panel visible. Existing chats keep their last layout.": "新会话是否默认显示文件/智能体/Shell 面板。现有会话保留上次布局。",
   "Yes, and use auto mode": "是，并使用自动模式",
   "Yes, manually approve edits": "是，手动批准修改",
   "You don't have permission to manage global policies.": "您没有管理全局策略的权限。",
@@ -1007,41 +948,27 @@ export const zhCN: Record<string, string> = {
   "runs for this session.": "适用于此会话。",
   "this session": "此会话",
   "working directory": "工作目录",
-  "keeps working until this condition is met. Progress and completion appear in the conversation.":
-    "持续工作直到满足此条件。进度和完成情况会显示在会话中。",
-  "This approval request is no longer pending. It may have been resolved, timed out, or cancelled.":
-    "此审批请求不再待处理。它可能已被解决、超时或取消。",
-  "Users are provisioned automatically on first sign-in through your identity provider. This list is read-only.":
-    "用户会在通过身份提供商首次登录时自动创建。此列表为只读。",
-  "and is single-use — once they redeem it, it can't be used again. This URL is shown only once.":
-    "且只能使用一次 — 一旦兑换，就无法再次使用。此 URL 只显示一次。",
-  "This page needs an invite token in the URL — make sure you opened the link your admin sent you.":
-    "此页面需要 URL 中的邀请令牌 — 请确保您打开了管理员发送的链接。",
-  "The Omnigent CLI wasn't found. Install it, then set its path from the connect screen:":
-    "未找到 Omnigent CLI。请安装它，然后在连接页面设置其路径：",
-  "and all of its history will be removed. This cannot be undone.":
-    "及其所有历史记录都将被删除。此操作无法撤销。",
-  "First run — pick the username and password for this server's admin. You can invite others once you're in.":
-    "首次运行 — 为此服务器管理员设置用户名和密码。进入后即可邀请其他人。",
+  "keeps working until this condition is met. Progress and completion appear in the conversation.": "持续工作直到满足此条件。进度和完成情况会显示在会话中。",
+  "This approval request is no longer pending. It may have been resolved, timed out, or cancelled.": "此审批请求不再待处理。它可能已被解决、超时或取消。",
+  "Users are provisioned automatically on first sign-in through your identity provider. This list is read-only.": "用户会在通过身份提供商首次登录时自动创建。此列表为只读。",
+  "and is single-use — once they redeem it, it can't be used again. This URL is shown only once.": "且只能使用一次 — 一旦兑换，就无法再次使用。此 URL 只显示一次。",
+  "This page needs an invite token in the URL — make sure you opened the link your admin sent you.": "此页面需要 URL 中的邀请令牌 — 请确保您打开了管理员发送的链接。",
+  "The Omnigent CLI wasn't found. Install it, then set its path from the connect screen:": "未找到 Omnigent CLI。请安装它，然后在连接页面设置其路径：",
+  "and all of its history will be removed. This cannot be undone.": "及其所有历史记录都将被删除。此操作无法撤销。",
+  "First run — pick the username and password for this server's admin. You can invite others once you're in.": "首次运行 — 为此服务器管理员设置用户名和密码。进入后即可邀请其他人。",
   "to view its previous content.": "以查看其先前内容。",
   "under Advanced settings to work in an isolated copy.": "在高级设置下以隔离副本工作。",
   "commenting is available once saved.": "保存后即可评论。",
-  ". Each is a starting point you can change per session; leave a field blank for no default.":
-    "。每个都是可随会话调整的起点；留空则不设置默认值。",
-  "and stops its runner. The conversation and its history are kept.":
-    "并停止其 runner。会话及其历史记录会保留。",
-  ". Their history is kept. You can find and restore them anytime from Settings.":
-    "。它们的历史记录会保留。您可以随时在设置中找到并恢复。",
-  "This will permanently delete the selected sessions and all their history. This cannot be undone.":
-    "这将永久删除所选会话及其所有历史记录。此操作无法撤销。",
-  "working in this directory. Write operations may conflict — name a git branch to work in an isolated copy.":
-    "在此目录中工作。写入操作可能冲突 — 命名一个 git 分支以在隔离副本中工作。",
+  ". Each is a starting point you can change per session; leave a field blank for no default.": "。每个都是可随会话调整的起点；留空则不设置默认值。",
+  "and stops its runner. The conversation and its history are kept.": "并停止其 runner。会话及其历史记录会保留。",
+  ". Their history is kept. You can find and restore them anytime from Settings.": "。它们的历史记录会保留。您可以随时在设置中找到并恢复。",
+  "This will permanently delete the selected sessions and all their history. This cannot be undone.": "这将永久删除所选会话及其所有历史记录。此操作无法撤销。",
+  "working in this directory. Write operations may conflict — name a git branch to work in an isolated copy.": "在此目录中工作。写入操作可能冲突 — 命名一个 git 分支以在隔离副本中工作。",
   "— this can take a few minutes for larger agents.": "— 较大的智能体可能需要几分钟。",
   "Arctic frost blues over polar-night neutrals.": "极夜中性色之上的北极霜蓝。",
   "Clean neutrals with a signal blue.": "干净的中性色配亮蓝色。",
   "Moody purple with a pink pop.": "深邃紫色点缀粉色。",
-  "Only show harnesses that are set up on the selected host in the new-chat picker. Harnesses needing a CLI install or sign-in are hidden instead of badged.":
-    "仅显示已在新会话选择器中配置的运行时。需要安装 CLI 或登录的运行时将被隐藏而不是显示徽标。",
+  "Only show harnesses that are set up on the selected host in the new-chat picker. Harnesses needing a CLI install or sign-in are hidden instead of badged.": "仅显示已在新会话选择器中配置的运行时。需要安装 CLI 或登录的运行时将被隐藏而不是显示徽标。",
   "Soft pastels — Latte & Mocha.": "柔和粉彩 — 拿铁与摩卡。",
   "The signature pink brand look.": "标志性的粉色品牌外观。",
   "Warm retro earth tones.": "温暖的复古大地色调。",
@@ -1051,113 +978,68 @@ export const zhCN: Record<string, string> = {
   "Sonnet 4.6": "Sonnet 4.6",
   "Sonnet 5": "Sonnet 5",
   "Sub-agent result ready": "子智能体结果已就绪",
-  "Limits the total number of tool calls across the entire session using session_state to persist the counter":
-    "使用 session_state 持久化计数器，限制整个会话期间的工具调用总次数",
+  "Limits the total number of tool calls across the entire session using session_state to persist the counter": "使用 session_state 持久化计数器，限制整个会话期间的工具调用总次数",
   "Maximum tool calls allowed across the session": "会话期间允许的最大工具调用次数",
-  "Detects when the agent is stuck retrying the same tool call with identical arguments. ASKs for user approval when the same (tool, args) repeats N times within a sliding window of recent calls":
-    "检测智能体是否卡在重复调用相同参数的工具上。当相同的（工具、参数）在最近的滑动窗口内重复 N 次时，询问用户批准",
+  "Detects when the agent is stuck retrying the same tool call with identical arguments. ASKs for user approval when the same (tool, args) repeats N times within a sliding window of recent calls": "检测智能体是否卡在重复调用相同参数的工具上。当相同的（工具、参数）在最近的滑动窗口内重复 N 次时，询问用户批准",
   "Number of recent tool calls to consider": "要考虑的近期工具调用数",
   "Number of identical repeats within the window to trigger": "窗口内触发警报的相同重复次数",
-  "Asks for user approval before any file or shell tool call — covers Omnigent sys_os_* tools, Claude Code native tools (Bash, Read, Write, Edit, Glob, Grep), Codex native tools, opencode native tools (bash, edit, read, grep, glob), and Hermes Agent tools (terminal, execute_code, read_file, write_file, search_files)":
-    "在任何文件或 Shell 工具调用前询问用户批准 — 覆盖 Omnigent sys_os_* 工具、Claude Code 原生工具（Bash、Read、Write、Edit、Glob、Grep）、Codex 原生工具、opencode 原生工具（bash、edit、read、grep、glob）以及 Hermes Agent 工具（terminal、execute_code、read_file、write_file、search_files）",
-  "Prevents the agent from loading specific skills. Intercepts load_skill/read_skill_file (non-native harnesses) and the native Skill tool (claude-native/codex-native via PreToolUse hook)":
-    "阻止智能体加载特定技能。拦截 load_skill/read_skill_file（非原生运行时）和原生 Skill 工具（通过 PreToolUse 钩子拦截 claude-native/codex-native）",
+  "Asks for user approval before any file or shell tool call — covers Omnigent sys_os_* tools, Claude Code native tools (Bash, Read, Write, Edit, Glob, Grep), Codex native tools, opencode native tools (bash, edit, read, grep, glob), and Hermes Agent tools (terminal, execute_code, read_file, write_file, search_files)": "在任何文件或 Shell 工具调用前询问用户批准 — 覆盖 Omnigent sys_os_* 工具、Claude Code 原生工具（Bash、Read、Write、Edit、Glob、Grep）、Codex 原生工具、opencode 原生工具（bash、edit、read、grep、glob）以及 Hermes Agent 工具（terminal、execute_code、read_file、write_file、search_files）",
+  "Prevents the agent from loading specific skills. Intercepts load_skill/read_skill_file (non-native harnesses) and the native Skill tool (claude-native/codex-native via PreToolUse hook)": "阻止智能体加载特定技能。拦截 load_skill/read_skill_file（非原生运行时）和原生 Skill 工具（通过 PreToolUse 钩子拦截 claude-native/codex-native）",
   "Skill names to block (case-insensitive)": "要阻止的技能名称（不区分大小写）",
-  "Forces a specific sandbox configuration (e.g. linux_bwrap) on every agent start. Intercepts the synthetic __agent_start tool call and overrides the agent's sandbox config.":
-    "在每次智能体启动时强制执行特定沙箱配置（例如 linux_bwrap）。拦截合成的 __agent_start 工具调用并覆盖智能体的沙箱配置。",
-  "Sandbox backend to force (linux_bwrap, darwin_seatbelt, none)":
-    "要强制的沙箱后端（linux_bwrap、darwin_seatbelt、none）",
+  "Forces a specific sandbox configuration (e.g. linux_bwrap) on every agent start. Intercepts the synthetic __agent_start tool call and overrides the agent's sandbox config.": "在每次智能体启动时强制执行特定沙箱配置（例如 linux_bwrap）。拦截合成的 __agent_start 工具调用并覆盖智能体的沙箱配置。",
+  "Sandbox backend to force (linux_bwrap, darwin_seatbelt, none)": "要强制的沙箱后端（linux_bwrap、darwin_seatbelt、none）",
   "Whether to allow network access": "是否允许网络访问",
-  "Writable paths to enforce (null inherits agent's config)":
-    "要强制执行的写入路径（null 继承智能体的配置）",
-  "Read-only paths to enforce (null inherits agent's config)":
-    "要强制执行的只读路径（null 继承智能体的配置）",
-  "Env vars to allow through the sandbox (null inherits agent's config)":
-    "允许通过沙箱的环境变量（null 继承智能体的配置）",
-  "Scans user messages and LLM request prompts for PII (SSN, credit card, email, phone). Works with all harnesses.":
-    "扫描用户消息和 LLM 请求提示中的 PII（社保号、信用卡、邮箱、电话）。适用于所有运行时。",
+  "Writable paths to enforce (null inherits agent's config)": "要强制执行的写入路径（null 继承智能体的配置）",
+  "Read-only paths to enforce (null inherits agent's config)": "要强制执行的只读路径（null 继承智能体的配置）",
+  "Env vars to allow through the sandbox (null inherits agent's config)": "允许通过沙箱的环境变量（null 继承智能体的配置）",
+  "Scans user messages and LLM request prompts for PII (SSN, credit card, email, phone). Works with all harnesses.": "扫描用户消息和 LLM 请求提示中的 PII（社保号、信用卡、邮箱、电话）。适用于所有运行时。",
   "PII categories to scan for. Leave empty to enable all.": "要扫描的 PII 类别。留空以启用全部。",
   "Action when PII is detected": "检测到 PII 时的操作",
-  "Gates a session on cumulative LLM spend (USD): once a hard limit is reached DENY (the whole turn at the request phase, or each tool call) while still on an expensive model (prompting a /model downgrade), and ASK for approval at each soft warning checkpoint (request + tool-call phases). Reads event.context.usage.total_cost_usd and event.context.model.":
-    "按累计 LLM 花费（美元）限制会话：达到硬限制后 DENY（请求阶段整个回合，或每个工具调用），同时仍在昂贵模型上（提示 /model 降级），并在每个软警告检查点 ASK 批准（请求 + 工具调用阶段）。读取 event.context.usage.total_cost_usd 和 event.context.model。",
-  "Optional hard limit in USD; once cumulative session cost reaches it, tool calls are blocked while the session is on an expensive model. Either this or ask_thresholds_usd must be set.":
-    "可选的美元硬限制；一旦累计会话费用达到该值，会话在昂贵模型上时工具调用将被阻止。必须设置此项或 ask_thresholds_usd。",
-  "Optional soft warning checkpoints in USD; the session asks for approval the first time spend crosses each (every value must be < max_cost_usd when both are set).":
-    "可选的美元软警告检查点；花费首次超过每个检查点时会话会请求批准（同时设置时每个值必须 < max_cost_usd）。",
-  "Optional case-insensitive substring tokens for the model tiers blocked once over budget. Omit (or pass []) for a true hard stop that blocks all models; pass a non-empty list for a downgrade gate that only blocks the named tiers.":
-    "超出预算后要阻止的模型层级的可选不区分大小写子串标记。省略（或传 []）表示真正硬停止、阻止所有模型；传入非空列表则表示降级门控，仅阻止指定层级。",
-  "Gates the session OWNER's cumulative LLM spend across all their sessions for the current UTC day: once a hard daily limit is reached DENY (the whole turn at the request phase, or each tool call) while still on an expensive model (prompting a /model downgrade), and ASK for approval at each soft warning checkpoint (request + tool-call phases, remembered per user+day). Reads event.context.user_daily_cost and event.context.model.":
-    "按会话所有者在当前 UTC 日跨所有会话的累计 LLM 花费进行限制：达到每日硬限制后 DENY（请求阶段整个回合，或每个工具调用），同时仍在昂贵模型上（提示 /model 降级），并在每个软警告检查点 ASK 批准（请求 + 工具调用阶段，按用户+日记忆）。读取 event.context.user_daily_cost 和 event.context.model。",
-  "Hard daily limit in USD; once the owner's spend for the UTC day reaches it, tool calls are blocked while on an expensive model.":
-    "美元每日硬限制；一旦所有者在 UTC 日的花费达到该值，在昂贵模型上时工具调用将被阻止。",
-  "Optional soft daily warning checkpoints in USD; asks for approval the first time the day's spend crosses each (every value must be < max_cost_usd). Approval is remembered per user+day.":
-    "可选的美元每日软警告检查点；当日花费首次超过每个检查点时请求批准（每个值必须 < max_cost_usd）。批准按用户+日记忆。",
-  "Optional case-insensitive substring tokens for the model tiers blocked once over the daily budget. Omit (or pass []) for a true hard stop that blocks all models; pass a non-empty list for a downgrade gate that only blocks the named tiers.":
-    "超出每日预算后要阻止的模型层级的可选不区分大小写子串标记。省略（或传 []）表示真正硬停止、阻止所有模型；传入非空列表则表示降级门控，仅阻止指定层级。",
-  "Controls access to Google Drive files, Docs, Sheets, and Slides through any Google MCP server. Restricts reads to an allowlist and restricts writes/comments to files the agent created this session plus explicitly allowed files. Optionally enforces Bell-LaPadula's 'no write-down' rule via a confidential-file compartment: once the session reads a confidential file, its writes are confined to that set so classified data can't leak into a less-protected file.":
-    "通过任何 Google MCP 服务器控制对 Google Drive 文件、Docs、Sheets 和 Slides 的访问。将读取限制为白名单，将写入/评论限制为智能体本会话创建的文件加上显式允许的文件。可选地通过机密文件隔离区强制执行 Bell-LaPadula 的“禁止降级写入”规则：一旦会话读取了机密文件，其写入将被限制在该集合内，防止机密数据泄漏到保护较弱的文件中。",
-  "Allow all reads. When false, only read_files are readable.":
-    "允许所有读取。为 false 时，仅 read_files 可读。",
-  "File IDs or Google URLs readable when read_all is false.":
-    "read_all 为 false 时可读的文件 ID 或 Google URL。",
-  "Allow creating new files (docs, sheets, slides, Drive files).":
-    "允许创建新文件（docs、sheets、slides、Drive 文件）。",
+  "Gates a session on cumulative LLM spend (USD): once a hard limit is reached DENY (the whole turn at the request phase, or each tool call) while still on an expensive model (prompting a /model downgrade), and ASK for approval at each soft warning checkpoint (request + tool-call phases). Reads event.context.usage.total_cost_usd and event.context.model.": "按累计 LLM 花费（美元）限制会话：达到硬限制后 DENY（请求阶段整个回合，或每个工具调用），同时仍在昂贵模型上（提示 /model 降级），并在每个软警告检查点 ASK 批准（请求 + 工具调用阶段）。读取 event.context.usage.total_cost_usd 和 event.context.model。",
+  "Optional hard limit in USD; once cumulative session cost reaches it, tool calls are blocked while the session is on an expensive model. Either this or ask_thresholds_usd must be set.": "可选的美元硬限制；一旦累计会话费用达到该值，会话在昂贵模型上时工具调用将被阻止。必须设置此项或 ask_thresholds_usd。",
+  "Optional soft warning checkpoints in USD; the session asks for approval the first time spend crosses each (every value must be < max_cost_usd when both are set).": "可选的美元软警告检查点；花费首次超过每个检查点时会话会请求批准（同时设置时每个值必须 < max_cost_usd）。",
+  "Optional case-insensitive substring tokens for the model tiers blocked once over budget. Omit (or pass []) for a true hard stop that blocks all models; pass a non-empty list for a downgrade gate that only blocks the named tiers.": "超出预算后要阻止的模型层级的可选不区分大小写子串标记。省略（或传 []）表示真正硬停止、阻止所有模型；传入非空列表则表示降级门控，仅阻止指定层级。",
+  "Gates the session OWNER's cumulative LLM spend across all their sessions for the current UTC day: once a hard daily limit is reached DENY (the whole turn at the request phase, or each tool call) while still on an expensive model (prompting a /model downgrade), and ASK for approval at each soft warning checkpoint (request + tool-call phases, remembered per user+day). Reads event.context.user_daily_cost and event.context.model.": "按会话所有者在当前 UTC 日跨所有会话的累计 LLM 花费进行限制：达到每日硬限制后 DENY（请求阶段整个回合，或每个工具调用），同时仍在昂贵模型上（提示 /model 降级），并在每个软警告检查点 ASK 批准（请求 + 工具调用阶段，按用户+日记忆）。读取 event.context.user_daily_cost 和 event.context.model。",
+  "Hard daily limit in USD; once the owner's spend for the UTC day reaches it, tool calls are blocked while on an expensive model.": "美元每日硬限制；一旦所有者在 UTC 日的花费达到该值，在昂贵模型上时工具调用将被阻止。",
+  "Optional soft daily warning checkpoints in USD; asks for approval the first time the day's spend crosses each (every value must be < max_cost_usd). Approval is remembered per user+day.": "可选的美元每日软警告检查点；当日花费首次超过每个检查点时请求批准（每个值必须 < max_cost_usd）。批准按用户+日记忆。",
+  "Optional case-insensitive substring tokens for the model tiers blocked once over the daily budget. Omit (or pass []) for a true hard stop that blocks all models; pass a non-empty list for a downgrade gate that only blocks the named tiers.": "超出每日预算后要阻止的模型层级的可选不区分大小写子串标记。省略（或传 []）表示真正硬停止、阻止所有模型；传入非空列表则表示降级门控，仅阻止指定层级。",
+  "Controls access to Google Drive files, Docs, Sheets, and Slides through any Google MCP server. Restricts reads to an allowlist and restricts writes/comments to files the agent created this session plus explicitly allowed files. Optionally enforces Bell-LaPadula's 'no write-down' rule via a confidential-file compartment: once the session reads a confidential file, its writes are confined to that set so classified data can't leak into a less-protected file.": "通过任何 Google MCP 服务器控制对 Google Drive 文件、Docs、Sheets 和 Slides 的访问。将读取限制为白名单，将写入/评论限制为智能体本会话创建的文件加上显式允许的文件。可选地通过机密文件隔离区强制执行 Bell-LaPadula 的“禁止降级写入”规则：一旦会话读取了机密文件，其写入将被限制在该集合内，防止机密数据泄漏到保护较弱的文件中。",
+  "Allow all reads. When false, only read_files are readable.": "允许所有读取。为 false 时，仅 read_files 可读。",
+  "File IDs or Google URLs readable when read_all is false.": "read_all 为 false 时可读的文件 ID 或 Google URL。",
+  "Allow creating new files (docs, sheets, slides, Drive files).": "允许创建新文件（docs、sheets、slides、Drive 文件）。",
   "File IDs or URLs writable regardless of creation.": "无论是否创建都可写的文件 ID 或 URL。",
   "File IDs or URLs the agent may comment on.": "智能体可以评论的文件 ID 或 URL。",
-  "File IDs or Google URLs forming the confidential compartment. When set, Bell-LaPadula 'no write-down' engages: after the session reads one of these, writes are confined to the set. Empty (default) disables the rule.":
-    "构成机密隔离区的文件 ID 或 Google URL。设置后，Bell-LaPadula “禁止降级写入”生效：会话读取其中一个后，写入将被限制在该集合内。空（默认）则禁用该规则。",
-  "Verdict on a write-down violation. Ignored unless confidential_files is set.":
-    "降级写入违规的判定。除非设置了 confidential_files，否则忽略。",
-  "Server tool-name prefixes to strip (default: mcp__google__, google__).":
-    "要剥离的服务器工具名前缀（默认：mcp__google__、google__）。",
-  "Controls Gmail access through any Google MCP server. Defaults to allowing reads and drafts but blocking sending and message modification; draft edits are restricted to drafts the agent created this session.":
-    "通过任何 Google MCP 服务器控制 Gmail 访问。默认为允许读取和草稿，但阻止发送和消息修改；草稿编辑仅限于智能体本会话创建的草稿。",
+  "File IDs or Google URLs forming the confidential compartment. When set, Bell-LaPadula 'no write-down' engages: after the session reads one of these, writes are confined to the set. Empty (default) disables the rule.": "构成机密隔离区的文件 ID 或 Google URL。设置后，Bell-LaPadula “禁止降级写入”生效：会话读取其中一个后，写入将被限制在该集合内。空（默认）则禁用该规则。",
+  "Verdict on a write-down violation. Ignored unless confidential_files is set.": "降级写入违规的判定。除非设置了 confidential_files，否则忽略。",
+  "Server tool-name prefixes to strip (default: mcp__google__, google__).": "要剥离的服务器工具名前缀（默认：mcp__google__、google__）。",
+  "Controls Gmail access through any Google MCP server. Defaults to allowing reads and drafts but blocking sending and message modification; draft edits are restricted to drafts the agent created this session.": "通过任何 Google MCP 服务器控制 Gmail 访问。默认为允许读取和草稿，但阻止发送和消息修改；草稿编辑仅限于智能体本会话创建的草稿。",
   "Allow reading mail (search / list / get).": "允许读取邮件（search / list / get）。",
   "Allow sending mail. Off by default (draft-only).": "允许发送邮件。默认关闭（仅草稿）。",
-  "Allow creating drafts and editing the agent's own drafts.":
-    "允许创建草稿和编辑智能体自己的草稿。",
-  "Allow modifying messages / threads (labels, move, trash).":
-    "允许修改消息 / 线程（标签、移动、删除）。",
-  "Controls Google Calendar access through any Google MCP server. Defaults to read-only — allows reading events but blocks creating, updating, and deleting them.":
-    "通过任何 Google MCP 服务器控制 Google Calendar 访问。默认为只读 — 允许读取事件，但阻止创建、更新和删除。",
+  "Allow creating drafts and editing the agent's own drafts.": "允许创建草稿和编辑智能体自己的草稿。",
+  "Allow modifying messages / threads (labels, move, trash).": "允许修改消息 / 线程（标签、移动、删除）。",
+  "Controls Google Calendar access through any Google MCP server. Defaults to read-only — allows reading events but blocks creating, updating, and deleting them.": "通过任何 Google MCP 服务器控制 Google Calendar 访问。默认为只读 — 允许读取事件，但阻止创建、更新和删除。",
   "Allow reading calendars / events / free-busy.": "允许读取日历 / 事件 / 忙闲状态。",
   "Allow creating events / calendars.": "允许创建事件 / 日历。",
   "Allow updating / deleting events.": "允许更新 / 删除事件。",
-  "Controls GitHub access across MCP tools (official per-operation server and the github_read_api_call / github_write_api_call HTTP-proxy wrapper) and git/gh shell commands run via sys_os_shell. Restricts reads to read_repos (unless read_all), and writes to write_repos plus optional write_branches. Shell commands whose target repo or branch is outside those sets are denied (or sent for approval).":
-    "跨 MCP 工具（官方按操作服务器和 github_read_api_call / github_write_api_call HTTP 代理包装器）以及通过 sys_os_shell 运行的 git/gh Shell 命令控制 GitHub 访问。将读取限制为 read_repos（除非 read_all），将写入限制为 write_repos 加上可选的 write_branches。目标仓库或分支不在这些集合内的 Shell 命令将被拒绝（或发送审批）。",
-  "Allow all reads. When false, restrict reads to read_repos.":
-    "允许所有读取。为 false 时，将读取限制为 read_repos。",
-  "Repos (owner/repo or URLs) readable when read_all is false.":
-    "read_all 为 false 时可读的仓库（owner/repo 或 URL）。",
-  "Repos (owner/repo or GitHub URLs) the agent may write to.":
-    "智能体可以写入的仓库（owner/repo 或 GitHub URL）。",
-  "Branches writable within an allowed repo. Empty = any branch.":
-    "允许的仓库内可写入的分支。空 = 任意分支。",
-  "Allow irreversible destructive operations (deletes). When false (default), deletes are denied.":
-    "允许不可逆的破坏性操作（删除）。为 false（默认）时，删除将被拒绝。",
-  "GitHub MCP server name-prefixes to strip when matching tools (default: mcp__github__, github__).":
-    "匹配工具时要剥离的 GitHub MCP 服务器名前缀（默认：mcp__github__、github__）。",
-  "Shell/terminal tools whose command arg is parsed for git/gh; git/gh run through tools not listed here are not gated.":
-    "命令参数会被解析以检查 git/gh 的 Shell/终端工具；通过此处未列出的工具运行的 git/gh 不受门控。",
-  "Gates shell commands (sys_os_shell and Claude/Codex native Bash) that switch the working directory or manipulate git worktrees, so the agent can't escape a designated workspace area.":
-    "门控切换工作目录或操作 git worktree 的 Shell 命令（sys_os_shell 和 Claude/Codex 原生 Bash），防止智能体逃出指定的工作区。",
+  "Controls GitHub access across MCP tools (official per-operation server and the github_read_api_call / github_write_api_call HTTP-proxy wrapper) and git/gh shell commands run via sys_os_shell. Restricts reads to read_repos (unless read_all), and writes to write_repos plus optional write_branches. Shell commands whose target repo or branch is outside those sets are denied (or sent for approval).": "跨 MCP 工具（官方按操作服务器和 github_read_api_call / github_write_api_call HTTP 代理包装器）以及通过 sys_os_shell 运行的 git/gh Shell 命令控制 GitHub 访问。将读取限制为 read_repos（除非 read_all），将写入限制为 write_repos 加上可选的 write_branches。目标仓库或分支不在这些集合内的 Shell 命令将被拒绝（或发送审批）。",
+  "Allow all reads. When false, restrict reads to read_repos.": "允许所有读取。为 false 时，将读取限制为 read_repos。",
+  "Repos (owner/repo or URLs) readable when read_all is false.": "read_all 为 false 时可读的仓库（owner/repo 或 URL）。",
+  "Repos (owner/repo or GitHub URLs) the agent may write to.": "智能体可以写入的仓库（owner/repo 或 GitHub URL）。",
+  "Branches writable within an allowed repo. Empty = any branch.": "允许的仓库内可写入的分支。空 = 任意分支。",
+  "Allow irreversible destructive operations (deletes). When false (default), deletes are denied.": "允许不可逆的破坏性操作（删除）。为 false（默认）时，删除将被拒绝。",
+  "GitHub MCP server name-prefixes to strip when matching tools (default: mcp__github__, github__).": "匹配工具时要剥离的 GitHub MCP 服务器名前缀（默认：mcp__github__、github__）。",
+  "Shell/terminal tools whose command arg is parsed for git/gh; git/gh run through tools not listed here are not gated.": "命令参数会被解析以检查 git/gh 的 Shell/终端工具；通过此处未列出的工具运行的 git/gh 不受门控。",
+  "Gates shell commands (sys_os_shell and Claude/Codex native Bash) that switch the working directory or manipulate git worktrees, so the agent can't escape a designated workspace area.": "门控切换工作目录或操作 git worktree 的 Shell 命令（sys_os_shell 和 Claude/Codex 原生 Bash），防止智能体逃出指定的工作区。",
   "Gate cd/chdir/pushd/popd and git -C.": "门控 cd/chdir/pushd/popd 和 git -C。",
   "Gate git worktree add/move/remove.": "门控 git worktree add/move/remove。",
-  "Directories a cd / git -C may move into (the dir or a subdirectory). Empty = no change allowed.":
-    "cd / git -C 可以进入的目录（该目录或其子目录）。空 = 不允许任何更改。",
-  "Whether a gated command is denied or sent for human approval (ask).":
-    "被门控的命令是拒绝还是发送人工审批（ask）。",
-  "Shell tools whose command arg is parsed (default: sys_os_shell, Bash).":
-    "命令参数会被解析的 Shell 工具（默认：sys_os_shell、Bash）。",
-  "Accrues a per-session risk score from risky tool calls and from tool results carrying a secret-like marker; when the score reaches the threshold, guarded tools escalate from allow to ask/deny.":
-    "从高风险工具调用和携带类似机密标记的工具结果累积每会话风险评分；当评分达到阈值时，受保护的工具有权从允许升级为询问/拒绝。",
+  "Directories a cd / git -C may move into (the dir or a subdirectory). Empty = no change allowed.": "cd / git -C 可以进入的目录（该目录或其子目录）。空 = 不允许任何更改。",
+  "Whether a gated command is denied or sent for human approval (ask).": "被门控的命令是拒绝还是发送人工审批（ask）。",
+  "Shell tools whose command arg is parsed (default: sys_os_shell, Bash).": "命令参数会被解析的 Shell 工具（默认：sys_os_shell、Bash）。",
+  "Accrues a per-session risk score from risky tool calls and from tool results carrying a secret-like marker; when the score reaches the threshold, guarded tools escalate from allow to ask/deny.": "从高风险工具调用和携带类似机密标记的工具结果累积每会话风险评分；当评分达到阈值时，受保护的工具有权从允许升级为询问/拒绝。",
   "Score at/above which guarded_tools escalate.": "受保护工具升级的评分阈值（达到或超过）。",
-  "List of tools that escalate once the risk score threshold is hit. When empty, ALL tools escalate.":
-    "风险评分达到阈值后升级的工具列表。为空时，所有工具都会升级。",
-  "Additional tools to exclude from escalation (kept at their base permission).":
-    "要排除在升级之外的额外工具（保持其基础权限）。",
-  "Block remote LLM inference requests at the HTTP transport layer.":
-    "在 HTTP 传输层阻止远程 LLM 推理请求。",
+  "List of tools that escalate once the risk score threshold is hit. When empty, ALL tools escalate.": "风险评分达到阈值后升级的工具列表。为空时，所有工具都会升级。",
+  "Additional tools to exclude from escalation (kept at their base permission).": "要排除在升级之外的额外工具（保持其基础权限）。",
+  "Block remote LLM inference requests at the HTTP transport layer.": "在 HTTP 传输层阻止远程 LLM 推理请求。",
   "List of HTTP methods to block.": "要阻止的 HTTP 方法列表。",
   "URL prefixes to block.": "要阻止的 URL 前缀。",
   "Allow only these HTTP methods.": "仅允许这些 HTTP 方法。",
@@ -1167,15 +1049,12 @@ export const zhCN: Record<string, string> = {
   "Comma-separated list of hostnames to allow.": "要允许的主机名列表（逗号分隔）。",
   "Block network egress entirely.": "完全阻止网络出站。",
   "Allow localhost connections.": "允许 localhost 连接。",
-  "Restricts the agent's working directory to a designated path.":
-    "将智能体的工作目录限制为指定路径。",
+  "Restricts the agent's working directory to a designated path.": "将智能体的工作目录限制为指定路径。",
   "Allowed working directory paths.": "允许的工作目录路径。",
-  "Maximum total tokens (input + output) across the session.":
-    "会话期间的最大总 Token 数（输入 + 输出）。",
+  "Maximum total tokens (input + output) across the session.": "会话期间的最大总 Token 数（输入 + 输出）。",
   "Maximum input tokens per request.": "每个请求的最大输入 Token 数。",
   "Maximum output tokens per request.": "每个请求的最大输出 Token 数。",
-  "Deny web fetch requests (sys_os_* fetch and native web tools).":
-    "拒绝网页抓取请求（sys_os_* fetch 和原生网页工具）。",
+  "Deny web fetch requests (sys_os_* fetch and native web tools).": "拒绝网页抓取请求（sys_os_* fetch 和原生网页工具）。",
   "URL patterns to deny.": "要拒绝的 URL 模式。",
   "Allow web fetch requests only to these URL patterns.": "仅允许对这些 URL 模式的网页抓取请求。",
   "Blocked commands (exact match or glob).": "被阻止的命令（精确匹配或通配符）。",
@@ -1184,92 +1063,57 @@ export const zhCN: Record<string, string> = {
   "Maximum number of tool calls in the window.": "窗口内的最大工具调用次数。",
   "Window size in seconds.": "窗口大小（秒）。",
   "Verdict once the limit is exceeded.": "超过限制后的判定。",
-  "Allow irreversible destructive operations (deletes). When false (default), deletes are denied even on allowed repos.":
-    "允许不可逆的破坏性操作（删除）。为 false（默认）时，即使在允许的仓库中删除也会被拒绝。",
+  "Allow irreversible destructive operations (deletes). When false (default), deletes are denied even on allowed repos.": "允许不可逆的破坏性操作（删除）。为 false（默认）时，即使在允许的仓库中删除也会被拒绝。",
   "Block Working Directory & Worktree Changes": "阻止工作目录与 Worktree 更改",
   "Session Risk Score": "会话风险评分",
-  "Accrues a per-session risk score from risky tool calls and from tool results carrying a sensitive data-classification label; once the score reaches the threshold, guarded tools escalate from allow to ask/deny.":
-    "从高风险工具调用和携带敏感数据分类标签的工具结果累积每会话风险评分；一旦评分达到阈值，受保护的工具有权从允许升级为询问/拒绝。",
-  'Tool name -> points added on each call (e.g. {"web_search": 10}).':
-    '工具名称 -> 每次调用添加的分数（例如 {"web_search": 10}）。',
-  'Data-classification label -> points added when a tool result carries it (case-insensitive, e.g. {"High": 50}).':
-    '数据分类标签 -> 工具结果携带该标签时添加的分数（不区分大小写，例如 {"High": 50}）。',
-  'Tool names gated once the score reaches threshold (e.g. ["gmail_message_send"]).':
-    '评分达到阈值后被门控的工具名称（例如 ["gmail_message_send"]）。',
+  "Accrues a per-session risk score from risky tool calls and from tool results carrying a sensitive data-classification label; once the score reaches the threshold, guarded tools escalate from allow to ask/deny.": "从高风险工具调用和携带敏感数据分类标签的工具结果累积每会话风险评分；一旦评分达到阈值，受保护的工具有权从允许升级为询问/拒绝。",
+  "Tool name -> points added on each call (e.g. {\"web_search\": 10}).": "工具名称 -> 每次调用添加的分数（例如 {\"web_search\": 10}）。",
+  "Data-classification label -> points added when a tool result carries it (case-insensitive, e.g. {\"High\": 50}).": "数据分类标签 -> 工具结果携带该标签时添加的分数（不区分大小写，例如 {\"High\": 50}）。",
+  "Tool names gated once the score reaches threshold (e.g. [\"gmail_message_send\"]).": "评分达到阈值后被门控的工具名称（例如 [\"gmail_message_send\"]）。",
   "Verdict for a guarded tool over threshold.": "超过阈值的被门控工具的判定。",
-  'Actor run_as email -> starting offset (e.g. {"contractor@example.com": 40}).':
-    '角色 run_as 邮箱 -> 起始偏移（例如 {"contractor@example.com": 40}）。',
+  "Actor run_as email -> starting offset (e.g. {\"contractor@example.com\": 40}).": "角色 run_as 邮箱 -> 起始偏移（例如 {\"contractor@example.com\": 40}）。",
   "session_state key holding the running score.": "保存运行评分的 session_state 键。",
-  "Result-payload keys inspected for a classification label (default: label_classification, classification, severity).":
-    "检查分类标签的结果负载键（默认：label_classification、classification、severity）。",
+  "Result-payload keys inspected for a classification label (default: label_classification, classification, severity).": "检查分类标签的结果负载键（默认：label_classification、classification、severity）。",
   "Human-readable prefix on ASK / DENY escalations.": "ASK / DENY 升级上的人类可读前缀。",
   "Deny Trivial Tasks on Expensive Models": "在昂贵模型上拒绝琐碎任务",
-  "Classifies the user's message as TRIVIAL or COMPLEX using the server-level LLM client with structured output, and denies the request when a TRIVIAL task targets an expensive model.":
-    "使用服务器级 LLM 客户端通过结构化输出将用户消息分类为 TRIVIAL 或 COMPLEX，并在琐碎任务针对昂贵模型时拒绝请求。",
-  "Provider-configured model ids to gate for trivial tasks, e.g. ['provider/model-id', 'provider-local-alias'].":
-    "针对琐碎任务进行门控的提供商配置模型 ID，例如 ['provider/model-id', 'provider-local-alias']。",
-  "System instructions for the classifier. Describes classification criteria (output format is enforced).":
-    "分类器的系统指令。描述分类标准（输出格式已强制）。",
+  "Classifies the user's message as TRIVIAL or COMPLEX using the server-level LLM client with structured output, and denies the request when a TRIVIAL task targets an expensive model.": "使用服务器级 LLM 客户端通过结构化输出将用户消息分类为 TRIVIAL 或 COMPLEX，并在琐碎任务针对昂贵模型时拒绝请求。",
+  "Provider-configured model ids to gate for trivial tasks, e.g. ['provider/model-id', 'provider-local-alias'].": "针对琐碎任务进行门控的提供商配置模型 ID，例如 ['provider/model-id', 'provider-local-alias']。",
+  "System instructions for the classifier. Describes classification criteria (output format is enforced).": "分类器的系统指令。描述分类标准（输出格式已强制）。",
   "Intent Based Authorization": "基于意图的授权",
-  "Enforces intent-based permissioning: records the user's first message as the authoritative session intent, then checks every subsequent tool call and shell command against that intent.":
-    "强制执行基于意图的权限：将用户的第一条消息记录为权威会话意图，然后根据该意图检查每个后续工具调用和 Shell 命令。",
+  "Enforces intent-based permissioning: records the user's first message as the authoritative session intent, then checks every subsequent tool call and shell command against that intent.": "强制执行基于意图的权限：将用户的第一条消息记录为权威会话意图，然后根据该意图检查每个后续工具调用和 Shell 命令。",
   "CEL Expression Policy": "CEL 表达式策略",
-  "Evaluate a CEL (Common Expression Language) expression against every policy event. The expression receives the event and must return a verdict map.":
-    "针对每个策略事件评估 CEL（通用表达式语言）表达式。表达式接收事件并必须返回判定映射。",
-  'CEL expression. The `event` variable holds the PolicyEvent dict. Must return a map: {"result": "DENY" | "ASK" | "ALLOW", ...}.':
-    'CEL 表达式。`event` 变量保存 PolicyEvent 字典。必须返回映射：{"result": "DENY" | "ASK" | "ALLOW", ...}。',
-  "Fallback reason for DENY/ASK when the map omits a reason key.":
-    "当映射省略原因键时 DENY/ASK 的回退原因。",
+  "Evaluate a CEL (Common Expression Language) expression against every policy event. The expression receives the event and must return a verdict map.": "针对每个策略事件评估 CEL（通用表达式语言）表达式。表达式接收事件并必须返回判定映射。",
+  "CEL expression. The `event` variable holds the PolicyEvent dict. Must return a map: {\"result\": \"DENY\" | \"ASK\" | \"ALLOW\", ...}.": "CEL 表达式。`event` 变量保存 PolicyEvent 字典。必须返回映射：{\"result\": \"DENY\" | \"ASK\" | \"ALLOW\", ...}。",
+  "Fallback reason for DENY/ASK when the map omits a reason key.": "当映射省略原因键时 DENY/ASK 的回退原因。",
   "LLM Prompt Classifier Policy": "LLM 提示词分类器策略",
-  "LLM-backed classifier policy. The author supplies domain intent in a prompt (e.g. 'Deny if the user mentions competitor pricing').":
-    "LLM 驱动的分类器策略。作者在提示词中提供领域意图（例如“如果用户提到竞争对手定价则拒绝”）。",
-  'Author-supplied domain logic describing when to deny, ask, or allow. Example: "Deny if the user mentions competitor pricing".':
-    "作者提供的领域逻辑，描述何时拒绝、询问或允许。示例：“如果用户提到竞争对手定价则拒绝”。",
-  "Optional fixed reason override for DENY/ASK. When omitted, uses the LLM's own reason.":
-    "DENY/ASK 的可选固定原因覆盖。省略时使用 LLM 自己的原因。",
+  "LLM-backed classifier policy. The author supplies domain intent in a prompt (e.g. 'Deny if the user mentions competitor pricing').": "LLM 驱动的分类器策略。作者在提示词中提供领域意图（例如“如果用户提到竞争对手定价则拒绝”）。",
+  "Author-supplied domain logic describing when to deny, ask, or allow. Example: \"Deny if the user mentions competitor pricing\".": "作者提供的领域逻辑，描述何时拒绝、询问或允许。示例：“如果用户提到竞争对手定价则拒绝”。",
+  "Optional fixed reason override for DENY/ASK. When omitted, uses the LLM's own reason.": "DENY/ASK 的可选固定原因覆盖。省略时使用 LLM 自己的原因。",
   "Detect Task Switch": "检测任务切换",
-  "Uses the server-level LLM to classify each user message as a continuation of the current task or the start of a new task.":
-    "使用服务器级 LLM 将每条用户消息分类为当前任务的延续或新任务的开始。",
-  "Number of prior user messages to accumulate before the classifier starts firing. Defaults to 2.":
-    "分类器开始触发前累积的先前用户消息数。默认为 2。",
-  "Maximum number of recent user messages kept as prior context for the classifier. Older messages are dropped.":
-    "作为分类器先前上下文保留的近期用户消息的最大数量。较早的消息会被丢弃。",
-  "Response when a task switch is detected. ASK escalates to the user (default); DENY blocks the request.":
-    "检测到任务切换时的响应。ASK 升级给用户（默认）；DENY 阻止请求。",
-  'System prompt for the classifier. Must instruct the model to return {"verdict": "CONTINUATION"|"TASK_SWITCH"}.':
-    '分类器的系统提示词。必须指示模型返回 {"verdict": "CONTINUATION"|"TASK_SWITCH"}。',
+  "Uses the server-level LLM to classify each user message as a continuation of the current task or the start of a new task.": "使用服务器级 LLM 将每条用户消息分类为当前任务的延续或新任务的开始。",
+  "Number of prior user messages to accumulate before the classifier starts firing. Defaults to 2.": "分类器开始触发前累积的先前用户消息数。默认为 2。",
+  "Maximum number of recent user messages kept as prior context for the classifier. Older messages are dropped.": "作为分类器先前上下文保留的近期用户消息的最大数量。较早的消息会被丢弃。",
+  "Response when a task switch is detected. ASK escalates to the user (default); DENY blocks the request.": "检测到任务切换时的响应。ASK 升级给用户（默认）；DENY 阻止请求。",
+  "System prompt for the classifier. Must instruct the model to return {\"verdict\": \"CONTINUATION\"|\"TASK_SWITCH\"}.": "分类器的系统提示词。必须指示模型返回 {\"verdict\": \"CONTINUATION\"|\"TASK_SWITCH\"}。",
   "Detect Agent Thrashing": "检测智能体反复失败",
-  "Detects when an agent is failing repeatedly by tracking tool-result outcomes in a rolling window. Fires when consecutive errors or the error rate crosses a threshold.":
-    "通过在滚动窗口中跟踪工具结果来检测智能体是否反复失败。当连续错误或错误率超过阈值时触发。",
-  "Number of consecutive tool errors before the policy fires. Set to 0 to disable the consecutive check.":
-    "策略触发前的连续工具错误数。设为 0 以禁用连续检查。",
-  "Rolling window size for the error-rate check. Defaults to 10.":
-    "错误率检查的滚动窗口大小。默认为 10。",
-  "Fraction of errors within the window that triggers the policy (0.0–1.0). Set to 0 to disable the rate check.":
-    "窗口内触发策略的错误比例（0.0–1.0）。设为 0 以禁用比例检查。",
-  "Response when thrashing is detected. ASK escalates to the user (default); DENY blocks the next tool call.":
-    "检测到反复失败时的响应。ASK 升级给用户（默认）；DENY 阻止下一个工具调用。",
+  "Detects when an agent is failing repeatedly by tracking tool-result outcomes in a rolling window. Fires when consecutive errors or the error rate crosses a threshold.": "通过在滚动窗口中跟踪工具结果来检测智能体是否反复失败。当连续错误或错误率超过阈值时触发。",
+  "Number of consecutive tool errors before the policy fires. Set to 0 to disable the consecutive check.": "策略触发前的连续工具错误数。设为 0 以禁用连续检查。",
+  "Rolling window size for the error-rate check. Defaults to 10.": "错误率检查的滚动窗口大小。默认为 10。",
+  "Fraction of errors within the window that triggers the policy (0.0–1.0). Set to 0 to disable the rate check.": "窗口内触发策略的错误比例（0.0–1.0）。设为 0 以禁用比例检查。",
+  "Response when thrashing is detected. ASK escalates to the user (default); DENY blocks the next tool call.": "检测到反复失败时的响应。ASK 升级给用户（默认）；DENY 阻止下一个工具调用。",
   "Block Dangerous Shell Commands": "阻止危险 Shell 命令",
-  "Allows safe shell commands, applies a configurable ASK or DENY action to recoverable risky commands, and hard-DENYs catastrophic commands.":
-    "允许安全的 Shell 命令，对可恢复的高风险命令应用可配置的 ASK 或 DENY 操作，并对灾难性命令硬性 DENY。",
-  "Controls recoverable risky commands such as ordinary pushes, scoped recursive deletes, PR merges, and git force operations.":
-    "控制可恢复的高风险命令，例如普通推送、限定范围的递归删除、PR 合并和 git 强制操作。",
-  "Action when gate_pushes is true: ASK prompts the user before running the command; DENY blocks it immediately.":
-    "gate_pushes 为 true 时的操作：ASK 在运行命令前提示用户；DENY 立即阻止。",
-  "Message shown when the policy returns DENY, including catastrophic commands and recoverable commands configured to DENY.":
-    "策略返回 DENY 时显示的消息，包括灾难性命令和配置为 DENY 的可恢复命令。",
+  "Allows safe shell commands, applies a configurable ASK or DENY action to recoverable risky commands, and hard-DENYs catastrophic commands.": "允许安全的 Shell 命令，对可恢复的高风险命令应用可配置的 ASK 或 DENY 操作，并对灾难性命令硬性 DENY。",
+  "Controls recoverable risky commands such as ordinary pushes, scoped recursive deletes, PR merges, and git force operations.": "控制可恢复的高风险命令，例如普通推送、限定范围的递归删除、PR 合并和 git 强制操作。",
+  "Action when gate_pushes is true: ASK prompts the user before running the command; DENY blocks it immediately.": "gate_pushes 为 true 时的操作：ASK 在运行命令前提示用户；DENY 立即阻止。",
+  "Message shown when the policy returns DENY, including catastrophic commands and recoverable commands configured to DENY.": "策略返回 DENY 时显示的消息，包括灾难性命令和配置为 DENY 的可恢复命令。",
   "Limit Sub-Agent Dispatches Per Turn": "限制每轮子智能体派发",
-  "Limits the number of sub-agent dispatches per turn to prevent runaway fan-out":
-    "限制每轮子智能体派发次数，防止失控的扇出",
+  "Limits the number of sub-agent dispatches per turn to prevent runaway fan-out": "限制每轮子智能体派发次数，防止失控的扇出",
   "Require Purpose on Sub-Agent Dispatches": "要求子智能体派发声明用途",
-  "Requires every sub-agent dispatch to declare a purpose (implement, review, explore, search)":
-    "要求每个子智能体派发声明用途（implement、review、explore、search）",
+  "Requires every sub-agent dispatch to declare a purpose (implement, review, explore, search)": "要求每个子智能体派发声明用途（implement、review、explore、search）",
   "Restrict Writes to Git Worktree": "限制写入 Git Worktree",
-  "Blocks file writes (sys_os_write/edit, Claude/Codex native Write/Edit, and Pi native write/edit) outside the active git worktree.":
-    "阻止在活动 git worktree 之外进行文件写入（sys_os_write/edit、Claude/Codex 原生 Write/Edit 和 Pi 原生 write/edit）。",
+  "Blocks file writes (sys_os_write/edit, Claude/Codex native Write/Edit, and Pi native write/edit) outside the active git worktree.": "阻止在活动 git worktree 之外进行文件写入（sys_os_write/edit、Claude/Codex 原生 Write/Edit 和 Pi 原生 write/edit）。",
   "Report-Only (Deny File Writes)": "仅报告（拒绝文件写入）",
-  "Denies every file-mutating tool (sys_os_write/edit, Claude/Codex native Write/Edit/MultiEdit, and Pi native write/edit) in report-only mode.":
-    "以仅报告模式拒绝每个修改文件的工具（sys_os_write/edit、Claude/Codex 原生 Write/Edit/MultiEdit 和 Pi 原生 write/edit）。",
+  "Denies every file-mutating tool (sys_os_write/edit, Claude/Codex native Write/Edit/MultiEdit, and Pi native write/edit) in report-only mode.": "以仅报告模式拒绝每个修改文件的工具（sys_os_write/edit、Claude/Codex 原生 Write/Edit/MultiEdit 和 Pi 原生 write/edit）。",
   "Limit Tool Calls Per Session": "限制每会话工具调用次数",
   "Detect Tool Call Retry Loops": "检测工具调用重试循环",
   "Require Approval for File & Shell Operations": "文件与 Shell 操作需审批",
@@ -1298,89 +1142,50 @@ export const zhCN: Record<string, string> = {
   "session(s)": "会话",
   "Name (optional)": "名称（可选）",
   "Git worktree (optional)": "Git worktree（可选）",
-  "Route through an OpenAI-compatible proxy (e.g. OpenRouter).":
-    "通过兼容 OpenAI 的代理路由（例如 OpenRouter）。",
-  "This directory differs from the original session's. Earlier file references in the transcript may not apply — the agent will need to re-orient.":
-    "此目录与原会话不同。会话记录中较早的文件引用可能不适用 — 智能体需要重新定位。",
-  "On a fresh install you set the first admin's password yourself — no credential is auto-generated. A brand-new instance shows a Create-admin form instead of this one; the password can also be pre-seeded with":
-    "全新安装时，您自己设置第一位管理员的密码 — 不会自动生成凭据。全新的实例会显示创建管理员表单，而不是此页面；密码也可以通过以下方式预置：",
-  "A single-use invite URL will be created. Share it with the person you want to add.":
-    "将创建一个一次性的邀请链接。请与您要添加的人员分享。",
-  "This deletes the user account and revokes all their session permissions. Sessions they owner are kept but become unshareable, and their comments remain.":
-    "这将删除用户账号并撤销其所有会话权限。他们拥有的会话会保留但无法分享，其评论也会保留。",
-  "This removes the global policy from all sessions. Existing session-level policies with the same handler are not affected.":
-    "这将从所有会话中移除全局策略。具有相同处理器的现有会话级策略不受影响。",
-  "For security, a custom path can only be set from the connect screen — this prevents a compromised web session from redirecting a local CLI install.":
-    "出于安全考虑，自定义路径只能从连接页面设置 — 这可以防止被入侵的网页会话重定向本地 CLI 安装。",
-  "Control whether users on this server can share sessions with others. Applies server-wide and to every session.":
-    "控制此服务器上的用户是否可以与他人分享会话。适用于整个服务器及每个会话。",
-  "Allow sharing a session with anyone who has the link (public read access). When sharing is on, session owners can also share with specific people.":
-    "允许与拥有链接的任何人分享会话（公开只读访问）。分享开启后，会话所有者也可以与特定人员分享。",
-  "This directory differs from the original session's. Earlier file references in the conversation may not resolve here.":
-    "此目录与原会话不同。会话中较早的文件引用可能无法在此处解析。",
-  "Danger: this session runs Codex with approvals and the sandbox disabled. It can edit any file and run any command without asking.":
-    "危险：此会话以关闭审批和沙箱的方式运行 Codex。它可以不经询问编辑任何文件并运行任何命令。",
-  "Cloned into the sandbox as the session's working directory. Leave blank to use the sandbox default.":
-    "克隆到沙箱中作为会话的工作目录。留空则使用沙箱默认值。",
-  "New branch name, or pick an existing worktree. Leave blank to start directly in the workspace.":
-    "新分支名称，或选择现有 worktree。留空则直接在工作区中开始。",
-  "Codex will run with approvals and the sandbox disabled — it can edit any file and run any command without asking. Use only with trusted conversations.":
-    "Codex 将以关闭审批和沙箱的方式运行 — 它可以不经询问编辑任何文件并运行任何命令。仅在与可信的会话中使用。",
-  "Couldn't load this project's settings. Close and reopen to try again — saving is disabled until they load.":
-    "无法加载此项目的设置。关闭并重新打开以重试 — 在加载完成前保存已禁用。",
-  "This clone hasn't picked a working directory yet. Choose a host and directory to continue.":
-    "此克隆尚未选择工作目录。请选择主机和目录以继续。",
-  "The original session's host is offline, so there's nothing to launch a runner on. Reconnect the host or pick a different one.":
-    "原会话的主机已离线，因此没有可启动 runner 的目标。请重新连接主机或选择其他主机。",
-  "working in this directory. Write operations may conflict. Name a git branch to work in an isolated copy.":
-    "在此目录中工作。写入操作可能冲突。命名一个 git 分支以在隔离副本中工作。",
-  "Creates a git worktree for a new branch in an isolated directory — keeps the clone from affecting the original session's working tree.":
-    "在隔离目录中为新分支创建 git worktree — 防止克隆影响原会话的工作树。",
-  "Continue this session on a different agent. The conversation, comments, and files stay; the new agent starts fresh from here.":
-    "在其他智能体上继续此会话。会话、评论和文件会保留；新智能体将从此处全新开始。",
-  "This file is too large to load fully — showing a truncated preview. Editing is disabled to avoid accidental corruption.":
-    "此文件太大无法完整加载 — 正在显示截断预览。为避免意外损坏，编辑已禁用。",
+  "Route through an OpenAI-compatible proxy (e.g. OpenRouter).": "通过兼容 OpenAI 的代理路由（例如 OpenRouter）。",
+  "This directory differs from the original session's. Earlier file references in the transcript may not apply — the agent will need to re-orient.": "此目录与原会话不同。会话记录中较早的文件引用可能不适用 — 智能体需要重新定位。",
+  "On a fresh install you set the first admin's password yourself — no credential is auto-generated. A brand-new instance shows a Create-admin form instead of this one; the password can also be pre-seeded with": "全新安装时，您自己设置第一位管理员的密码 — 不会自动生成凭据。全新的实例会显示创建管理员表单，而不是此页面；密码也可以通过以下方式预置：",
+  "A single-use invite URL will be created. Share it with the person you want to add.": "将创建一个一次性的邀请链接。请与您要添加的人员分享。",
+  "This deletes the user account and revokes all their session permissions. Sessions they owner are kept but become unshareable, and their comments remain.": "这将删除用户账号并撤销其所有会话权限。他们拥有的会话会保留但无法分享，其评论也会保留。",
+  "This removes the global policy from all sessions. Existing session-level policies with the same handler are not affected.": "这将从所有会话中移除全局策略。具有相同处理器的现有会话级策略不受影响。",
+  "For security, a custom path can only be set from the connect screen — this prevents a compromised web session from redirecting a local CLI install.": "出于安全考虑，自定义路径只能从连接页面设置 — 这可以防止被入侵的网页会话重定向本地 CLI 安装。",
+  "Control whether users on this server can share sessions with others. Applies server-wide and to every session.": "控制此服务器上的用户是否可以与他人分享会话。适用于整个服务器及每个会话。",
+  "Allow sharing a session with anyone who has the link (public read access). When sharing is on, session owners can also share with specific people.": "允许与拥有链接的任何人分享会话（公开只读访问）。分享开启后，会话所有者也可以与特定人员分享。",
+  "This directory differs from the original session's. Earlier file references in the conversation may not resolve here.": "此目录与原会话不同。会话中较早的文件引用可能无法在此处解析。",
+  "Danger: this session runs Codex with approvals and the sandbox disabled. It can edit any file and run any command without asking.": "危险：此会话以关闭审批和沙箱的方式运行 Codex。它可以不经询问编辑任何文件并运行任何命令。",
+  "Cloned into the sandbox as the session's working directory. Leave blank to use the sandbox default.": "克隆到沙箱中作为会话的工作目录。留空则使用沙箱默认值。",
+  "New branch name, or pick an existing worktree. Leave blank to start directly in the workspace.": "新分支名称，或选择现有 worktree。留空则直接在工作区中开始。",
+  "Codex will run with approvals and the sandbox disabled — it can edit any file and run any command without asking. Use only with trusted conversations.": "Codex 将以关闭审批和沙箱的方式运行 — 它可以不经询问编辑任何文件并运行任何命令。仅在与可信的会话中使用。",
+  "Couldn't load this project's settings. Close and reopen to try again — saving is disabled until they load.": "无法加载此项目的设置。关闭并重新打开以重试 — 在加载完成前保存已禁用。",
+  "This clone hasn't picked a working directory yet. Choose a host and directory to continue.": "此克隆尚未选择工作目录。请选择主机和目录以继续。",
+  "The original session's host is offline, so there's nothing to launch a runner on. Reconnect the host or pick a different one.": "原会话的主机已离线，因此没有可启动 runner 的目标。请重新连接主机或选择其他主机。",
+  "working in this directory. Write operations may conflict. Name a git branch to work in an isolated copy.": "在此目录中工作。写入操作可能冲突。命名一个 git 分支以在隔离副本中工作。",
+  "Creates a git worktree for a new branch in an isolated directory — keeps the clone from affecting the original session's working tree.": "在隔离目录中为新分支创建 git worktree — 防止克隆影响原会话的工作树。",
+  "Continue this session on a different agent. The conversation, comments, and files stay; the new agent starts fresh from here.": "在其他智能体上继续此会话。会话、评论和文件会保留；新智能体将从此处全新开始。",
+  "This file is too large to load fully — showing a truncated preview. Editing is disabled to avoid accidental corruption.": "此文件太大无法完整加载 — 正在显示截断预览。为避免意外损坏，编辑已禁用。",
   "What should we work on?": "我们应该做什么？",
   "'s defaults (different provider).": "的默认设置（不同提供商）。",
   "), unless an admin set a different one.": "），除非管理员设置了其他值。",
   "Git worktree branch (optional)": "Git worktree 分支（可选）",
-  "A single-use invite URL will be created. Share it with the person you want to add.\n              They'll choose their own username and password when they redeem it.":
-    "将创建一个一次性的邀请链接。请与您要添加的人员分享。他们在兑换时会自行选择用户名和密码。",
-  'Allow sharing a session with anyone who has the link (public read access). When\n                  off, the Share dialog\'s "Public access" toggle is hidden and new public grants are\n                  rejected; sessions already shared publicly stay public until revoked.':
-    "允许与拥有链接的任何人分享会话（公开只读访问）。关闭时，分享对话框中的“公开访问”开关会被隐藏，新的公开授权会被拒绝；已公开分享的会话在撤销前保持公开。",
-  "Cloned into the sandbox as the session's working directory. Leave blank to\n                        start in an empty workspace.":
-    "克隆到沙箱中作为会话的工作目录。留空则在空工作区中开始。",
-  "Codex will run with approvals and the sandbox disabled — it can edit any file and\n                run any command without asking.":
-    "Codex 将以关闭审批和沙箱的方式运行 — 它可以不经询问编辑任何文件并运行任何命令。",
-  "Continue this session on a different agent. The conversation, comments, and files stay;\n            the next message runs on the new agent.":
-    "在其他智能体上继续此会话。会话、评论和文件会保留；下一条消息将在新智能体上运行。",
-  "Control whether users on this server can share sessions with others. Applies server-wide\n            and takes effect immediately. Changes affect only new shares — existing grants\n            (including already-public sessions) keep working until revoked.":
-    "控制此服务器上的用户是否可以与他人分享会话。适用于整个服务器并立即生效。更改只影响新的分享 — 现有授权（包括已公开的会话）在撤销前保持有效。",
-  "Couldn't load this project's settings. Close and reopen to try again — saving is\n              disabled so your existing defaults aren't overwritten.":
-    "无法加载此项目的设置。关闭并重新打开以重试 — 为避免覆盖现有默认值，保存已禁用。",
-  "Creates a git worktree for a new branch in an isolated directory — keeps the clone\n                from fighting the original over the same files. Leave blank to start in the picked\n                directory.":
-    "在隔离目录中为新分支创建 git worktree — 防止克隆与原会话争夺相同文件。留空则在所选目录中开始。",
-  "For security, a custom path can only be set from the connect screen — this prevents a\n            connected server from pointing the app at a different binary. Open it from the Server\n            menu (Change Server…) and use the settings gear.":
-    "出于安全考虑，自定义路径只能从连接页面设置 — 这可以防止已连接的服务器将应用指向其他二进制文件。请从服务器菜单（切换服务器…）打开，并使用设置齿轮。",
-  "New branch name, or pick an existing worktree. Leave blank to start directly\n                        in the working directory.":
-    "新分支名称，或选择现有 worktree。留空则直接在工作目录中开始。",
+  "A single-use invite URL will be created. Share it with the person you want to add.\n              They'll choose their own username and password when they redeem it.": "将创建一个一次性的邀请链接。请与您要添加的人员分享。他们在兑换时会自行选择用户名和密码。",
+  "Allow sharing a session with anyone who has the link (public read access). When\n                  off, the Share dialog's \"Public access\" toggle is hidden and new public grants are\n                  rejected; sessions already shared publicly stay public until revoked.": "允许与拥有链接的任何人分享会话（公开只读访问）。关闭时，分享对话框中的“公开访问”开关会被隐藏，新的公开授权会被拒绝；已公开分享的会话在撤销前保持公开。",
+  "Cloned into the sandbox as the session's working directory. Leave blank to\n                        start in an empty workspace.": "克隆到沙箱中作为会话的工作目录。留空则在空工作区中开始。",
+  "Codex will run with approvals and the sandbox disabled — it can edit any file and\n                run any command without asking.": "Codex 将以关闭审批和沙箱的方式运行 — 它可以不经询问编辑任何文件并运行任何命令。",
+  "Continue this session on a different agent. The conversation, comments, and files stay;\n            the next message runs on the new agent.": "在其他智能体上继续此会话。会话、评论和文件会保留；下一条消息将在新智能体上运行。",
+  "Control whether users on this server can share sessions with others. Applies server-wide\n            and takes effect immediately. Changes affect only new shares — existing grants\n            (including already-public sessions) keep working until revoked.": "控制此服务器上的用户是否可以与他人分享会话。适用于整个服务器并立即生效。更改只影响新的分享 — 现有授权（包括已公开的会话）在撤销前保持有效。",
+  "Couldn't load this project's settings. Close and reopen to try again — saving is\n              disabled so your existing defaults aren't overwritten.": "无法加载此项目的设置。关闭并重新打开以重试 — 为避免覆盖现有默认值，保存已禁用。",
+  "Creates a git worktree for a new branch in an isolated directory — keeps the clone\n                from fighting the original over the same files. Leave blank to start in the picked\n                directory.": "在隔离目录中为新分支创建 git worktree — 防止克隆与原会话争夺相同文件。留空则在所选目录中开始。",
+  "For security, a custom path can only be set from the connect screen — this prevents a\n            connected server from pointing the app at a different binary. Open it from the Server\n            menu (Change Server…) and use the settings gear.": "出于安全考虑，自定义路径只能从连接页面设置 — 这可以防止已连接的服务器将应用指向其他二进制文件。请从服务器菜单（切换服务器…）打开，并使用设置齿轮。",
+  "New branch name, or pick an existing worktree. Leave blank to start directly\n                        in the working directory.": "新分支名称，或选择现有 worktree。留空则直接在工作目录中开始。",
   "Repository (optional)": "仓库（可选）",
-  "Send this password to the user out-of-band (e.g. Slack DM). It is shown only once.":
-    "请通过带外方式（例如 Slack 私信）将此密码发送给用户。它只显示一次。",
-  "Some sessions couldn't be archived (you may not own them); the rest were archived.":
-    "部分会话无法归档（您可能不是所有者）；其余已归档。",
-  "The original session's host is offline, so there's nothing to launch a runner on.\n              Reconnect it from your terminal — then send your message again to pick a directory.":
-    "原会话的主机已离线，因此没有可启动 runner 的目标。请从您的终端重新连接 — 然后再次发送消息以选择目录。",
-  "This clone hasn't picked a working directory yet. Choose a host and directory to\n            continue the conversation against your files.":
-    "此克隆尚未选择工作目录。请选择主机和目录，以便针对您的文件继续会话。",
-  "This deletes the user account and revokes all their session permissions. Sessions they\n              own become inaccessible unless another user has manage rights on them. This action\n              cannot be undone.":
-    "这将删除用户账号并撤销其所有会话权限。他们拥有的会话将无法访问，除非其他用户对这些会话拥有管理权限。此操作无法撤销。",
-  "This file is too large to load fully — showing a truncated preview. Editing is disabled to\n        avoid overwriting the rest of the file; download it to view or edit the full content.":
-    "此文件太大无法完整加载 — 正在显示截断预览。为避免意外损坏，编辑已禁用；请下载以查看或编辑完整内容。",
-  "This removes the global policy from all sessions. Existing session-level policies with\n              the same handler are unaffected.":
-    "这将从所有会话中移除全局策略。具有相同处理器的现有会话级策略不受影响。",
-  "working in this directory. Write operations may conflict. Name a git branch\n                        below to work in an isolated copy.":
-    "在此目录中工作。写入操作可能冲突。请在下方命名一个 git 分支以在隔离副本中工作。",
+  "Send this password to the user out-of-band (e.g. Slack DM). It is shown only once.": "请通过带外方式（例如 Slack 私信）将此密码发送给用户。它只显示一次。",
+  "Some sessions couldn't be archived (you may not own them); the rest were archived.": "部分会话无法归档（您可能不是所有者）；其余已归档。",
+  "The original session's host is offline, so there's nothing to launch a runner on.\n              Reconnect it from your terminal — then send your message again to pick a directory.": "原会话的主机已离线，因此没有可启动 runner 的目标。请从您的终端重新连接 — 然后再次发送消息以选择目录。",
+  "This clone hasn't picked a working directory yet. Choose a host and directory to\n            continue the conversation against your files.": "此克隆尚未选择工作目录。请选择主机和目录，以便针对您的文件继续会话。",
+  "This deletes the user account and revokes all their session permissions. Sessions they\n              own become inaccessible unless another user has manage rights on them. This action\n              cannot be undone.": "这将删除用户账号并撤销其所有会话权限。他们拥有的会话将无法访问，除非其他用户对这些会话拥有管理权限。此操作无法撤销。",
+  "This file is too large to load fully — showing a truncated preview. Editing is disabled to\n        avoid overwriting the rest of the file; download it to view or edit the full content.": "此文件太大无法完整加载 — 正在显示截断预览。为避免意外损坏，编辑已禁用；请下载以查看或编辑完整内容。",
+  "This removes the global policy from all sessions. Existing session-level policies with\n              the same handler are unaffected.": "这将从所有会话中移除全局策略。具有相同处理器的现有会话级策略不受影响。",
+  "working in this directory. Write operations may conflict. Name a git branch\n                        below to work in an isolated copy.": "在此目录中工作。写入操作可能冲突。请在下方命名一个 git 分支以在隔离副本中工作。",
   "binary missing": "缺少二进制文件",
   "needs setup": "需要配置",
   "needs auth": "需要认证",
@@ -1388,12 +1193,10 @@ export const zhCN: Record<string, string> = {
   "Other agents": "其他智能体",
   "Config (YAML)": "配置 (YAML)",
   "Delete this agent?": "删除此智能体？",
-  "Agents registered on this server. Expand one to view or edit its config.":
-    "此服务器上注册的智能体。展开可查看或编辑其配置。",
+  "Agents registered on this server. Expand one to view or edit its config.": "此服务器上注册的智能体。展开可查看或编辑其配置。",
   "Sub-agents": "子智能体",
   "Model providers": "模型提供商",
-  "Configure OpenAI-compatible endpoints used by pi, goose, codex, and claude-sdk.":
-    "配置 pi、goose、codex 和 claude-sdk 使用的 OpenAI 兼容端点。",
+  "Configure OpenAI-compatible endpoints used by pi, goose, codex, and claude-sdk.": "配置 pi、goose、codex 和 claude-sdk 使用的 OpenAI 兼容端点。",
   "New provider": "新建提供商",
   "Edit provider": "编辑提供商",
   "Base URL": "基础 URL",
@@ -1406,16 +1209,205 @@ export const zhCN: Record<string, string> = {
   "What this orchestrator does": "此编排器的用途",
   "Add sub-agent": "添加子智能体",
   "Create orchestrator": "创建编排器",
-  Hosts: "主机",
-  "Machines registered as hosts on this server and the harnesses they joined.":
-    "注册为此服务器主机（host）的机器，以及它们已加入的 harness。",
-  Harnesses: "Harness",
-  Available: "可用",
+  "Machines registered as hosts on this server and the harnesses they joined.": "注册为此服务器主机（host）的机器，以及它们已加入的 harness。",
   "Not installed": "未安装",
   "Binary missing": "缺少二进制文件",
   "Needs auth": "需要认证",
   "Version too low": "版本过旧",
   "Needs attention": "需关注",
   "No hosts connected yet": "还没有连接的主机",
-  available: "可用",
+  "Account": "账号",
+  "Actions": "操作",
+  "Active": "进行中",
+  "Add": "添加",
+  "Addressed": "已处理",
+  "Admin": "管理员",
+  "Agent": "智能体",
+  "Agents": "智能体",
+  "All": "全部",
+  "Alt": "Alt",
+  "Appearance": "外观",
+  "Approval": "审批",
+  "Approve": "批准",
+  "Approved": "已批准",
+  "Archive": "归档",
+  "Archived": "已归档",
+  "Args": "参数",
+  "Arguments": "参数",
+  "Asleep": "休眠中",
+  "Auto": "自动",
+  "Automations": "自动化",
+  "Back": "返回",
+  "Browser": "浏览器",
+  "Cancel": "取消",
+  "Change": "更改",
+  "Changed": "已更改",
+  "Chat": "聊天",
+  "Clear": "清除",
+  "Click": "点击",
+  "Clone": "克隆",
+  "Close": "关闭",
+  "Closed": "已关闭",
+  "Collapse": "折叠",
+  "Collapsed": "已折叠",
+  "Command": "命令",
+  "Comments": "评论",
+  "Config": "配置",
+  "Configure": "配置",
+  "Connecting": "连接中",
+  "Contrast": "对比度",
+  "Conversations": "会话列表",
+  "Copied": "已复制",
+  "Copy": "复制",
+  "Cost": "费用",
+  "Create": "创建",
+  "Ctrl": "Ctrl",
+  "Custom": "自定义",
+  "Daily": "每天",
+  "Dark": "深色",
+  "Default": "默认",
+  "Delete": "删除",
+  "Description": "描述",
+  "Desktop": "桌面端",
+  "Disabled": "已禁用",
+  "Dismiss": "关闭",
+  "Done": "完成",
+  "Edit": "编辑",
+  "Effort": "推理强度",
+  "English": "English",
+  "Error": "错误",
+  "Expand": "展开",
+  "External": "外部",
+  "Filename": "文件名",
+  "Files": "文件",
+  "Forward": "前进",
+  "Found": "已找到",
+  "Frequency": "频率",
+  "Git": "Git",
+  "Goal": "目标",
+  "Grant": "授权",
+  "Harness": "运行时",
+  "Harnesses": "运行时",
+  "Help": "帮助",
+  "Home": "首页",
+  "Host": "主机",
+  "Hosts": "主机",
+  "Idle": "空闲",
+  "Inbox": "收件箱",
+  "Input": "输入",
+  "Install": "安装",
+  "Interrupted": "已中断",
+  "Invite": "邀请",
+  "Language": "语言",
+  "Level": "级别",
+  "Light": "浅色",
+  "Loading": "加载中",
+  "Logs": "日志",
+  "Matches": "匹配项",
+  "Max": "最大",
+  "Member": "成员",
+  "Members": "成员",
+  "Minute": "分钟",
+  "Mode": "模式",
+  "Model": "模型",
+  "More": "更多",
+  "Name": "名称",
+  "Navigation": "导航",
+  "Next": "下一步",
+  "Normal": "标准",
+  "Objective": "目标",
+  "Offline": "离线",
+  "Omnigent": "Omnigent",
+  "Open": "打开",
+  "Optional": "可选",
+  "Output": "输出",
+  "Owner": "所有者",
+  "Parameters": "参数",
+  "Password": "密码",
+  "Pause": "暂停",
+  "Paused": "已暂停",
+  "Permission": "权限",
+  "Permissions": "权限",
+  "Pinned": "已置顶",
+  "Plan": "计划",
+  "Policies": "策略",
+  "Preview": "预览",
+  "Project": "项目",
+  "Projects": "项目",
+  "Prompt": "提示词",
+  "Question": "问题",
+  "Quote": "引用",
+  "Read": "只读",
+  "Recent": "最近",
+  "Reconnect": "重新连接",
+  "Refresh": "刷新",
+  "Reject": "拒绝",
+  "Rejected": "已拒绝",
+  "Reload": "重新加载",
+  "Remove": "移除",
+  "Rename": "重命名",
+  "Repository": "仓库",
+  "Reset": "重置",
+  "Response": "回复",
+  "Resume": "恢复",
+  "Retry": "重试",
+  "Retrying": "重试中",
+  "Revoke": "撤销",
+  "Role": "角色",
+  "Run": "运行",
+  "Save": "保存",
+  "Saved": "已保存",
+  "Search": "搜索",
+  "Select": "选择",
+  "Servers": "服务器",
+  "Sessions": "会话",
+  "Settings": "设置",
+  "Share": "分享",
+  "Sharing": "分享",
+  "Shell": "Shell",
+  "Shells": "Shell",
+  "Size": "大小",
+  "Source": "源码",
+  "Steer": "引导",
+  "Strikethrough": "删除线",
+  "Submit": "提交",
+  "Suggestions": "建议",
+  "Switch": "切换",
+  "System": "系统",
+  "Tasks": "任务",
+  "Terminal": "终端",
+  "Terminals": "终端",
+  "Theme": "主题",
+  "Time": "时间",
+  "Tools": "工具",
+  "Transport": "传输方式",
+  "Unarchive": "取消归档",
+  "Unpin": "取消置顶",
+  "Unsaved": "未保存",
+  "Updates": "更新",
+  "Username": "用户名",
+  "Verdict": "判定",
+  "Weekdays": "工作日",
+  "Weekly": "每周",
+  "Workspace": "工作区",
+  "You": "您",
+  "Headers": "表头",
+  "Prev": "上一个",
+  "Hourly": "每小时",
+  "Orchestrator": "编排器",
+  "Spawn": "派发",
+  "Yes": "是",
+  "No": "否",
+  "Created": "创建时间",
+  "Orchestrators": "编排器",
+  "Interrupt": "中断",
+  "Send": "发送",
+  "Available": "可用",
+  "Online": "在线",
+  "available": "可用",
+  "Available harnesses": "可用的运行时",
+  "None": "无",
+  "Kind": "类型",
+  "Family": "家族",
+  "Accent": "强调色",
 };
