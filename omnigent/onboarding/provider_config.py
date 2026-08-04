@@ -164,6 +164,11 @@ _HARNESS_FAMILY: dict[str, str] = {
     # normally maps it down via _provider_harness_name; accept both spellings
     # here so callers that pass the spec/CLI spelling directly resolve too.
     "openai-agents-sdk": OPENAI_FAMILY,
+    # Goose's ACP engine is OpenAI-compatible (custom_providers JSON uses
+    # ``engine: openai``); routing the family lets Omnigent pick a provider
+    # for it and thread ``HARNESS_GOOSE_PROVIDER`` so a company gateway can
+    # serve goose too.
+    "goose": OPENAI_FAMILY,
     # Antigravity is Gemini-native but routes generic-provider traffic over
     # the OpenAI-compatible wire, so it consumes the ``openai`` family.
     "antigravity": OPENAI_FAMILY,

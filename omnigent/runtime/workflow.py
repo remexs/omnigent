@@ -1486,6 +1486,30 @@ def _build_goose_spawn_env(
     model = _resolve_spec_model(spec)
     if model is not None and not model.startswith(("databricks-", "databricks/")):
         env["HARNESS_GOOSE_MODEL"] = model
+    # Provider routing (company gateway / custom provider): when a provider
+    # serves the goose family (config.yaml ``providers:`` with a default, or
+    # spec.executor.auth), thread it through as GOOSE_PROVIDER so goose uses
+    # that provider instead of its own ``active_provider``. When none resolves
+    # (empty providers block, no default), leave goose to its own config — the
+    # provider stays whatever ``goose configure`` selected. The provider's
+    # api_key is injected as the env var the goose custom_provider JSON names
+    # (``api_key_env``), so the key never lives in the JSON file.
+    provider = _resolve_provider_for_build(spec, harness_type="goose", for_launch=True)
+    if provider is not None:
+        env["HARNESS_GOOSE_PROVIDER"] = provider.name
+        # The resolved provider's api key (if any) as a bearer credential env
+        # var that goose custom-provider JSON can reference via api_key_env.
+        # Families hold a key *reference* (env:VAR / keychain:name); resolve it
+        # so the secret travels with the spawn without living in the JSON.
+        from omnigent.onboarding.provider_config import resolve_secret
+
+        for fam in provider.families.values():
+            if fam.api_key_ref:
+                env.setdefault("GOOSE_API_KEY", resolve_secret(fam.api_key_ref))
+                break
+            if fam.api_key:
+                env.setdefault("GOOSE_API_KEY", fam.api_key)
+                break
     # Session workspace (selected working folder). ``None`` lets the goose
     # harness fall back to OMNIGENT_RUNNER_WORKSPACE — see HARNESS_GOOSE_CWD.
     if cwd is not None:
