@@ -287,7 +287,10 @@ export function ProvidersPage() {
 
       <div className="mt-4 space-y-2">
         {sorted.map((p) => (
-          <Card key={p.name} className="flex items-center justify-between gap-2 p-3">
+          <div
+            key={p.name}
+            className="flex items-center justify-between gap-2 rounded-xl bg-card p-3 text-sm text-card-foreground ring-1 ring-foreground/10 shadow-sm"
+          >
             <div className="flex min-w-0 items-center gap-2">
               <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
               <span className="truncate font-medium">{p.name}</span>
@@ -311,7 +314,7 @@ export function ProvidersPage() {
                 <Trash2Icon className="size-3.5" />
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </section>

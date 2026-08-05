@@ -514,9 +514,9 @@ export function SkillsPage() {
 
       <div className="mt-4 space-y-2">
         {sorted.map((s) => (
-          <Card
+          <div
             key={`${s.slug}-${s.agent ?? "global"}`}
-            className="flex cursor-pointer items-center justify-between gap-2 p-3 hover:bg-accent/50"
+            className="flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-card p-3 text-sm text-card-foreground ring-1 ring-foreground/10 shadow-sm hover:bg-accent/50"
             onClick={() => setDetailSkill(s)}
           >
             <div className="flex min-w-0 items-center gap-2">
@@ -551,7 +551,7 @@ export function SkillsPage() {
                 <Trash2Icon className="size-3.5" />
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
