@@ -128,27 +128,38 @@ def _materialize_zip(content: bytes, dest: Path) -> None:
     _logger.info("Materialized skill into %s", dest)
 
 
-def _skill_name_from_zip(content: bytes) -> str | None:
-    """Best-effort: read the frontmatter ``name`` from SKILL.md in the zip."""
+def _skill_frontmatter_from_zip(content: bytes) -> dict[str, object]:
+    """Best-effort: read the YAML frontmatter from SKILL.md in the zip."""
     import io
+
+    import yaml
 
     try:
         with zipfile.ZipFile(io.BytesIO(content)) as zf:
             if "SKILL.md" in zf.namelist():
                 text = zf.read("SKILL.md").decode("utf-8", errors="replace")
-                for line in text.splitlines()[:20]:
-                    stripped = line.strip()
-                    if stripped.startswith("name:"):
-                        return stripped.split(":", 1)[1].strip().strip("\"'")
+                if text.startswith("---"):
+                    parts = text.split("---", 2)
+                    if len(parts) >= 3:
+                        parsed = yaml.safe_load(parts[1]) or {}
+                        return parsed if isinstance(parsed, dict) else {}
     except Exception:  # noqa: BLE001 - best effort only
         pass
-    return None
+    return {}
+
+
+def _skill_name_from_zip(content: bytes) -> str | None:
+    """Best-effort: read the frontmatter ``name`` from SKILL.md in the zip."""
+    frontmatter = _skill_frontmatter_from_zip(content)
+    name = frontmatter.get("name")
+    return str(name) if name else None
 
 
 def _serialize_installed(entry: dict[str, Any]) -> dict[str, Any]:
     return {
         "slug": entry.get("slug"),
         "name": entry.get("name"),
+        "summary": entry.get("summary"),
         "version": entry.get("version"),
         "agent": entry.get("agent"),
         "registry": entry.get("registry"),
@@ -168,6 +179,148 @@ def create_skills_router(*, auth_provider: AuthProvider | None = None) -> APIRou
         _require_user(request, auth_provider)
         record = _load_skills_record()
         return {"skills": [_serialize_installed(e) for e in record["installed"]]}
+
+    @router.get("/skills/registry")
+    async def list_registry_skills(request: Request) -> dict:
+        """Proxy the SkillHub skill list for the Web UI (CORS-free).
+
+        The browser can't reach the registry directly (no CORS headers), so
+        the server relays ``GET /api/v1/skills`` from the configured registry.
+        ``registry`` query param overrides the default. Optionally filters by
+        ``q`` (substring on slug/displayName/summary).
+        """
+        _require_user(request, auth_provider)
+        registry = (request.query_params.get("registry") or DEFAULT_SKILL_REGISTRY).strip()
+        q = (request.query_params.get("q") or "").strip().lower()
+        import httpx
+
+        url = f"{registry.rstrip('/')}/api/v1/skills"
+        try:
+            resp = httpx.get(url, timeout=15.0, follow_redirects=True)
+            resp.raise_for_status()
+            body = resp.json()
+        except Exception as exc:  # noqa: BLE001 - surface registry errors
+            raise OmnigentError(
+                f"failed to reach SkillHub {registry}: {exc}",
+                code=ErrorCode.INTERNAL_ERROR,
+            ) from exc
+        items = body.get("items", []) if isinstance(body, dict) else []
+        out = []
+        for it in items:
+            slug = it.get("slug", "")
+            display = it.get("displayName", "")
+            summary = it.get("summary", "")
+            if q and q not in slug.lower() and q not in display.lower() and q not in (summary or "").lower():
+                continue
+            ver = it.get("latestVersion") or {}
+            out.append(
+                {
+                    "slug": slug,
+                    "name": display,
+                    "summary": summary,
+                    "version": ver.get("version") if isinstance(ver, dict) else None,
+                    "stats": it.get("stats") or {},
+                }
+            )
+        return {"skills": out, "registry": registry}
+
+    @router.get("/skills/detail")
+    async def skill_detail(request: Request) -> dict:
+        """Detail of an installed skill (read from the materialized dir).
+
+        ``slug`` and optional ``agent`` identify the installed record; the
+        server reads the on-disk ``SKILL.md`` (frontmatter + body) plus the
+        file tree so the UI can show the full skill contents.
+        """
+        _require_user(request, auth_provider)
+        slug = (request.query_params.get("slug") or "").strip()
+        if not slug:
+            raise OmnigentError("slug is required", code=ErrorCode.INVALID_INPUT)
+        agent = (request.query_params.get("agent") or "").strip() or None
+
+        record = _load_skills_record()
+        entry = next(
+            (e for e in record["installed"] if e.get("slug") == slug and e.get("agent") == agent),
+            None,
+        )
+        if entry is None:
+            raise OmnigentError(
+                f"skill {slug!r} not installed" + (f" for agent {agent!r}" if agent else ""),
+                code=ErrorCode.NOT_FOUND,
+            )
+        target = Path(entry.get("target", ""))
+        if not target.is_dir():
+            raise OmnigentError(
+                f"skill dir missing: {target}",
+                code=ErrorCode.NOT_FOUND,
+            )
+
+        # SKILL.md frontmatter + body.
+        skill_md = target / "SKILL.md"
+        frontmatter: dict[str, object] = {}
+        body = ""
+        if skill_md.exists():
+            raw_text = skill_md.read_text(encoding="utf-8", errors="replace")
+            if raw_text.startswith("---"):
+                parts = raw_text.split("---", 2)
+                if len(parts) >= 3:
+                    import yaml
+
+                    try:
+                        frontmatter = yaml.safe_load(parts[1]) or {}
+                    except Exception:  # noqa: BLE001 - best effort
+                        frontmatter = {}
+                    if isinstance(frontmatter, dict):
+                        body = parts[2].strip()
+                    else:
+                        frontmatter = {}
+                        body = raw_text.strip()
+            else:
+                body = raw_text.strip()
+
+        # File tree (relative paths).
+        files: list[str] = []
+        for p in sorted(target.rglob("*")):
+            if p.is_file():
+                files.append(str(p.relative_to(target)))
+
+        return {
+            "slug": slug,
+            "agent": agent,
+            "target": str(target),
+            "frontmatter": frontmatter,
+            "body": body,
+            "files": files,
+            "installed_at": entry.get("installed_at"),
+        }
+
+    @router.get("/skills/registry/{namespace}/{name}")
+    async def registry_skill_detail(namespace: str, name: str, request: Request) -> dict:
+        """Proxy a single SkillHub skill's detail (CORS-free)."""
+        _require_user(request, auth_provider)
+        registry = (request.query_params.get("registry") or DEFAULT_SKILL_REGISTRY).strip()
+        import httpx
+
+        url = f"{registry.rstrip('/')}/api/v1/skills/{namespace}/{name}"
+        try:
+            resp = httpx.get(url, timeout=15.0, follow_redirects=True)
+            resp.raise_for_status()
+            body = resp.json()
+        except Exception as exc:  # noqa: BLE001 - surface registry errors
+            raise OmnigentError(
+                f"failed to reach SkillHub {registry}: {exc}",
+                code=ErrorCode.INTERNAL_ERROR,
+            ) from exc
+        data = body.get("data", body) if isinstance(body, dict) else {}
+        skill = data.get("skill", data) if isinstance(data, dict) else data
+        latest = data.get("latestVersion") if isinstance(data, dict) else None
+        return {
+            "slug": skill.get("slug") if isinstance(skill, dict) else None,
+            "name": skill.get("displayName") if isinstance(skill, dict) else None,
+            "summary": skill.get("summary") if isinstance(skill, dict) else None,
+            "version": latest.get("version") if isinstance(latest, dict) else None,
+            "changelog": latest.get("changelog") if isinstance(latest, dict) else None,
+        }
 
     @router.post("/skills/install")
     async def install_skill(request: Request) -> dict:
@@ -212,6 +365,22 @@ def create_skills_router(*, auth_provider: AuthProvider | None = None) -> APIRou
         dest = target / skill_name
         _materialize_zip(content, dest)
 
+        # Extract a one-line summary from SKILL.md frontmatter (description).
+        frontmatter = _skill_frontmatter_from_zip(content)
+        summary = frontmatter.get("description")
+        if not summary and dest.exists():
+            md = dest / "SKILL.md"
+            if md.exists():
+                import yaml
+
+                raw_text = md.read_text(encoding="utf-8", errors="replace")
+                if raw_text.startswith("---"):
+                    parts = raw_text.split("---", 2)
+                    if len(parts) >= 3:
+                        parsed = yaml.safe_load(parts[1]) or {}
+                        if isinstance(parsed, dict):
+                            summary = parsed.get("description")
+
         # Record.
         record = _load_skills_record()
         record["installed"] = [
@@ -222,6 +391,7 @@ def create_skills_router(*, auth_provider: AuthProvider | None = None) -> APIRou
         entry = {
             "slug": slug,
             "name": skill_name,
+            "summary": str(summary) if summary else None,
             "version": body.get("version") or "latest",
             "agent": agent,
             "registry": registry,

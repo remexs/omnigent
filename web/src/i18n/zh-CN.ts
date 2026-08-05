@@ -1621,4 +1621,11 @@ export const zhCN: Record<string, string> = {
   "Uninstall": "卸载",
   Global: "全局",
   "Tip: use the skillhub CLI to install skills directly to your machine's harness directories.": "提示：可使用 skillhub 命令行直接把技能安装到本机运行时目录。",
+  "Search SkillHub": "搜索 SkillHub",
+  "Search skills…": "搜索技能…",
+  "No skills found": "未找到技能",
+  "Selected skill": "已选技能",
+  "Show instructions": "查看指令",
+  "Hide instructions": "收起指令",
+  Metadata: "元数据",
 };
