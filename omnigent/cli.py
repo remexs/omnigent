@@ -5816,6 +5816,151 @@ _OS_ENV_HARNESSES: frozenset[str] = frozenset(
 )
 
 
+@cli.group("skill", invoke_without_command=True)
+@click.pass_context
+def skill(ctx: click.Context) -> None:
+    """Coordinate skill installs from a SkillHub registry.
+
+    Omnigent does not host skill content — skills are downloaded from a
+    SkillHub registry (e.g. ``@astron-team/skillhub``) and materialized into
+    an agent bundle (``~/.omnigent/agents/<agent>/skills/``) or the global
+    skill dir (``~/.omnigent/skills/``). This command talks to the Omnigent
+    server, which does the download + materialize + record.
+
+    \b
+    Examples:
+      omnigent skill list
+      omnigent skill install cwr/ssh-server-ops --agent backend
+      omnigent skill install cwr/ssh-server-ops
+      omnigent skill remove cwr/ssh-server-ops --agent backend
+    """
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+
+
+@skill.command("list")
+@click.option(
+    "--server",
+    default=None,
+    help="Omnigent server URL (defaults to configured server).",
+)
+def skill_list(server: str | None) -> None:
+    """List skills installed via the Omnigent server."""
+    import httpx
+
+    from omnigent.chat import _remote_headers
+
+    cfg = _load_effective_config()
+    base_url = _resolve_attach_server(server, cfg.get("server"))
+    if base_url is None:
+        startup = ensure_local_omnigent_server()
+        base_url = startup.url
+    base_url = base_url.rstrip("/")
+    with httpx.Client(
+        base_url=base_url, headers=_remote_headers(server_url=base_url), timeout=30.0
+    ) as client:
+        resp = client.get("/v1/skills")
+        if resp.status_code != 200:
+            raise click.ClickException(f"server error: {resp.status_code} {resp.text}")
+        skills = resp.json().get("skills", [])
+    if not skills:
+        click.echo("No skills installed.")
+        return
+    for s in skills:
+        agent = s.get("agent") or "global"
+        click.echo(
+            f"{s.get('slug'):<32} v{s.get('version') or '?'}  "
+            f"agent={agent:<16} {s.get('installed_at') or ''}"
+        )
+
+
+@skill.command("install")
+@click.argument("slug")
+@click.option(
+    "--agent",
+    default=None,
+    help="Install into this agent's bundle (e.g. backend) instead of global.",
+)
+@click.option(
+    "--registry",
+    default="http://192.168.10.86:4011",
+    help="SkillHub registry base URL.",
+)
+@click.option(
+    "--server",
+    default=None,
+    help="Omnigent server URL (defaults to configured server).",
+)
+def skill_install(slug: str, agent: str | None, registry: str, server: str | None) -> None:
+    """Install a skill from the SkillHub registry.
+
+    SLUG is ``namespace/name`` or ``namespace--name`` (e.g.
+    ``cwr/ssh-server-ops``).
+    """
+    import httpx
+
+    from omnigent.chat import _remote_headers
+
+    cfg = _load_effective_config()
+    base_url = _resolve_attach_server(server, cfg.get("server"))
+    if base_url is None:
+        startup = ensure_local_omnigent_server()
+        base_url = startup.url
+    base_url = base_url.rstrip("/")
+    with httpx.Client(
+        base_url=base_url, headers=_remote_headers(server_url=base_url), timeout=60.0
+    ) as client:
+        resp = client.post(
+            "/v1/skills/install",
+            json={"slug": slug, "agent": agent, "registry": registry},
+        )
+        if resp.status_code != 200:
+            raise click.ClickException(f"install failed: {resp.status_code} {resp.text}")
+        data = resp.json()
+    inst = data.get("installed", {})
+    click.echo(
+        f"Installed {inst.get('slug')} (v{inst.get('version')}) "
+        f"into {data.get('target')}"
+    )
+
+
+@skill.command("remove")
+@click.argument("slug")
+@click.option(
+    "--agent",
+    default=None,
+    help="Remove from this agent's bundle (default: global install).",
+)
+@click.option(
+    "--server",
+    default=None,
+    help="Omnigent server URL (defaults to configured server).",
+)
+def skill_remove(slug: str, agent: str | None, server: str | None) -> None:
+    """Uninstall a skill (delete materialized dir + drop record)."""
+    import httpx
+
+    from omnigent.chat import _remote_headers
+
+    cfg = _load_effective_config()
+    base_url = _resolve_attach_server(server, cfg.get("server"))
+    if base_url is None:
+        startup = ensure_local_omnigent_server()
+        base_url = startup.url
+    base_url = base_url.rstrip("/")
+    with httpx.Client(
+        base_url=base_url, headers=_remote_headers(server_url=base_url), timeout=30.0
+    ) as client:
+        resp = client.post(
+            "/v1/skills/remove",
+            json={"slug": slug, "agent": agent},
+        )
+        if resp.status_code != 200:
+            raise click.ClickException(f"remove failed: {resp.status_code} {resp.text}")
+        data = resp.json()
+    click.echo(f"Removed {data.get('removed')} (agent={data.get('agent') or 'global'})")
+
+
 def _validate_harness(harness: str) -> None:
     """
     Fail fast when *harness* is not a supported Omnigent harness.

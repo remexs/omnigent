@@ -60,6 +60,7 @@ from omnigent.server.performance_metrics import (
 )
 from omnigent.server.routes.builtin_agents import create_builtin_agents_router
 from omnigent.server.routes.providers import create_providers_router
+from omnigent.server.routes.skills import create_skills_router
 from omnigent.server.routes.comments import create_comments_router
 from omnigent.server.routes.default_policies import create_default_policies_router
 from omnigent.server.routes.dictation import create_dictation_router
@@ -1949,6 +1950,11 @@ def create_app(
         create_providers_router(auth_provider=auth_provider),
         prefix="/v1",
         tags=["providers"],
+    )
+    app.include_router(
+        create_skills_router(auth_provider=auth_provider),
+        prefix="/v1",
+        tags=["skills"],
     )
     app.include_router(
         create_harnesses_router(auth_provider=auth_provider),

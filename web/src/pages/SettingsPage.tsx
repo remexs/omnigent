@@ -173,6 +173,7 @@ import { cn } from "@/lib/utils";
 import { L, getLanguage, setLanguage, type Language } from "@/i18n";
 import { AgentsPage } from "./AgentsPage";
 import { ProvidersPage } from "./ProvidersPage";
+import { SkillsPage } from "./SkillsPage";
 import { HostsPage } from "./HostsPage";
 
 // Admin-only management surfaces, rendered as the Members / Policies settings
@@ -229,6 +230,7 @@ export function SettingsPage() {
       {section === "git" && <GitSection />}
       {section === "agents" && <AgentsPage />}
       {section === "providers" && <ProvidersPage />}
+      {section === "skills" && <SkillsPage />}
       {section === "hosts" && <HostsPage />}
       {section === "shortcuts" && <ShortcutsSection />}
       {section === "account" && hasAuthSession && <AccountSection />}
