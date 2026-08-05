@@ -1627,5 +1627,6 @@ export const zhCN: Record<string, string> = {
   "Selected skill": "已选技能",
   "Show instructions": "查看指令",
   "Hide instructions": "收起指令",
+  "Binary file — cannot preview.": "二进制文件——无法预览。",
   Metadata: "元数据",
 };

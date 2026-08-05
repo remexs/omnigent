@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookOpenIcon,
   DownloadIcon,
+  FileIcon,
+  FolderIcon,
   PlusIcon,
   RefreshCwIcon,
   SearchIcon,
@@ -72,9 +74,112 @@ async function fetchSkillDetail(slug: string, agent: string | null): Promise<Ski
   return (await res.json()) as SkillDetailWire;
 }
 
-/** Inline detail panel for an installed skill (SKILL.md + files). */
+async function fetchSkillFile(
+  slug: string,
+  agent: string | null,
+  path: string,
+): Promise<{ content: string; size: number; binary: boolean }> {
+  const params = new URLSearchParams({ slug, path });
+  if (agent) params.set("agent", agent);
+  const res = await authenticatedFetch(`/v1/skills/file?${params.toString()}`);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return (await res.json()) as { content: string; size: number; binary: boolean };
+}
+
+/** Build a nested tree from flat file paths. */
+interface TreeNode {
+  name: string;
+  path: string;
+  kind: "file" | "dir";
+  children: TreeNode[];
+}
+
+function buildTree(files: string[]): TreeNode[] {
+  const root: TreeNode = { name: "", path: "", kind: "dir", children: [] };
+  for (const f of files) {
+    const parts = f.split("/");
+    let node = root;
+    let acc = "";
+    parts.forEach((part, i) => {
+      acc = acc ? `${acc}/${part}` : part;
+      const isLast = i === parts.length - 1;
+      let child = node.children.find((c) => c.name === part);
+      if (!child) {
+        child = { name: part, path: acc, kind: isLast ? "file" : "dir", children: [] };
+        node.children.push(child);
+      }
+      node = child;
+    });
+  }
+  return root.children;
+}
+
+/** One node in the file tree (directory toggles, files select). */
+function TreeNodeView({
+  node,
+  selectedPath,
+  onSelect,
+  depth = 0,
+}: {
+  node: TreeNode;
+  selectedPath: string;
+  onSelect: (path: string) => void;
+  depth?: number;
+}) {
+  const [open, setOpen] = useState(node.kind === "dir");
+  const indent = { paddingLeft: `${depth * 12 + 8}px` };
+  if (node.kind === "dir") {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          style={indent}
+          className="flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-xs hover:bg-accent"
+        >
+          <span className="text-muted-foreground">{open ? "▾" : "▸"}</span>
+          <FolderIcon className="size-3 text-amber-500" />
+          <span>{node.name}</span>
+        </button>
+        {open &&
+          node.children.map((c) => (
+            <TreeNodeView
+              key={c.path}
+              node={c}
+              selectedPath={selectedPath}
+              onSelect={onSelect}
+              depth={depth + 1}
+            />
+          ))}
+      </div>
+    );
+  }
+  const isSelected = node.path === selectedPath;
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(node.path)}
+      style={indent}
+      className={`flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-xs hover:bg-accent ${
+        isSelected ? "bg-accent font-medium" : ""
+      }`}
+    >
+      <FileIcon className="size-3 shrink-0 text-muted-foreground" />
+      <span className="truncate">{node.name}</span>
+    </button>
+  );
+}
+
+function fileLabel(path: string): string {
+  const name = path.split("/").pop() ?? path;
+  if (name === "SKILL.md") return "SKILL.md";
+  const ext = name.includes(".") ? name.split(".").pop() : "";
+  return ext ? `${ext.toUpperCase()} · ${name}` : name;
+}
+
+/** Inline detail panel for an installed skill (tree + file viewer). */
 function SkillDetail({ skill, onClose }: { skill: InstalledSkillWire; onClose: () => void }) {
-  const [showBody, setShowBody] = useState(false);
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const {
     data: detail,
     isLoading,
@@ -85,82 +190,92 @@ function SkillDetail({ skill, onClose }: { skill: InstalledSkillWire; onClose: (
     staleTime: 30_000,
   });
 
+  const files = useMemo(() => detail?.files ?? [], [detail]);
+  const tree = useMemo(() => buildTree(files), [files]);
+  const activePath = selectedPath ?? (files.includes("SKILL.md") ? "SKILL.md" : files[0] ?? null);
+
+  const {
+    data: fileData,
+    isLoading: fileLoading,
+    error: fileError,
+  } = useQuery({
+    queryKey: ["skill-file", skill.slug, skill.agent ?? null, activePath],
+    queryFn: () => fetchSkillFile(skill.slug ?? "", skill.agent ?? null, activePath ?? ""),
+    enabled: Boolean(activePath),
+    staleTime: 30_000,
+  });
+
   const fm = detail?.frontmatter ?? {};
-  const fmEntries = Object.entries(fm).filter(([k]) => k !== "metadata");
-  const metadata = fm.metadata as Record<string, unknown> | undefined;
+  const fmDescription = typeof fm.description === "string" ? fm.description : null;
 
   return (
-    <Card className="space-y-3 p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{skill.slug}</span>
+    <Card className="p-0">
+      <div className="flex items-center justify-between border-b p-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <BookOpenIcon className="size-4 shrink-0 text-muted-foreground" />
+          <span className="truncate font-medium">{skill.slug}</span>
           {skill.agent ? <Badge>{skill.agent}</Badge> : <Badge variant="outline">{L("Global")}</Badge>}
+          {skill.version && skill.version !== "latest" && (
+            <Badge variant="outline">v{skill.version}</Badge>
+          )}
         </div>
         <Button type="button" variant="ghost" size="sm" onClick={onClose}>
           <XIcon className="size-3.5" />
         </Button>
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">{L("Loading…")}</p>}
-      {error && <p className="text-sm text-destructive">{L("Failed to load:")} {String(error)}</p>}
-      {detail && (
-        <>
-          {detail.target && (
-            <p className="text-xs text-muted-foreground">
-              <code className="rounded bg-muted px-1">{detail.target}</code>
+      <div className="grid sm:grid-cols-[220px_1fr]">
+        {/* Left: skill info + file tree */}
+        <div className="max-h-[480px] overflow-y-auto border-r p-2">
+          {fmDescription && (
+            <p className="mb-2 px-1 text-xs text-muted-foreground">
+              {fmDescription}
             </p>
           )}
+          <div className="mb-1 flex items-center gap-1 px-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            <FolderIcon className="size-3" />
+            {L("Files")}
+          </div>
+          {isLoading && <p className="p-2 text-xs text-muted-foreground">{L("Loading…")}</p>}
+          {error && <p className="p-2 text-xs text-destructive">{L("Failed to load:")} {String(error)}</p>}
+          {!isLoading &&
+            !error &&
+            tree.map((n) => (
+              <TreeNodeView
+                key={n.path}
+                node={n}
+                selectedPath={activePath ?? ""}
+                onSelect={setSelectedPath}
+              />
+            ))}
+        </div>
 
-          {fmEntries.length > 0 && (
-            <div className="grid gap-1 rounded-md border p-2 text-xs sm:grid-cols-2">
-              {fmEntries.map(([k, v]) => (
-                <div key={k} className="flex gap-1">
-                  <span className="font-medium">{k}:</span>
-                  <span className="truncate text-muted-foreground">{String(v)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {metadata && (
-            <div className="rounded-md border p-2 text-xs">
-              <span className="font-medium">{L("Metadata")}:</span>{" "}
-              <span className="text-muted-foreground">{JSON.stringify(metadata)}</span>
-            </div>
-          )}
-
-          {detail.body && (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowBody((v) => !v)}
-              >
-                {showBody ? L("Hide instructions") : L("Show instructions")}
-              </Button>
-              {showBody && (
-                <pre className="max-h-72 overflow-auto rounded-md border bg-muted/40 p-3 text-xs whitespace-pre-wrap">
-                  {detail.body}
-                </pre>
+        {/* Right: file content */}
+        <div className="flex min-h-[300px] flex-col">
+          {activePath && (
+            <div className="flex items-center justify-between border-b bg-muted/30 px-3 py-1.5">
+              <span className="truncate text-xs font-medium">{fileLabel(activePath)}</span>
+              {fileData && (
+                <span className="shrink-0 text-[11px] text-muted-foreground">
+                  {fileData.size} bytes
+                </span>
               )}
-            </>
-          )}
-
-          {detail.files && detail.files.length > 0 && (
-            <div className="space-y-0.5">
-              <span className="text-xs font-medium">{L("Files")}:</span>
-              <div className="flex flex-wrap gap-1">
-                {detail.files.map((f) => (
-                  <code key={f} className="rounded bg-muted px-1 py-0.5 text-xs">
-                    {f}
-                  </code>
-                ))}
-              </div>
             </div>
           )}
-        </>
-      )}
+          <div className="flex-1 overflow-auto p-3">
+            {fileLoading && <p className="text-sm text-muted-foreground">{L("Loading…")}</p>}
+            {fileError && <p className="text-sm text-destructive">{L("Failed to load:")} {String(fileError)}</p>}
+            {fileData && fileData.binary && (
+              <p className="text-sm text-muted-foreground">{L("Binary file — cannot preview.")}</p>
+            )}
+            {fileData && !fileData.binary && (
+              <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                {fileData.content}
+              </pre>
+            )}
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }

@@ -294,6 +294,60 @@ def create_skills_router(*, auth_provider: AuthProvider | None = None) -> APIRou
             "installed_at": entry.get("installed_at"),
         }
 
+    @router.get("/skills/file")
+    async def skill_file(request: Request) -> dict:
+        """Read a single file from an installed skill (tree browser).
+
+        ``slug`` + optional ``agent`` locate the installed skill; ``path`` is
+        the file's path relative to the skill root (e.g. ``scripts/connect.py``).
+        """
+        _require_user(request, auth_provider)
+        slug = (request.query_params.get("slug") or "").strip()
+        if not slug:
+            raise OmnigentError("slug is required", code=ErrorCode.INVALID_INPUT)
+        agent = (request.query_params.get("agent") or "").strip() or None
+        rel_path = (request.query_params.get("path") or "").strip()
+        if not rel_path:
+            raise OmnigentError("path is required", code=ErrorCode.INVALID_INPUT)
+
+        record = _load_skills_record()
+        entry = next(
+            (e for e in record["installed"] if e.get("slug") == slug and e.get("agent") == agent),
+            None,
+        )
+        if entry is None:
+            raise OmnigentError(
+                f"skill {slug!r} not installed" + (f" for agent {agent!r}" if agent else ""),
+                code=ErrorCode.NOT_FOUND,
+            )
+        target = Path(entry.get("target", ""))
+        if not target.is_dir():
+            raise OmnigentError(f"skill dir missing: {target}", code=ErrorCode.NOT_FOUND)
+
+        file_path = (target / rel_path).resolve()
+        if not file_path.is_relative_to(target.resolve()):
+            raise OmnigentError("path escapes skill root", code=ErrorCode.INVALID_INPUT)
+        if not file_path.is_file():
+            raise OmnigentError(f"file not found: {rel_path}", code=ErrorCode.NOT_FOUND)
+
+        # Binary guard: only serve text-ish files (or small blobs as base64).
+        data = file_path.read_bytes()
+        try:
+            text = data.decode("utf-8")
+            is_binary = False
+        except UnicodeDecodeError:
+            text = ""
+            is_binary = True
+
+        size = len(data)
+        return {
+            "path": rel_path,
+            "name": file_path.name,
+            "content": text[:200_000],
+            "size": size,
+            "binary": is_binary,
+        }
+
     @router.get("/skills/registry/{namespace}/{name}")
     async def registry_skill_detail(namespace: str, name: str, request: Request) -> dict:
         """Proxy a single SkillHub skill's detail (CORS-free)."""
