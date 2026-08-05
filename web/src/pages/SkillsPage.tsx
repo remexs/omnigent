@@ -224,14 +224,16 @@ function SkillDetail({ skill, onClose }: { skill: InstalledSkillWire; onClose: (
         </Button>
       </div>
 
+      {/* One-line description, above the tree/content split */}
+      {fmDescription && (
+        <div className="border-b px-3 py-2 text-xs text-muted-foreground">
+          {fmDescription}
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-[220px_1fr]">
-        {/* Left: skill info + file tree */}
+        {/* Left: file tree */}
         <div className="max-h-[480px] overflow-y-auto border-r p-2">
-          {fmDescription && (
-            <p className="mb-2 px-1 text-xs text-muted-foreground">
-              {fmDescription}
-            </p>
-          )}
           <div className="mb-1 flex items-center gap-1 px-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             <FolderIcon className="size-3" />
             {L("Files")}
