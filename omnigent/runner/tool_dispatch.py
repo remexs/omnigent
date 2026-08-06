@@ -1593,6 +1593,77 @@ async def _execute_subagent_tool(
     message = _subagent_message_from_args(args)
     if message is None or not message.strip():
         return "Error: sys_session_send requires non-empty args string or args.input string"
+
+    # ── Guardrail policy gate (stage approvals) ────────────────────
+    # sys_session_send is a runner-local tool — it never routes through the
+    # server's MCP proxy (which enforces TOOL_CALL policies centrally), so
+    # evaluate the spec's guardrail policies here before dispatching.
+    # Policies like stage_gate ASK for human approval at stage boundaries;
+    # on ASK we surface an approval prompt and park until the user responds
+    # (same pending_approvals machinery the MCP manager uses).
+    try:
+        from omnigent.runner.policy import RunnerToolPolicyGate
+
+        if agent_spec is not None:
+            # Cache the gate per-spec so stateful policies (stage_gate's
+            # dispatch counter) persist across sys_session_send calls.
+            _gate_cache = getattr(_runner_app, "_subagent_gate_cache", None)
+            if _gate_cache is None:
+                _gate_cache = {}
+                _runner_app._subagent_gate_cache = _gate_cache
+            _spec_key = id(agent_spec)
+            _gate = _gate_cache.get(_spec_key)
+            if _gate is None:
+                _gate = RunnerToolPolicyGate.from_spec(agent_spec)
+                _gate_cache[_spec_key] = _gate
+            import logging as _lg
+
+            _lg.getLogger("omnigent.runner.tool_dispatch").warning(
+                "policy gate: spec=%s policies=%d empty=%s",
+                getattr(agent_spec, "name", "?"),
+                len(getattr(_gate, "_policies", []) or []),
+                _gate.is_empty,
+            )
+            if not _gate.is_empty:
+                _verdict = await _gate.evaluate_tool_call("sys_session_send", dict(args))
+                if _verdict.action == "ask" and server_client is not None and conversation_id:
+                    # Surface the approval prompt WITHOUT blocking the turn.
+                    # Parking on wait_for_user_approval keeps the pi/claude SDK
+                    # turn open while the tool callback has already returned,
+                    # so the next turn's tool callbacks fire with no active
+                    # ctx and the SDK refuses new messages ("Agent is already
+                    # processing"). Return a notice instead; the orchestrator
+                    # yields and the user's approval resolves the elicitation.
+                    _body = {
+                        "type": "mcp_elicitation",
+                        "data": {
+                            "message": _verdict.reason or "Approve this stage transition?"
+                        },
+                    }
+                    try:
+                        _resp = await server_client.post(
+                            f"/v1/sessions/{conversation_id}/events",
+                            json=_body,
+                            timeout=30.0,
+                        )
+                        _resp.raise_for_status()
+                    except Exception:  # noqa: BLE001 - fail-open on approval transport
+                        pass
+                    return (
+                        "[System: stage approval required — the user must approve "
+                        "before this stage can be dispatched. The approval prompt "
+                        "has been shown; wait for the user's decision and then "
+                        "re-send this dispatch.]"
+                    )
+                elif _verdict.action == "deny":
+                    return "Error: " + (_verdict.deny_text or _verdict.reason or "denied by policy")
+    except Exception as _exc:  # noqa: BLE001 - never block dispatch on gate bugs
+        import logging
+
+        logging.getLogger("omnigent.runner.tool_dispatch").warning(
+            "sys_session_send policy gate error: %s", _exc
+        )
+
     if server_client is None:
         return "Error: sys_session_send requires server_client"
     if conversation_id is None:

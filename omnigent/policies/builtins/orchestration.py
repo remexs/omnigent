@@ -478,6 +478,104 @@ def spawn_bounds(
     return _evaluate
 
 
+def stage_gate(
+    *,
+    gate_tools: tuple[str, ...] = ("sys_session_send",),
+    allow_first: bool = True,
+    ask_reason: str = (
+        "Stage gate: confirm before the team moves to the next stage. "
+        "Approve to dispatch, or reject to revise the previous stage's output."
+    ),
+) -> Callable[[_Json], _Json]:
+    """
+    Factory: ASK the human before dispatching to a NEW sub-agent (stage boundary).
+
+    For an orchestrator that walks a fixed pipeline (architect → backend →
+    frontend → tester), dispatching to a sub-agent that has NOT yet been
+    dispatched in this session is a stage boundary. This policy returns ASK
+    on the FIRST dispatch to each distinct agent so the human approves the
+    transition before that role starts. Re-dispatches to an agent that was
+    already gated (e.g. the orchestrator retries after approval) are ALLOWed
+    — the gate records which agents have already been prompted.
+
+    Tools may surface under a vendor MCP prefix (e.g. ``mcp__omnigent__``
+    for pi/claude harnesses), so each gated name is matched both bare and
+    with that prefix stripped.
+
+    :param gate_tools: Tool names treated as stage transitions, e.g.
+        ``("sys_session_send",)``.
+    :param allow_first: ``True`` skips the ASK for the first dispatch in the
+        session (the initial request), prompting from the second distinct
+        agent on.
+    :param ask_reason: Message shown on the approval prompt.
+    :returns: A stateful evaluator ``fn(event)`` carrying ``reset_turn``.
+    """
+    counted = set(gate_tools)
+    state = {"gated_agents": set(), "total": 0}
+
+    def _is_gated(name: object) -> bool:
+        """Match a tool name with or without a vendor MCP prefix."""
+        if not isinstance(name, str):
+            return False
+        if name in counted:
+            return True
+        # ``mcp__omnigent__sys_session_send`` → ``sys_session_send``.
+        if "__" in name:
+            bare = name.split("__", 2)[-1]
+            if bare in counted:
+                return True
+        return False
+
+    def _agent_from_args(data: object) -> str | None:
+        """Extract the target agent from a sys_session_send call."""
+        if not isinstance(data, dict):
+            return None
+        args = data.get("arguments")
+        if isinstance(args, dict):
+            agent = args.get("agent")
+            if isinstance(agent, str) and agent:
+                return agent
+        return None
+
+    def _evaluate(event: _Json) -> _Json:
+        """
+        Gate a stage-boundary tool call with a human approval prompt.
+
+        :param event: V0 event; a stage transition is a ``tool_call`` whose
+            ``data["name"]`` is in *gate_tools* (with or without MCP prefix).
+        :returns: ASK on the first dispatch to each distinct agent; ALLOW
+            otherwise.
+        """
+        if event.get("type") != "tool_call":
+            return _ALLOW
+        data = event.get("data")
+        if not isinstance(data, dict) or not _is_gated(data.get("name")):
+            return _ALLOW
+        agent = _agent_from_args(data)
+        state["total"] += 1
+        if allow_first and state["total"] == 1:
+            return _ALLOW
+        if agent is not None and agent in state["gated_agents"]:
+            # Already prompted for this agent — re-dispatch after approval
+            # (or a rejected-then-revised flow) is allowed.
+            return _ALLOW
+        if agent is not None:
+            state["gated_agents"].add(agent)
+        return _decision("ASK", ask_reason)
+
+    def reset_turn() -> None:
+        """
+        Keep the gate state across turns (the counter is session-scoped).
+
+        :returns: ``None``.
+        """
+        return None
+
+    # FunctionPolicy looks for this attribute.
+    _evaluate.reset_turn = reset_turn  # type: ignore[attr-defined]
+    return _evaluate
+
+
 def headless_subagent_purpose_guard(
     *,
     allowed_purposes: tuple[str, ...] = ("implement", "review", "explore", "search"),
@@ -687,6 +785,29 @@ POLICY_REGISTRY: list[dict[str, object]] = [
         "name": "Limit Sub-Agent Dispatches Per Turn",
         "description": "Limits the number of sub-agent dispatches per turn "
         "to prevent runaway fan-out",
+    },
+    {
+        "handler": "omnigent.policies.builtins.orchestration.stage_gate",
+        "kind": "factory",
+        "name": "Stage Approval Gate",
+        "description": "Asks a human to approve each stage transition "
+        "(architect → backend → frontend → tester) before the orchestrator "
+        "dispatches the next role.",
+        "params_schema": {
+            "type": "object",
+            "properties": {
+                "allow_first": {
+                    "type": "boolean",
+                    "description": "Skip the approval for the first dispatch "
+                    "(initial request); prompt from the second dispatch on.",
+                    "default": True,
+                },
+                "ask_reason": {
+                    "type": "string",
+                    "description": "Message shown on the approval prompt.",
+                },
+            },
+        },
     },
     {
         "handler": "omnigent.policies.builtins.orchestration.headless_subagent_purpose_guard",

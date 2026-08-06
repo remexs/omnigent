@@ -6751,6 +6751,66 @@ async def _get_session_snapshot(
     )
 
 
+async def _post_stage_approval_wake(
+    session_id: str,
+    conversation_store: ConversationStore,
+    runner_router: RunnerRouter | None = None,
+) -> bool:
+    """Wake the orchestrator after a stage-gate approval is accepted.
+
+    The runner's non-blocking stage gate returns a "wait for approval" notice
+    and the brain ends its turn. When the user approves the elicitation, this
+    posts a synthetic ``[System: …]`` user message to the parent session so the
+    runner starts a continuation turn and the brain re-dispatches the approved
+    stage (the gate ALLOWs re-dispatches to an already-gated agent). Best-effort:
+    a missing session or transport error is logged and swallowed.
+
+    :param session_id: The parent session that owns the approval.
+    :param conversation_store: Store used to load the session.
+    :returns: ``True`` when the wake was dispatched; ``False`` otherwise.
+    """
+    conv = await asyncio.to_thread(conversation_store.get_conversation, session_id)
+    if conv is None:
+        _logger.debug("stage approval wake: session %s missing", session_id)
+        return False
+    notice = (
+        "[System: stage approval accepted — the previous stage was approved. "
+        "Re-dispatch the next stage's task now.]"
+    )
+    try:
+        body = SessionEventInput(
+            type="message",
+            data={
+                "role": "user",
+                "content": [{"type": "input_text", "text": notice}],
+            },
+        )
+        await _persist_session_event(
+            session_id,
+            body,
+            conversation_store=conversation_store,
+        )
+        # Forward to the bound runner to start the continuation turn.
+        runner_client = await _get_runner_client(session_id, runner_router)
+        if runner_client is not None:
+            await _forward_event_to_runner(
+                session_id,
+                conv,
+                body,
+                conversation_store,
+                runner_client,
+                created_by=None,
+            )
+            return True
+    except Exception as _exc:  # noqa: BLE001 - wake is best-effort
+        _logger.warning(
+            "stage approval wake failed for session=%s: %s",
+            session_id,
+            _exc,
+        )
+    return False
+
+
 __all__ = [
     "_accumulate_session_usage",
     "_best_effort_stop",
@@ -6796,6 +6856,7 @@ __all__ = [
     "_persist_native_terminal_failure",
     "_persist_session_event",
     "_persist_skipped_kiro_pending_input",
+    "_post_stage_approval_wake",
     "_publish_and_wait_for_harness_elicitation",
     "_publish_runner_recovered_status",
     "_publish_subtree_cost_to_ancestors",

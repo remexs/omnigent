@@ -5275,6 +5275,18 @@ def create_runner_app(
                     "message": f"background turn drain failed: {exc}",
                 },
             )
+        else:
+            # Normal completion: clear the turn so a later wake message
+            # (sub-agent completion, stage-approval accept) starts a fresh
+            # continuation turn instead of being buffered behind a stale
+            # ``_active_turns`` entry. Without this the turn's tool
+            # callbacks fire with no active ctx ("no active turn context")
+            # and the harness refuses new messages ("Agent is already
+            # processing"). Only pop the bookkeeping entries — the full
+            # ``_on_proxy_stream_end`` also publishes status/wake events
+            # that the harness's own stream end already emitted.
+            _active_turns.pop(session_id, None)
+            _live_response_id.pop(session_id, None)
 
     async def _stream_message_to_harness(
         body: dict[str, Any],

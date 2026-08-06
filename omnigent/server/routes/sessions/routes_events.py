@@ -592,6 +592,26 @@ def register_events_routes(
             # The dedicated URL endpoint (``.../elicitations/{eid}/
             # resolve``) routes through the same helper.
             await _resolve_elicitation(session_id, body.data, runner_router, conversation_store)
+            # Stage-gate approval: after a runner-side policy ASK is accepted,
+            # wake the orchestrator so it re-dispatches the approved stage.
+            # The runner's non-blocking gate returns a "wait for approval"
+            # notice and the brain ends its turn; without this nudge it would
+            # sit idle until the user manually posts another message.
+            if body.data.get("action") == "accept":
+                try:
+                    _stage_wake = await _post_stage_approval_wake(
+                        session_id, conversation_store, runner_router
+                    )
+                    if _stage_wake:
+                        _logger.info(
+                            "stage approval wake posted for session=%s", session_id
+                        )
+                except Exception as _exc:  # noqa: BLE001 - wake is best-effort
+                    _logger.warning(
+                        "stage approval wake failed for session=%s: %s",
+                        session_id,
+                        _exc,
+                    )
             # Apply any policy writes deferred by the relay tool-call ASK gate
             # (e.g. a cost-budget checkpoint) now that the verdict is in.
             await _apply_pending_policy_ask_writes(
