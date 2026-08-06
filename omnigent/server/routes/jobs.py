@@ -80,9 +80,8 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
     @router.get("/jobs")
     async def list_jobs(request: Request) -> dict:
         """List job roots (or jobs for a user)."""
-        _require_user(request, auth_provider)
+        user_id = _require_user(request, auth_provider)
         store = _store(request)
-        user_id = getattr(request.state, "user_id", None)
         q = request.query_params
         scope = q.get("scope", "roots")  # roots | assigned | created
         if scope == "assigned" and user_id:
