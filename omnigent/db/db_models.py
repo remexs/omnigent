@@ -1583,3 +1583,99 @@ class SqlScheduledTaskRun(OmnigentBase):
             "conversation_id",
         ),
     )
+
+
+class SqlJob(OmnigentBase):
+    """Business task tree row (outer collaboration layer).
+
+    :param id: UUID primary key (Uuid16).
+    :param parent_job_id: Parent task id; NULL for a root task.
+    :param root_job_id: Root task id of the tree (itself when root).
+    :param title: Task name, e.g. "需求分析".
+    :param description: Opaque free text (stored compressed).
+    :param state: Lifecycle state as a stable int code
+        (TASK_STATE: todo=1, in_progress=2, pending_review=3,
+        completed=4, returned=5, blocked=6).
+    :param round: Round counter — incremented on each reject/redo.
+    :param assignee_user_id: Executor user, e.g. "zhangsan".
+    :param created_by_user_id: Creator (e.g. the project manager).
+    :param agent_name: Role/agent handling this task, e.g. "architect-agent".
+    :param depends_on: Comma-separated task ids this task depends on.
+    :param session_id: The session created to execute this task.
+    """
+
+    __tablename__ = "jobs"
+
+    workspace_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        nullable=False,
+        server_default="0",
+        default=current_workspace_id,
+    )
+    id: Mapped[str] = mapped_column(Uuid16, primary_key=True)
+    parent_job_id: Mapped[str | None] = mapped_column(Uuid16, nullable=True)
+    root_job_id: Mapped[str | None] = mapped_column(Uuid16, nullable=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    description: Mapped[str | None] = mapped_column(CompressedText, nullable=True)
+    state: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
+    round: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+    assignee_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    created_by_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    agent_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    depends_on: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    session_id: Mapped[str | None] = mapped_column(Uuid16, nullable=True)
+    created_at: Mapped[int] = mapped_column(Integer, nullable=False)
+    updated_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class SqlJobArtifact(OmnigentBase):
+    """Product a task produced on completion.
+
+    :param job_id: Owning task id.
+    :param artifact_type: none=1, file=2, message=3 (TASK_ARTIFACT_TYPE).
+    :param ref: For file: workspace-relative path. For message: summary text.
+    :param summary: Opaque product summary (stored compressed).
+    """
+
+    __tablename__ = "job_artifacts"
+
+    workspace_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        nullable=False,
+        server_default="0",
+        default=current_workspace_id,
+    )
+    id: Mapped[str] = mapped_column(Uuid16, primary_key=True)
+    job_id: Mapped[str] = mapped_column(Uuid16, nullable=False)
+    artifact_type: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
+    ref: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    summary: Mapped[str | None] = mapped_column(CompressedText, nullable=True)
+    created_at: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class SqlJobEvaluation(OmnigentBase):
+    """Product-quality verdict driving task flow.
+
+    :param job_id: Task being evaluated.
+    :param evaluator_user_id: Who evaluated (e.g. the reviewer).
+    :param action: pass=1, reject=2 (TASK_EVALUATION_ACTION).
+    :param comment: Free-text quality feedback (stored compressed).
+    """
+
+    __tablename__ = "job_evaluations"
+
+    workspace_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        nullable=False,
+        server_default="0",
+        default=current_workspace_id,
+    )
+    id: Mapped[str] = mapped_column(Uuid16, primary_key=True)
+    job_id: Mapped[str] = mapped_column(Uuid16, nullable=False)
+    evaluator_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    action: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    comment: Mapped[str | None] = mapped_column(CompressedText, nullable=True)
+    created_at: Mapped[int] = mapped_column(Integer, nullable=False)

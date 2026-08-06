@@ -338,3 +338,59 @@ def encode_scheduled_task_run_status(name: str) -> int:
 def decode_scheduled_task_run_status(code: int) -> str:
     """Decode a ``scheduled_task_runs.status`` int code to its name."""
     return _decode(SCHEDULED_TASK_RUN_STATUS, code, field="scheduled_task_runs.status")
+
+
+# ── Business task tree enums (outer collaboration layer) ───────────────
+# jobs.state: todo=1, in_progress=2, pending_review=3, completed=4,
+# returned=5, blocked=6.
+JOB_STATE: dict[str, int] = {
+    "todo": 1,
+    "in_progress": 2,
+    "pending_review": 3,
+    "completed": 4,
+    "returned": 5,
+    "blocked": 6,
+}
+
+# job_artifacts.artifact_type: none=1, file=2, message=3.
+JOB_ARTIFACT_TYPE: dict[str, int] = {
+    "none": 1,
+    "file": 2,
+    "message": 3,
+}
+
+# job_evaluations.action: pass=1, reject=2.
+JOB_EVALUATION_ACTION: dict[str, int] = {
+    "pass": 1,
+    "reject": 2,
+}
+
+
+def encode_job_state(name: str) -> int:
+    """Encode a ``jobs.state`` name to its int code."""
+    return _encode(JOB_STATE, name, field="jobs.state")
+
+
+def decode_job_state(code: int) -> str:
+    """Decode a ``jobs.state`` int code to its name."""
+    return _decode(JOB_STATE, code, field="jobs.state")
+
+
+def encode_job_artifact_type(name: str) -> int:
+    """Encode a ``job_artifacts.artifact_type`` name to its int code."""
+    return _encode(JOB_ARTIFACT_TYPE, name, field="job_artifacts.artifact_type")
+
+
+def decode_job_artifact_type(code: int) -> str:
+    """Decode a ``job_artifacts.artifact_type`` int code to its name."""
+    return _decode(JOB_ARTIFACT_TYPE, code, field="job_artifacts.artifact_type")
+
+
+def encode_job_evaluation_action(name: str) -> int:
+    """Encode a ``job_evaluations.action`` name to its int code."""
+    return _encode(JOB_EVALUATION_ACTION, name, field="job_evaluations.action")
+
+
+def decode_job_evaluation_action(code: int) -> str:
+    """Decode a ``job_evaluations.action`` int code to its name."""
+    return _decode(JOB_EVALUATION_ACTION, code, field="job_evaluations.action")

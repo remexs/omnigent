@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omnigent 多角色任务协作架构设计</title>
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
+    --text: #0f172a; --muted: #64748b; --accent: #2563eb;
+    --green: #16a34a; --red: #dc2626; --amber: #d97706; --blue: #2563eb;
+    --code-bg: #f1f5f9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    padding: 40px 20px;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 40px; }
+  header h1 { font-size: 2.2em; color: var(--accent); margin-bottom: 8px; }
+  header .sub { color: var(--muted); font-size: 1.05em; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.75em; font-weight: 600; margin: 0 3px; }
+  .badge-new { background: #dbeafe; color: var(--blue); }
+  .badge-reuse { background: #dcfce7; color: var(--green); }
+  .badge-keep { background: #f1f5f9; color: var(--muted); }
+  h2 {
+    font-size: 1.5em; margin: 50px 0 16px; padding-left: 12px;
+    border-left: 4px solid var(--accent); color: var(--text);
+  }
+  h3 { font-size: 1.15em; margin: 28px 0 10px; color: #1e293b; }
+  p { margin: 8px 0; color: #334155; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin: 16px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card-title { font-weight: 700; font-size: 1.05em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  code {
+    background: var(--code-bg); padding: 2px 6px; border-radius: 4px;
+    font-family: "JetBrains Mono", Consolas, monospace; font-size: 0.9em;
+    color: #0f172a;
+  }
+  pre {
+    background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px;
+    overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 10px 0;
+    font-family: "JetBrains Mono", Consolas, monospace;
+  }
+  pre .c { color: #64748b; } pre .k { color: #93c5fd; } pre .s { color: #86efac; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92em; }
+  th { background: #f1f5f9; text-align: left; padding: 10px 12px; font-weight: 600; }
+  td { padding: 10px 12px; border-top: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: #f8fafc; }
+  .tree { font-family: "JetBrains Mono", Consolas, monospace; font-size: 0.9em; line-height: 1.9; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; }
+  .tree .l1 { color: var(--accent); font-weight: 700; }
+  .tree .l2 { color: var(--green); }
+  .tree .l3 { color: var(--amber); }
+  .tree .dim { color: var(--muted); }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  .flow .step { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 0.88em; font-weight: 600; }
+  .flow .arrow { color: var(--muted); font-weight: 700; }
+  .flow .step.auto { border-color: #bfdbfe; background: #eff6ff; }
+  .flow .step.human { border-color: #fde68a; background: #fffbeb; }
+  .flow .step.done { border-color: #86efac; background: #f0fdf4; }
+  .note { background: #fffbeb; border-left: 4px solid var(--amber); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 0.92em; }
+  .warn { background: #fef2f2; border-left: 4px solid var(--red); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 0.92em; }
+  .ok { background: #f0fdf4; border-left: 4px solid var(--green); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 0.92em; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) { .grid2 { grid-template-columns: 1fr; } }
+  footer { text-align: center; color: var(--muted); font-size: 0.85em; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Omnigent 多角色任务协作架构设计</h1>
+  <div class="sub">业务任务树 + 会话执行树 · 产物评价 · 任务流转 · 共享协作</div>
+  <div style="margin-top:12px">
+    <span class="badge badge-new">新增：外层业务任务层</span>
+    <span class="badge badge-reuse">复用：会话共享/执行</span>
+    <span class="badge badge-keep">保留：现有评价不动</span>
+  </div>
+</header>
+
+<!-- ═════════════ 1. 设计目标 ═════════════ -->
+<h2>1. 设计目标</h2>
+<div class="card">
+  <div class="card-title">🎯 解决的问题</div>
+  <p>将 Omnigent 从"会话为中心的自动化执行"扩展为"<b>多角色、多用户、可管理的任务协作平台</b>"：</p>
+  <table>
+    <tr><th>需求</th><th>现状</th><th>方案</th></tr>
+    <tr><td>项目管理人员分配任务</td><td>❌ 无任务概念</td><td>✅ 外层业务任务树</td></tr>
+    <tr><td>任务按角色转发给具体的人</td><td>⚠️ 仅会话共享</td><td>✅ 任务分配（assignee）</td></tr>
+    <tr><td>任务完成后产物质量把关</td><td>❌ 无产物评价</td><td>✅ 产物评价（✅/❌+意见）</td></tr>
+    <tr><td>打回重做（回归）</td><td>❌ 无</td><td>✅ 评价驱动任务流转</td></tr>
+    <tr><td>大/小任务、并行执行</td><td>⚠️ 会话可并行</td><td>✅ 任务树 + 依赖 + 并行</td></tr>
+    <tr><td>任务量统计</td><td>❌ 无</td><td>✅ 按任务树聚合</td></tr>
+  </table>
+</div>
+
+<!-- ═════════════ 2. 总体架构 ═════════════ -->
+<h2>2. 总体架构：双维度任务树</h2>
+<div class="card">
+  <div class="card-title">🏗️ 两个维度，各司其职</div>
+  <div class="tree">
+    <span class="l1">┌─ 外层：业务任务树（管理维度）</span><br>
+    <span class="l1">│     T1 业务需求（大任务）</span><br>
+    <span class="l2">│     ├─ T1-R1-t1 需求分析</span> <span class="dim">← 状态/分配/评价/轮次</span><br>
+    <span class="l2">│     ├─ T1-R1-t2 架构设计</span> <span class="dim">← 人看的：项目经理分配、评审评价</span><br>
+    <span class="l3">│     └─ T1-R1-t3 实现（并行子任务）</span><br>
+    <span class="l3">│          ├─ T1-R1-t3-1 后端</span><br>
+    <span class="l3">│          └─ T1-R1-t3-2 前端</span><br>
+    <span class="dim">│          （子任务可并行执行）</span><br>
+    <span class="dim">│     ↕ 任务 ↔ 会话映射</span><br>
+    <span class="l1">└─ 内层：会话执行树（执行维度）</span><br>
+    <span class="l1">      root_conversation（现有）</span><br>
+    <span class="l2">      ├─ architect 子会话</span> <span class="dim">← harness 执行/工具/审批/评论</span><br>
+    <span class="l2">      ├─ backend 子会话</span> <span class="dim">← agent 跑的：怎么执行</span><br>
+    <span class="l2">      └─ ...</span><br>
+  </div>
+  <table style="margin-top:16px">
+    <tr><th>维度</th><th>粒度</th><th>使用者</th><th>管理</th><th>生命周期</th></tr>
+    <tr><td><b>外层业务任务树</b></td><td>大（需求/架构/实现/测试）</td><td>人（项目经理/评审）</td><td>状态/分配/评价/统计</td><td>任务（可多轮打回）</td></tr>
+    <tr><td><b>内层会话执行树</b></td><td>细（大脑→子agent→工具）</td><td>agent（编排器/harness）</td><td>执行/上下文/工具</td><td>会话（执行一次）</td></tr>
+  </table>
+</div>
+
+<!-- ═════════════ 3. 三类评价 ═════════════ -->
+<h2>3. 评价体系：三个独立概念</h2>
+<div class="card">
+  <div class="card-title">📋 会话评价（现有·保留）≠ 产物评价（新增）</div>
+  <div class="grid2">
+    <div>
+      <h3>① 会话评价（现有，保留不动）</h3>
+      <p><span class="badge badge-keep">过程内</span> agent 执行<b>过程中</b>的把关</p>
+      <ul style="padding-left:20px; color:#334155">
+        <li><b>审批</b>（elicitation）：高风险/成本/阶段拦截</li>
+        <li><b>文件评论</b>（review comments）：锚定代码文本的修改意见</li>
+      </ul>
+      <p class="note">管"<b>怎么做</b>"的过程质量——完全保留，不参与新任务体系。</p>
+    </div>
+    <div>
+      <h3>② 产物评价（新增，独立体系）</h3>
+      <p><span class="badge badge-new">任务后</span> 任务完成后的<b>产物质量把关</b></p>
+      <ul style="padding-left:20px; color:#334155">
+        <li>评价对象：<b>任务产出的产物</b>（需求报告/架构文档/代码/测试报告）</li>
+        <li>评价动作：✅ 通过 / ❌ 打回 + 质量意见</li>
+        <li>评价人：项目经理/评审人</li>
+        <li>评价历史：每次评价持久记录</li>
+      </ul>
+      <p class="ok">管"<b>产物算不算数</b>"的质量裁决——驱动任务流转。</p>
+    </div>
+  </div>
+  <h3>③ 任务（流程单位，衔接两者）</h3>
+  <p>任务本身不是评价对象，是<b>流程单位</b>——完成→产出→评价→流转。</p>
+</div>
+
+<!-- ═════════════ 4. 任务流转 ═════════════ -->
+<h2>4. 任务流转状态机</h2>
+<div class="card">
+  <div class="card-title">🔄 状态流转（产物评价为闸门）</div>
+  <div class="flow">
+    <span class="step auto">待办（规划）</span><span class="arrow">→</span>
+    <span class="step auto">进行中</span><span class="arrow">→</span>
+    <span class="step auto">待评价</span><span class="arrow">→</span>
+    <span class="step human">✅ 通过 → 已完成/解锁下游</span>
+  </div>
+  <div class="flow">
+    <span class="step auto">待评价</span><span class="arrow">→</span>
+    <span class="step human">❌ 打回</span><span class="arrow">→</span>
+    <span class="step auto">重做（轮次+1）</span><span class="arrow">→</span>
+    <span class="step auto">进行中</span>
+  </div>
+  <table>
+    <tr><th>状态</th><th>说明</th><th>触发</th></tr>
+    <tr><td><code>todo</code> 待办</td><td>任务创建/分配</td><td>项目经理建任务</td></tr>
+    <tr><td><code>in_progress</code> 进行中</td><td>领取执行（创建内层会话）</td><td>负责人领取/自动派发</td></tr>
+    <tr><td><code>pending_review</code> 待评价</td><td>完成，等待产物评价</td><td>会话执行完成</td></tr>
+    <tr><td><code>completed</code> 已完成</td><td>产物评价通过</td><td>评价 ✅</td></tr>
+    <tr><td><code>returned</code> 打回</td><td>产物评价不通过，回归重做</td><td>评价 ❌</td></tr>
+    <tr><td><code>blocked</code> 阻塞</td><td>依赖未就绪/等待他人</td><td>依赖任务未完成</td></tr>
+  </table>
+</div>
+
+<!-- ═════════════ 5. 任务树与并行 ═════════════ -->
+<h2>5. 任务树与并行执行</h2>
+<div class="card">
+  <div class="card-title">🌳 大/小任务 + 并行 + 依赖</div>
+  <div class="tree">
+    <span class="l1">T1 业务需求（大任务·根）</span><br>
+    <span class="l2">├─ t1 需求分析（串行第一步）</span><br>
+    <span class="l2">├─ t2 架构设计 <span class="dim">depends_on: t1</span></span><br>
+    <span class="l3">└─ t3 实现（可拆并行）</span><br>
+    <span class="l3">&nbsp;&nbsp;&nbsp;├─ t3-1 后端 <span class="dim">depends_on: t2</span></span> <span class="dim">← 并行执行</span><br>
+    <span class="l3">&nbsp;&nbsp;&nbsp;└─ t3-2 前端 <span class="dim">depends_on: t2</span></span> <span class="dim">← 并行执行（同一层独立子任务）</span><br>
+    <span class="l3">&nbsp;&nbsp;&nbsp;└─ t3-3 测试 <span class="dim">depends_on: [t3-1, t3-2]</span></span><br>
+  </div>
+  <table>
+    <tr><th>机制</th><th>设计</th><th>复用现有</th></tr>
+    <tr><td>大/小任务</td><td><code>tasks.parent_task_id</code></td><td>✅ 会话树 parent_conversation_id</td></tr>
+    <tr><td>并行</td><td>同一父任务独立子任务并发</td><td>✅ 独立 title 子会话并发</td></tr>
+    <tr><td>依赖</td><td><code>depends_on</code> 字段</td><td>— 新增</td></tr>
+    <tr><td>父任务完成</td><td>所有子任务完成后才"待评价"</td><td>— 新增聚合逻辑</td></tr>
+    <tr><td>打回范围</td><td>子任务打回只重做自己，兄弟任务不受影响</td><td>— 新增</td></tr>
+  </table>
+  <p class="ok">并行执行复用现有能力：<b>"Use a distinct task-based title for independent parallel work"</b>——不同 title 的子会话天然可并行。</p>
+</div>
+
+<!-- ═════════════ 6. 共享协作 ═════════════ -->
+<h2>6. 共享与协作（不改现有机制）</h2>
+<div class="card">
+  <div class="card-title">🔗 外层任务共享 = 意图记录 + 复用现有授权</div>
+  <pre><span class="c">// 现有机制（复用，零改动）</span>
+<span class="k">PermissionStore</span>.grant(
+    user_id=<span class="s">"lisi"</span>,          <span class="c">// 被授予人（评审人）</span>
+    conversation_id=conv_id,    <span class="c">// 会话</span>
+    level=<span class="s">LEVEL_EDIT</span>,        <span class="c">// 1=读 / 2=编辑 / 3=管理</span>
+    can_approve=<span class="s">True</span>,        <span class="c">// 可审批（委托审批权）</span>
+)</pre>
+  <table>
+    <tr><th>层</th><th>职责</th><th>是否改动现有</th></tr>
+    <tr><td><b>外层任务表</b></td><td>记录"意图"：assignee（负责人）/ shared_with（共享人）</td><td>✅ 新增（只存元数据）</td></tr>
+    <tr><td><b>内层授权</b></td><td>任务领取时调用 <code>grant()</code> 落地权限</td><td>❌ 不改（直接调用）</td></tr>
+    <tr><td><b>会话共享/评论/审批</b></td><td>执行层协作照常</td><td>❌ 不改</td></tr>
+  </table>
+  <div class="ok">
+    <b>设计原则：意图与机制分离</b>——任务表只记"谁该有什么权限"，领取执行时用现有 grant() 落地。现有共享/评论/审批机制<b>零改动</b>。
+  </div>
+  <h3>两个实现细节（已定）</h3>
+  <table>
+    <tr><th>问题</th><th>决定</th><th>原因</th></tr>
+    <tr><td>何时授权？</td><td><b>领取执行时</b>（非分配时）</td><td>分配时可能还没会话，无法授权</td></tr>
+    <tr><td>子任务继承？</td><td><b>默认继承</b>（共享大任务→自动授权所有子任务会话）</td><td>评审人需要看执行细节</td></tr>
+  </table>
+</div>
+
+<!-- ═════════════ 7. 数据模型 ═════════════ -->
+<h2>7. 数据模型</h2>
+<div class="card">
+  <div class="card-title">🗄️ 新增 3 张表（现有表不动）</div>
+  <table>
+    <tr><th>表</th><th>字段</th><th>说明</th></tr>
+    <tr>
+      <td><code>tasks</code><br><span class="badge badge-new">新增</span></td>
+      <td>
+        id, parent_task_id,<br>
+        status, round,<br>
+        assignee_user_id, created_by_user_id,<br>
+        depends_on, session_id,<br>
+        title, description
+      </td>
+      <td>业务任务树：状态/分配/负责人/轮次/依赖/关联会话</td>
+    </tr>
+    <tr>
+      <td><code>task_artifacts</code><br><span class="badge badge-new">新增</span></td>
+      <td>
+        id, task_id,<br>
+        artifact_type (file/message/none),<br>
+        ref, summary
+      </td>
+      <td>任务完成的产物登记（可能无产物）</td>
+    </tr>
+    <tr>
+      <td><code>task_evaluations</code><br><span class="badge badge-new">新增</span></td>
+      <td>
+        id, task_id,<br>
+        evaluator_user_id,<br>
+        action (pass/reject),<br>
+        comment, created_at
+      </td>
+      <td>产物评价历史（谁评的/通过打回/意见/时间）</td>
+    </tr>
+    <tr>
+      <td><code>conversations</code><br><span class="badge badge-reuse">现有</span></td>
+      <td>root/parent_conversation_id, kind, sub_agent_name ...</td>
+      <td>内层会话执行树（不动）</td>
+    </tr>
+    <tr>
+      <td><code>session_permissions</code><br><span class="badge badge-reuse">现有</span></td>
+      <td>user_id, conversation_id, level, can_approve</td>
+      <td>会话共享授权（复用 grant）</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ═════════════ 8. 与现有边界 ═════════════ -->
+<h2>8. 边界：什么不动、什么新增</h2>
+<div class="card">
+  <div class="card-title">🧱 清晰的改动边界</div>
+  <div class="grid2">
+    <div>
+      <h3>✅ 保留不动（现有）</h3>
+      <ul style="padding-left:20px">
+        <li>会话执行（harness/runner）</li>
+        <li>编排器（orchestrator 派发）</li>
+        <li>会话共享（PermissionStore.grant）</li>
+        <li>审批（elicitation）</li>
+        <li>文件评论（review comments）</li>
+        <li>收件箱</li>
+        <li>tasks 表（运行时内部，不碰）</li>
+      </ul>
+    </div>
+    <div>
+      <h3>🆕 新增（外层任务层）</h3>
+      <ul style="padding-left:20px">
+        <li><code>tasks</code> 业务任务表（树/状态/分配）</li>
+        <li><code>task_artifacts</code> 产物登记</li>
+        <li><code>task_evaluations</code> 产物评价</li>
+        <li>任务 API（创建/分配/领取/评价/流转）</li>
+        <li>Web 任务列表页 + 评价面板</li>
+        <li>任务量统计</li>
+      </ul>
+    </div>
+  </div>
+  <div class="warn">
+    <b>关键注意</b>：现有 <code>tasks</code> 表（root_task_id/parent_task_id）是<b>运行时 asyncio 内部机制</b>，不是业务任务——业务任务树<b>新建独立表</b>，避免混淆。
+  </div>
+</div>
+
+<!-- ═════════════ 9. 执行流程 ═════════════ -->
+<h2>9. 端到端执行流程</h2>
+<div class="card">
+  <div class="card-title">🚀 从需求到交付</div>
+  <pre>
+<span class="k">1. 创建</span>  项目经理建大任务 T1 → 拆子任务 t1(需求) t2(架构) t3(实现)
+<span class="k">2. 分配</span>  t1 → 张三（assignee），共享给李四（评审）
+<span class="k">3. 领取</span>  张三领取 t1 → 创建内层会话（张三的 host）→ grant 权限
+<span class="k">4. 执行</span>  会话执行（张三的 harness）→ 产出【需求分析报告】
+<span class="k">5. 登记</span>  任务完成 → 登记产物 → 状态"待评价"
+<span class="k">6. 评价</span>  李四评价 ✅/❌ + 意见
+            ├─ ✅ → t1 完成 → 解锁 t2（架构）
+            └─ ❌ → t1 打回 → 轮次+1 → 重新领取执行
+<span class="k">7. 并行</span>  t3-1 后端 / t3-2 前端（并行执行）→ 都完成 → t3-3 测试
+<span class="k">8. 汇总</span>  大任务 T1 所有子任务完成 → 汇总产物 → 项目经理终评
+<span class="k">9. 统计</span>  任务量 = 任务树节点数 / 轮次数 / 打回率
+</pre>
+</div>
+
+<!-- ═════════════ 10. 实现步骤 ═════════════ -->
+<h2>10. 实现步骤（建议顺序）</h2>
+<div class="card">
+  <div class="card-title">📐 分步落地</div>
+  <table>
+    <tr><th>步骤</th><th>内容</th><th>产出</th></tr>
+    <tr><td>1</td><td>新建 3 张表（tasks/task_artifacts/task_evaluations）+ 迁移</td><td>数据层</td></tr>
+    <tr><td>2</td><td>任务 API：CRUD / 分配 / 领取 / 状态流转 / 评价 / 统计</td><td>后端</td></tr>
+    <tr><td>3</td><td>任务领取 → 创建会话 + grant 授权（复用现有）</td><td>执行衔接</td></tr>
+    <tr><td>4</td><td>会话完成 → 登记产物 → 待评价（监听会话状态）</td><td>执行衔接</td></tr>
+    <tr><td>5</td><td>Web 任务列表页（树形/状态/分配）+ 评价面板 + 统计</td><td>前端</td></tr>
+    <tr><td>6</td><td>多用户测试：项目经理分配 → 张三执行 → 李四评审 → 打回重做</td><td>验证</td></tr>
+  </table>
+</div>
+
+<footer>
+  Omnigent 多角色任务协作架构 · v0.1 设计稿 · 基于 remexs/zh-ui 分支
+</footer>
+
+</div>
+</body>
+</html>

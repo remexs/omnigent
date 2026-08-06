@@ -61,6 +61,7 @@ from omnigent.server.performance_metrics import (
 from omnigent.server.routes.builtin_agents import create_builtin_agents_router
 from omnigent.server.routes.providers import create_providers_router
 from omnigent.server.routes.skills import create_skills_router
+from omnigent.server.routes.jobs import create_jobs_router
 from omnigent.server.routes.comments import create_comments_router
 from omnigent.server.routes.default_policies import create_default_policies_router
 from omnigent.server.routes.dictation import create_dictation_router
@@ -98,6 +99,7 @@ from omnigent.stores.permission_store import PermissionStore
 from omnigent.stores.policy_store import PolicyStore
 from omnigent.stores.project_store import ProjectStore
 from omnigent.stores.scheduled_task_store import ScheduledTaskStore
+from omnigent.stores.job_store import JobStore
 
 _logger = logging.getLogger(__name__)
 
@@ -746,6 +748,7 @@ def create_app(
     permission_store: PermissionStore | None = None,
     scheduled_task_store: ScheduledTaskStore | None = None,
     project_store: ProjectStore | None = None,
+    job_store: JobStore | None = None,
     auth_provider: AuthProvider | None = None,
     host_store: HostStore | None = None,
     account_store: Any | None = None,  # SqlAlchemyAccountStore — accounts mode only
@@ -1114,6 +1117,9 @@ def create_app(
             # force-fail of stale ``running`` runs on the scheduled-task read
             # endpoints (see routes/scheduled_tasks.py); there is no startup
             # sweep and no periodic reconcile.
+
+        if job_store is not None:
+            app_inst.state.job_store = job_store
 
         try:
             yield
@@ -1955,6 +1961,11 @@ def create_app(
         create_skills_router(auth_provider=auth_provider),
         prefix="/v1",
         tags=["skills"],
+    )
+    app.include_router(
+        create_jobs_router(auth_provider=auth_provider),
+        prefix="/v1",
+        tags=["jobs"],
     )
     app.include_router(
         create_harnesses_router(auth_provider=auth_provider),
