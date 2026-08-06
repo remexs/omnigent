@@ -111,3 +111,7 @@ class JobStore(ABC):
     @abstractmethod
     def list_evaluations(self, job_id: str) -> list[JobEvaluation]:
         """Return a task's evaluation history (oldest first)."""
+
+    @abstractmethod
+    def find_by_session(self, session_id: str) -> str | None:
+        """Return the job id bound to a session, or None."""

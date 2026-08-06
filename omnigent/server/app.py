@@ -1127,6 +1127,74 @@ def create_app(
             app_inst.state.agent_store = agent_store
             app_inst.state.tunnel_registry = tunnel_registry
             app_inst.state.host_registry = host_registry
+            # Session terminal → mark the bound job pending_review.
+            from omnigent.server import session_live_state as _sls
+
+            def _job_session_terminal(conversation_id: str, status: str) -> None:
+                try:
+                    from omnigent.db.db_models import workspace_scope
+
+                    with workspace_scope(0):
+                        _jid = job_store.find_by_session(conversation_id)
+                        if _jid:
+                            job_store.update(
+                                _jid,
+                                state=(
+                                    "pending_review"
+                                    if status == "idle"
+                                    else "blocked"
+                                ),
+                            )
+                            if status == "idle":
+                                # Register the produced artifact (last assistant
+                                # text) so the reviewer sees the product summary.
+                                _summary = _extract_assistant_summary(
+                                    conversation_store, conversation_id
+                                )
+                                if _summary:
+                                    job_store.add_artifact(
+                                        uuid.uuid4().hex,
+                                        _jid,
+                                        "message",
+                                        summary=_summary[:500],
+                                    )
+                except Exception:  # noqa: BLE001 - best-effort
+                    _logger.exception(
+                        "job terminal handler failed for session=%s",
+                        conversation_id,
+                    )
+
+            def _extract_assistant_summary(
+                cstore: object, sid: str
+            ) -> str | None:
+                try:
+                    from omnigent.db.db_models import workspace_scope
+
+                    with workspace_scope(0):
+                        _page = cstore.list_items(sid, limit=20, order="desc")
+                        _items = getattr(_page, "data", None) or []
+                        for it in reversed(_items or []):
+                            _type = getattr(it, "type", None)
+                            if _type != "message":
+                                continue
+                            _data = getattr(it, "data", None)
+                            _role = getattr(_data, "role", None)
+                            if _role != "assistant":
+                                continue
+                            _content = getattr(_data, "content", None) or []
+                            _text = ""
+                            for _c in _content:
+                                if isinstance(_c, dict):
+                                    _text += _c.get("text", "") or ""
+                                elif hasattr(_c, "text"):
+                                    _text += _c.text or ""
+                            if _text:
+                                return _text[:500]
+                except Exception:  # noqa: BLE001 - best-effort
+                    pass
+                return None
+
+            _sls.register_job_completion_handler(_job_session_terminal)
 
         try:
             yield

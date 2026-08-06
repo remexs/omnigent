@@ -299,3 +299,42 @@ def clear_runner_liveness(runner_id: str) -> None:
     if _store is None:
         return
     _submit("runner_liveness_clear", _store.clear_runner_liveness, runner_id)
+
+
+# ── Job completion hook (outer collaboration layer) ──────────────────────
+# When a session bound to a business job reaches a terminal edge (idle =
+# completed, failed = errored), mark the job pending_review and register the
+# produced artifact. The callback is registered at app startup with the
+# job store; a conversation with no job association is a cheap no-op.
+_job_completion_handler: object | None = None
+
+
+def register_job_completion_handler(handler: object | None) -> None:
+    """Register the callable that marks a job complete on session terminal.
+
+    :param handler: ``callable(conversation_id, status)`` or ``None`` to
+        clear. Registered at app startup from ``app.state.job_store`` wiring.
+    """
+    global _job_completion_handler
+    _job_completion_handler = handler
+
+
+def persist_job_completion(conversation_id: str, status: str) -> None:
+    """Mark a job pending_review when its bound session reaches terminal.
+
+    Called from ``_publish_status`` on idle/failed edges. No-op unless a
+    handler was registered (job feature disabled or no bound job).
+    """
+    if _job_completion_handler is None:
+        return
+    if status not in ("idle", "failed"):
+        return
+    _logger.info("persist_job_completion: conv=%s status=%s handler=%s", conversation_id, status, bool(_job_completion_handler))
+    try:
+        _job_completion_handler(conversation_id, status)
+    except Exception:  # noqa: BLE001 - best-effort; job completion must not break sessions
+        _logger.exception(
+            "job completion hook failed for conversation=%s status=%s",
+            conversation_id,
+            status,
+        )

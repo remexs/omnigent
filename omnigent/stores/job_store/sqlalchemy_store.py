@@ -309,3 +309,10 @@ class SqlAlchemyJobStore(JobStore):
                 .all()
             )
         return [_evaluation_to_entity(r) for r in rows]
+
+    def find_by_session(self, session_id: str) -> str | None:
+        with self._session() as session:
+            row = session.execute(
+                select(SqlJob).where(SqlJob.session_id == session_id)
+            ).scalars().first()
+            return row.id if row is not None else None

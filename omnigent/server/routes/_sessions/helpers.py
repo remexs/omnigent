@@ -3393,6 +3393,7 @@ def _publish_status(
     # edges are skipped entirely so the hot path pays nothing mid-turn.
     if status == "idle":
         session_live_state.persist_scheduled_run_completion(session_id, "succeeded")
+        session_live_state.persist_job_completion(session_id, "idle")
     elif status == "failed":
         session_live_state.persist_scheduled_run_completion(
             session_id,
@@ -3400,6 +3401,7 @@ def _publish_status(
             error_code=error.code if error is not None else None,
             error=error.message if error is not None else None,
         )
+        session_live_state.persist_job_completion(session_id, "failed")
     # Track the in-flight response id for snapshot-based reconnect (see
     # _session_active_response_cache). A running/waiting edge that names a
     # turn opens it; any idle/failed edge closes it.
