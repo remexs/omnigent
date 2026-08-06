@@ -10,6 +10,7 @@ rework (round + 1).
 
 from __future__ import annotations
 
+import asyncio
 import secrets
 from typing import Any
 
@@ -270,6 +271,144 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
         if not store.delete(job_id):
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
         return {"deleted": job_id}
+
+    @router.post("/jobs/{job_id}/launch")
+    async def launch_job(job_id: str, request: Request) -> dict:
+        """Claim a job and launch its session on the assignee's host.
+
+        Creates a session for the job's agent, grants ownership to the
+        assignee, and dispatches the job description so the agent runs —
+        mirroring the scheduled-task fire path. Requires a host id in the
+        body (the assignee's online host).
+        """
+        user = _require_user(request, auth_provider)
+        body = await request.json()
+        host_id = body.get("host_id")
+        if not host_id:
+            raise OmnigentError(
+                "host_id is required (the assignee's online host)",
+                code=ErrorCode.INVALID_INPUT,
+            )
+        store = _store(request)
+        job = store.get(job_id)
+        if job is None:
+            raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        if not job.agent_name:
+            raise OmnigentError(
+                "job has no agent_name — set an agent before launching",
+                code=ErrorCode.INVALID_INPUT,
+            )
+        assignee = job.assignee_user_id or (str(user) if user else None)
+
+        # Resolve the agent id from the agent name.
+        agent_store = getattr(request.app.state, "agent_store", None)
+        conversation_store = getattr(request.app.state, "conversation_store", None)
+        permission_store = getattr(request.app.state, "permission_store", None)
+        runner_router = getattr(request.app.state, "runner_router", None)
+        tunnel_registry = getattr(request.app.state, "tunnel_registry", None)
+        host_registry = getattr(request.app.state, "host_registry", None)
+        if not (agent_store and conversation_store):
+            raise OmnigentError(
+                "session stores not configured on this server",
+                code=ErrorCode.INTERNAL_ERROR,
+            )
+
+        agent = await asyncio.to_thread(
+            agent_store.get_by_name, job.agent_name
+        )
+        if agent is None:
+            raise OmnigentError(
+                f"agent {job.agent_name!r} not found", code=ErrorCode.NOT_FOUND
+            )
+
+        # Create the conversation (the inner session).
+        conv = await asyncio.to_thread(
+            conversation_store.create_conversation,
+            agent_id=agent.id,
+            title=job.title,
+            host_id=host_id,
+            workspace=body.get("workspace"),
+        )
+        # Grant ownership to the assignee so they can see / continue it.
+        if permission_store is not None and assignee:
+            from omnigent.server.auth import LEVEL_OWNER, RESERVED_USER_LOCAL
+
+            owner = assignee or RESERVED_USER_LOCAL
+            await asyncio.to_thread(permission_store.ensure_user, owner)
+            await asyncio.to_thread(
+                permission_store.grant, owner, conv.id, LEVEL_OWNER
+            )
+
+        # Record the session on the job.
+        store.update(job_id, session_id=conv.id, state="in_progress")
+
+        # Dispatch the job description so the agent runs.
+        from omnigent.server.routes.sessions import (
+            _dispatch_session_event_to_runner,
+            _ensure_runner_session_initialized,
+            _launch_runner_on_host,
+            _wait_for_runner_client,
+        )
+        from omnigent.server.schemas import SessionEventInput as _SEI
+
+        if host_registry is not None and runner_router is not None:
+            try:
+                launch_attempt = await _launch_runner_on_host(
+                    conv,
+                    conversation_store,
+                    host_registry,
+                    host_registry.get(host_id),
+                )
+                runner_client = None
+                if launch_attempt.error_code is None:
+                    runner_client = await _wait_for_runner_client(
+                        conv.id,
+                        runner_router,
+                        tunnel_registry,
+                        runner_id=launch_attempt.runner_id,
+                        timeout_s=30.0,
+                    )
+                if runner_client is not None:
+                    fresh = await asyncio.to_thread(
+                        conversation_store.get_conversation, conv.id
+                    )
+                    conv_for = fresh or conv
+                    await _ensure_runner_session_initialized(
+                        conv.id, conv_for, runner_client, conversation_store
+                    )
+                    prompt = job.description or f"请完成该任务：{job.title}"
+                    msg_body = _SEI(
+                        type="message",
+                        data={
+                            "role": "user",
+                            "content": [
+                                {"type": "input_text", "text": prompt}
+                            ],
+                        },
+                    )
+                    await _dispatch_session_event_to_runner(
+                        conv.id,
+                        conv_for,
+                        msg_body,
+                        conversation_store,
+                        runner_client,
+                        agent_name=None,
+                        file_store=None,
+                        artifact_store=None,
+                        created_by=assignee,
+                        runner_router=runner_router,
+                    )
+            except Exception as _exc:  # noqa: BLE001 - session launch is best-effort
+                import logging
+
+                logging.getLogger("omnigent.server.routes.jobs").warning(
+                    "job launch dispatch failed for %s: %s", job_id, _exc
+                )
+
+        return {
+            "job": _serialize_job(store.get(job_id) if store.get(job_id) else job),
+            "session_id": conv.id,
+        }
 
 
     return router

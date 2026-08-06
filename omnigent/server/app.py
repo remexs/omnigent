@@ -1120,6 +1120,13 @@ def create_app(
 
         if job_store is not None:
             app_inst.state.job_store = job_store
+            # Stores the job-launch path needs to create a session, grant
+            # ownership, and dispatch the first message.
+            app_inst.state.conversation_store = conversation_store
+            app_inst.state.permission_store = permission_store
+            app_inst.state.agent_store = agent_store
+            app_inst.state.tunnel_registry = tunnel_registry
+            app_inst.state.host_registry = host_registry
 
         try:
             yield
