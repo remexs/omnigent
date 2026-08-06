@@ -23,6 +23,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ClockIcon,
+  BriefcaseIcon,
   CircleStopIcon,
   FolderIcon,
   FolderInputIcon,
@@ -266,15 +267,17 @@ function useActiveNavItem(): {
   isNewChatPage: boolean;
   isInboxPage: boolean;
   isTasksPage: boolean;
+  isJobsPage: boolean;
 } {
   const { conversationId: activeConversationId } = useParams<{ conversationId: string }>();
   const leaf = useLocation().pathname.split("/").filter(Boolean).at(-1);
   const isInboxPage = leaf === "inbox";
   const isTasksPage = leaf === "tasks";
-  // Exclude inbox/tasks: they also have no `:conversationId`, so they would
+  const isJobsPage = leaf === "jobs";
+  // Exclude inbox/tasks/jobs: they also have no `:conversationId`, so they would
   // otherwise light up the "New session" button.
-  const isNewChatPage = activeConversationId == null && !isInboxPage && !isTasksPage;
-  return { isNewChatPage, isInboxPage, isTasksPage };
+  const isNewChatPage = activeConversationId == null && !isInboxPage && !isTasksPage && !isJobsPage;
+  return { isNewChatPage, isInboxPage, isTasksPage, isJobsPage };
 }
 
 /**
@@ -527,7 +530,7 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
   }
 
   // Which top-level nav button to highlight for the current route.
-  const { isNewChatPage, isInboxPage, isTasksPage } = useActiveNavItem();
+  const { isNewChatPage, isInboxPage, isTasksPage, isJobsPage } = useActiveNavItem();
 
   // On /settings the card keeps its chrome but swaps the conversation list
   // for the settings section nav (see settingsNav.tsx) — entering settings
@@ -803,6 +806,21 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
               <Link to="/tasks" onClick={onNavClick}>
                 <ClockIcon className="size-3.5 text-muted-foreground" />
                 {L("Automations")}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              className={cn(
+                "sidebar-compact-text h-7 w-full justify-start gap-2 rounded-[var(--radius-otto-button)] border-0 px-2 font-normal",
+                SIDEBAR_HOVER_HIGHLIGHT,
+                isJobsPage && SIDEBAR_ACTIVE_HIGHLIGHT,
+              )}
+              variant="ghost"
+              data-testid="jobs-nav"
+            >
+              <Link to="/jobs" onClick={onNavClick}>
+                <BriefcaseIcon className="size-3.5 text-muted-foreground" />
+                {L("Jobs")}
               </Link>
             </Button>
             <Button
