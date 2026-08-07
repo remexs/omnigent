@@ -34,6 +34,7 @@ class AgentStore(ABC):
         name: str,
         bundle_location: str,
         description: str | None = None,
+        owner_user_id: str | None = None,
     ) -> Agent:
         """
         Register a new template agent. Name must be unique among

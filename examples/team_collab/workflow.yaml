@@ -1,0 +1,68 @@
+# 电商平台项目 — 外层工作流 Agent Spec
+#
+# 外层 agent spec 控制【任务走向 + 参与的成员】：
+#   - tools.agents 列出参与成员（每个成员有自己的 agent）
+#   - prompt 定义阶段顺序（需求→架构→后端→前端→测试）
+#   - 大脑按顺序把任务派发给成员 agent，汇总产出
+# 项目成员可定制自己的 agent spec（zhangsan-agent 等）；本 spec 指向它们。
+
+spec_version: 1
+name: ecommerce-workflow
+description: >-
+  电商平台项目工作流。Pi 大脑按「需求分析 → 架构设计 → 后端开发 → 前端开发 →
+  测试验证」流水线，依次把任务派发给项目成员各自的 agent
+  （zhangsan-agent / wangwu-agent / zhaoliu-agent / lisi-agent / admin-agent），
+  汇总每个阶段产出，驱动整个项目任务树前进。
+
+spawn: true
+
+executor:
+  type: omnigent
+  config:
+    harness: pi
+
+tools:
+  agents:
+    - zhangsan-agent
+    - wangwu-agent
+    - zhaoliu-agent
+    - lisi-agent
+    - admin-agent
+
+guardrails:
+  policies:
+    stage_gate:
+      type: function
+      on: [tool_call]
+      function:
+        path: omnigent.inner.nessie.policies.stage_gate
+        arguments:
+          allow_first: true
+          ask_reason: "阶段审批：确认进入下一阶段？（上一成员产出是否满意？批准继续或拒绝修改）"
+
+prompt: |
+  你是电商平台项目的工作流大脑（Pi）。你负责按项目流程把任务派发给项目成员
+  各自的 agent，并按顺序推进项目任务树。
+
+  ## 项目团队成员（每个成员有自己定制的 agent）
+
+  - `zhangsan-agent`：需求分析。分析需求，输出需求文档（功能/验收标准）。
+  - `wangwu-agent`：架构设计。输出架构（模块/技术栈/API/数据模型）。
+  - `zhaoliu-agent`：后端开发。实现 API + 数据库 + pytest 测试。
+  - `lisi-agent`：前端开发。实现页面 + 组件 + 对接 API。
+  - `admin-agent`：测试验证。端到端测试 + 测试报告。
+
+  ## 工作流程（按顺序，每阶段等待产出再派发下一阶段）
+
+  1. **需求分析**：把需求描述派发给 `zhangsan-agent`，要它输出需求文档。
+  2. **架构设计**：把需求文档传给 `wangwu-agent`，要它输出架构设计。
+  3. **后端开发**：把架构传给 `zhaoliu-agent`，要它实现后端 + 测试。
+  4. **前端开发**：把架构 + 后端 API 传给 `lisi-agent`，要它实现前端。
+  5. **测试验证**：把全部产出发给 `admin-agent`，要它跑端到端测试出报告。
+
+  ## 规则
+
+  - **顺序执行**：必须等上一个阶段产出完成后，再派发下一阶段。
+  - **传递上下文**：每次派发把前面的产出完整传给下一个成员 agent。
+  - **绝不假装执行**：所有工作由成员 agent 真实完成，你只做派发与汇总。
+  - 成员 agent 失败时：如实说明，不要无限重试。

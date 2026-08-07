@@ -90,6 +90,7 @@ class SqlAlchemyAgentStore(AgentStore):
         name: str,
         bundle_location: str,
         description: str | None = None,
+        owner_user_id: str | None = None,
     ) -> Agent:
         """
         Register a new template agent in the database.
@@ -110,6 +111,7 @@ class SqlAlchemyAgentStore(AgentStore):
             bundle_location=bundle_location,
             version=1,
             kind=encode_agent_kind("template"),
+            owner_user_id=owner_user_id,
             description=description,
         )
         with self._session() as session:

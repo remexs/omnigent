@@ -218,6 +218,18 @@ def _replace_agent_config(
     agent_cache.replace(agent.id, new_loc, bundle_bytes, expand_env=True)
 
 
+def _owner_from_agent_name(name: str) -> str | None:
+    """Derive the owning member from a member-agent name.
+
+    Member agent specs are named ``<member>-agent`` (e.g.
+    ``zhangsan-agent``); the owner is the prefix. Built-ins / shared
+    agents (``pi-native-ui`` etc.) have no owner.
+    """
+    if name.endswith("-agent") and "-" in name:
+        return name[: -len("-agent")]
+    return None
+
+
 def create_builtin_agents_router(
     agent_store: AgentStore,
     agent_cache: AgentCache,
@@ -468,6 +480,7 @@ def create_builtin_agents_router(
             name=spec.name,
             bundle_location=loc,
             description=spec.description,
+            owner_user_id=_owner_from_agent_name(spec.name),
         )
         return {"agent_id": agent_id, "name": spec.name, "updated": False}
 

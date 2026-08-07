@@ -25,6 +25,7 @@ def sql_agent_to_entity(row: SqlAgent, session_id: str | None = None) -> Agent:
         name=row.name,
         bundle_location=row.bundle_location,
         version=row.version,
+        owner_user_id=row.owner_user_id,
         description=row.description,
         updated_at=row.updated_at,
         session_id=None if row.kind == AGENT_KIND["template"] else session_id,

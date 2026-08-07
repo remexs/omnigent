@@ -33,6 +33,7 @@ class Agent:
     name: str
     bundle_location: str
     version: int = 1
+    owner_user_id: str | None = None  # owning member; None for shared template agents
     description: str | None = None
     updated_at: int | None = None
     session_id: str | None = None  # owning conversation id; None for template agents

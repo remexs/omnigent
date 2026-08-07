@@ -93,7 +93,13 @@ async def _maybe_advance_flow(
         )
         if project is None:
             return
-        phases = (project.config or {}).get("phases") or []
+        config = project.config or {}
+        # Workflow spec lives in project.config.workflow (phases list), or
+        # legacy config.phases. Each phase: {name, assignee|role, agent, mode}.
+        workflow = config.get("workflow") or {}
+        phases = workflow.get("phases") if isinstance(workflow, dict) else None
+        if not phases:
+            phases = config.get("phases") or []
         if not phases:
             return
         titles = [p.get("name") for p in phases if p.get("name")]
