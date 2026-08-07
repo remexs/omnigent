@@ -49,6 +49,15 @@ interface JobWire {
   children?: JobWire[];
 }
 
+interface ProjectWire {
+  id: string;
+  name: string;
+  kind: string;
+  owner_user_id?: string | null;
+  config?: Record<string, unknown>;
+  members?: { user_id: string; role: number }[];
+}
+
 interface JobStatsWire {
   total_jobs?: number;
   by_state?: Record<string, number>;
@@ -551,14 +560,34 @@ export function JobsPage() {
   // click-free path to make a task (some browsers had stale tab issues
   // where the toggle felt unresponsive).
   const [showCreate, setShowCreate] = useState(true);
+  // Team-project filter: when set, the board shows that project's tasks
+  // (scope=project) and the header shows project info + flow progress.
+  const [projectId, setProjectId] = useState<string>("");
+  const {
+    data: projects = [],
+  } = useQuery({
+    queryKey: ["projects-mine"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/projects");
+      if (!res.ok) throw new Error(`${res.status}`);
+      const body = (await res.json()) as { data: ProjectWire[] };
+      return body.data ?? [];
+    },
+    staleTime: 30_000,
+  });
+  const teamProjects = projects.filter((p) => p.kind === "team");
+  const activeProject = teamProjects.find((p) => p.id === projectId) ?? null;
   const {
     data: jobs = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["jobs", refreshKey],
+    queryKey: ["jobs", refreshKey, projectId],
     queryFn: async () => {
-      const res = await authenticatedFetch("/v1/jobs");
+      const url = projectId
+        ? `/v1/jobs?scope=project&project_id=${projectId}`
+        : "/v1/jobs";
+      const res = await authenticatedFetch(url);
       if (!res.ok) throw new Error(`${res.status}`);
       const body = (await res.json()) as { jobs: JobWire[] };
       return body.jobs;
@@ -622,6 +651,87 @@ export function JobsPage() {
           </Button>
         </div>
       </div>
+
+      {/* 项目选择 + 流程进度 */}
+      {teamProjects.length > 0 && (
+        <div className="mt-4 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">{L("Project")}</span>
+            <Select value={projectId} onValueChange={setProjectId}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder={L("All tasks")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{L("All tasks")}</SelectItem>
+                {teamProjects.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {activeProject && (
+              <Badge variant="outline" className="gap-1">
+                <BriefcaseIcon className="size-3" />
+                {L("Team project")}
+              </Badge>
+            )}
+          </div>
+          {activeProject && (
+            <Card className="p-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold">{activeProject.name}</div>
+                  {activeProject.members && activeProject.members.length > 0 && (
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                      {activeProject.members.map((m) => (
+                        <span key={m.user_id} className="rounded-full bg-muted px-2 py-0.5">
+                          {m.user_id}{m.role === 2 ? " · " + L("admin") : ""}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {(() => {
+                  const phases = (activeProject.config?.phases as { name: string }[] | undefined) ?? [];
+                  if (phases.length === 0) return null;
+                  const doneTitles = new Set(
+                    jobs.filter((j) => j.state === "completed").map((j) => j.title),
+                  );
+                  const current = phases.findIndex((ph) => !doneTitles.has(ph.name));
+                  const progress = current === -1 ? phases.length : current;
+                  return (
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{L("Flow progress")}</span>
+                        <span>{progress}/{phases.length}</span>
+                      </div>
+                      <div className="flex gap-1">
+                        {phases.map((ph, i) => (
+                          <div
+                            key={ph.name}
+                            className={`h-1.5 flex-1 rounded-full ${
+                              i < progress
+                                ? "bg-green-500"
+                                : i === current
+                                  ? "bg-amber-400"
+                                  : "bg-muted"
+                            }`}
+                            title={ph.name}
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-1 truncate text-xs text-muted-foreground">
+                        {current === -1
+                          ? L("All phases complete")
+                          : `${phases[current].name} · ${L("in progress")}`}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* Stats bar */}
       <div className="mt-4 grid gap-2 sm:grid-cols-5">
