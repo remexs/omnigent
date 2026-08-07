@@ -127,6 +127,36 @@ async def _maybe_advance_flow(
         _lgr.warning("job flow advance skipped: %s", _exc)
 
 
+async def _maybe_complete_root(
+    job, store: Any, request: Request
+) -> None:
+    """Mark the root job completed once ALL its children are completed.
+
+    The root (main task) is an aggregate container with no executor of
+    its own; its completion is derived purely from its children. Called
+    after each child passes evaluation (or completes).
+    """
+    import logging
+
+    _lgr = logging.getLogger("omnigent.server.routes.jobs")
+    root_id = job.root_job_id or job.id
+    if job.parent_job_id is None:
+        return  # job IS the root — nothing to check
+    try:
+        tree = store.get_tree(root_id)
+        root = next((t for t in tree if t.id == root_id), None)
+        if root is None or root.state == "completed":
+            return
+        children = [t for t in tree if t.parent_job_id == root_id]
+        if not children:
+            return
+        if all(c.state == "completed" for c in children):
+            store.update(root_id, state="completed")
+            _lgr.info("job root %s auto-completed (all children done)", root_id)
+    except Exception as _exc:  # noqa: BLE001 — best-effort
+        _lgr.warning("root auto-complete skipped: %s", _exc)
+
+
 def create_jobs_router(
     *, auth_provider: AuthProvider | None = None, account_store: Any | None = None
 ) -> APIRouter:
@@ -156,6 +186,18 @@ def create_jobs_router(
         elif scope == "project":
             project_id = q.get("project_id") or q.get("root_id")
             if project_id:
+                # Only project members (or admin) may view the project's
+                # task tree; everyone who can view sees ALL tasks/progress,
+                # but claim/launch are still owner-scoped.
+                project_store = getattr(request.app.state, "project_store", None)
+                if project_store is not None:
+                    project = await asyncio.to_thread(
+                        project_store.get, project_id, owner_user_id=str(user_id) if user_id else None
+                    )
+                    if project is None:
+                        raise OmnigentError(
+                            "项目不存在或您不是项目成员", code=ErrorCode.NOT_FOUND
+                        )
                 roots = [
                     t
                     for t in store.list_roots()
@@ -267,6 +309,42 @@ def create_jobs_router(
         job = store.get(job_id)
         if job is None:
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        # Claim is owner-scoped: a project member may only claim jobs
+        # assigned to them (assignee_user_id == caller). The project
+        # manager (admin) may claim any job (to re-run/review).
+        # Main task (root, parent_job_id is null): only the manager may
+        # claim/manage it — members see it as an aggregate progress bar.
+        if job.parent_job_id is None and job.root_job_id is None:
+            account_store = getattr(request.app.state, "account_store", None)
+            is_admin = False
+            if account_store is not None:
+                try:
+                    is_admin = await asyncio.to_thread(
+                        account_store.is_admin, str(user)
+                    )
+                except Exception:  # noqa: BLE001
+                    is_admin = False
+            if not is_admin:
+                raise OmnigentError(
+                    "主任务由项目经理管理 — 项目成员只能领取分配给自己的子任务",
+                    code=ErrorCode.FORBIDDEN,
+                )
+        if job.assignee_user_id and user and str(user) != job.assignee_user_id:
+            # Admin override for re-dispatch/review.
+            account_store = getattr(request.app.state, "account_store", None)
+            is_admin = False
+            if account_store is not None:
+                try:
+                    is_admin = await asyncio.to_thread(
+                        account_store.is_admin, str(user)
+                    )
+                except Exception:  # noqa: BLE001
+                    is_admin = False
+            if not is_admin:
+                raise OmnigentError(
+                    f"该任务分配给了 {job.assignee_user_id} — 只能领取分配给自己的任务",
+                    code=ErrorCode.FORBIDDEN,
+                )
         # Execution gate: jobs that require approval do not go straight to
         # in_progress — they sit in blocked (waiting) until an admin
         # approves execution. Executors can still claim (become assignee).
@@ -301,6 +379,45 @@ def create_jobs_router(
                 "该任务未启用执行审批", code=ErrorCode.INVALID_INPUT
             )
         updated = store.update(job_id, state="in_progress")
+        return {"job": _serialize_job(updated) if updated else {}}
+
+    @router.post("/jobs/{job_id}/reassign")
+    async def reassign_job(job_id: str, request: Request) -> dict:
+        """Reassign a job to a different executor (manager action).
+
+        The project manager (admin) can move a job to another member —
+        e.g. after a reject, or when the original assignee is unavailable.
+        Also clears the session binding so the new assignee can launch.
+        """
+        user = _require_user(request, auth_provider)
+        body = await request.json()
+        new_assignee = str(body.get("assignee_user_id") or "").strip()
+        if not new_assignee:
+            raise OmnigentError(
+                "assignee_user_id is required", code=ErrorCode.INVALID_INPUT
+            )
+        account_store = getattr(request.app.state, "account_store", None)
+        is_admin = False
+        if account_store is not None:
+            try:
+                is_admin = await asyncio.to_thread(account_store.is_admin, str(user))
+            except Exception:  # noqa: BLE001
+                is_admin = False
+        if not is_admin:
+            raise OmnigentError(
+                "仅项目经理可重新分配任务", code=ErrorCode.FORBIDDEN
+            )
+        store = _store(request)
+        job = store.get(job_id)
+        if job is None:
+            raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        updated = store.update(
+            job_id,
+            assignee_user_id=new_assignee,
+            state="todo",
+            session_id=None,
+            host_id=None,
+        )
         return {"job": _serialize_job(updated) if updated else {}}
 
     @router.post("/jobs/{job_id}/complete")
@@ -357,6 +474,10 @@ def create_jobs_router(
             # phase job (assigned to the phase's configured executor) so the
             # project advances without manual task creation.
             await _maybe_advance_flow(job, store, request)
+            # Root auto-completion: once every child of a root job is
+            # completed, mark the root itself completed (the root is an
+            # aggregate container — progress bar — with no executor).
+            await _maybe_complete_root(job, store, request)
         else:
             # Reject → returned, round + 1, back to todo for rework.
             updated = store.update(job_id, state="returned", round=job.round + 1)
@@ -470,6 +591,22 @@ def create_jobs_router(
             host_id=host_id,
             workspace=body.get("workspace"),
         )
+        # File the task's session under its project so project members can
+        # find it (task session lives under the project; personal sessions
+        # stay private with project_id = NULL).
+        if job.project_id and conversation_store is not None:
+            try:
+                await asyncio.to_thread(
+                    conversation_store.set_conversation_project,
+                    conv.id,
+                    job.project_id,
+                )
+            except Exception:  # noqa: BLE001 — best-effort filing
+                import logging as _lf
+
+                _lf.getLogger("omnigent.server.routes.jobs").warning(
+                    "job session filing skipped: %s", exc_info=True
+                )
         # Grant ownership to the assignee so they can see / continue it.
         # Also grant to the host owner (the executor machine's user) so
         # their runner can fetch the agent spec (agent/contents) while

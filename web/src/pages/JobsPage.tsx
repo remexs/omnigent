@@ -128,6 +128,97 @@ function StateIcon({ state }: { state: string }) {
   return <CircleIcon className="size-4 text-muted-foreground" />;
 }
 
+/** Create-team-project dialog: name + members + flow phases. */
+function CreateProjectForm({ onDone }: { onDone: () => void }) {
+  const [name, setName] = useState("");
+  const [membersText, setMembersText] = useState("");
+  const [phasesText, setPhasesText] = useState(
+    "需求分析,zhangsan\n架构设计,wangwu\n后端开发,zhaoliu\n前端开发,lisi\n测试验证,admin",
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const save = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const members = membersText
+        .split(/[,，\n]/)
+        .map((m) => m.trim())
+        .filter(Boolean);
+      const phases = phasesText
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [n, a] = line.split(/[,，]/).map((x) => x.trim());
+          return { name: n, assignee: a || undefined, agent: "pi-native-ui" };
+        });
+      const res = await authenticatedFetch("/v1/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          kind: "team",
+          config: { phases },
+        }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      const project = (await res.json()) as ProjectWire;
+      // 添加成员
+      for (const m of members) {
+        await authenticatedFetch(`/v1/projects/${project.id}/members`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: m, role: 1 }),
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["projects-mine"] });
+      await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [name, membersText, phasesText, onDone, queryClient]);
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">{L("New team project")}</span>
+        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
+          <XIcon className="size-3.5" />
+        </Button>
+      </div>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Project name")}</span>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="电商平台" />
+      </label>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Members")}（逗号分隔）</span>
+        <Input value={membersText} onChange={(e) => setMembersText(e.target.value)} placeholder="zhangsan, wangwu, zhaoliu, lisi" />
+      </label>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Flow phases")}（每行：阶段名,执行者）</span>
+        <textarea
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          rows={5}
+          value={phasesText}
+          onChange={(e) => setPhasesText(e.target.value)}
+        />
+      </label>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      <div className="flex justify-end">
+        <Button type="button" size="sm" disabled={saving || !name.trim()} onClick={save}>
+          {saving ? L("Saving…") : L("Create")}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 /** Create-job dialog. */
 function CreateJobForm({ onDone }: { onDone: () => void }) {
   const [title, setTitle] = useState("");
@@ -385,6 +476,16 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
     await queryClient.invalidateQueries({ queryKey: ["jobs"] });
   }, [job.id, queryClient]);
 
+  const submit = useCallback(async () => {
+    const res = await authenticatedFetch(`/v1/jobs/${job.id}/complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) alert(`Submit failed: ${res.status}`);
+    await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+  }, [job.id, queryClient]);
+
   const approveExecution = useCallback(async () => {
     const res = await authenticatedFetch(`/v1/jobs/${job.id}/approve-execution`, {
       method: "POST",
@@ -396,6 +497,12 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
   }, [job.id, queryClient]);
 
   const hasDetail = (job.artifacts?.length ?? 0) > 0 || (job.evaluations?.length ?? 0) > 0 || (job.children?.length ?? 0) > 0;
+
+  // Root (main task) progress: fraction of completed children.
+  const children = job.children ?? [];
+  const isMainTask = !job.parent_job_id && children.length > 0;
+  const doneCount = children.filter((c) => c.state === "completed").length;
+  const progress = children.length > 0 ? Math.round((doneCount / children.length) * 100) : 0;
 
   return (
     <div>
@@ -444,6 +551,17 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
                     {L("Awaiting approval")}
                   </span>
                 )}
+                {job.session_id && (
+                  <a
+                    href={`/c/${job.session_id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    <GitBranchIcon className="size-3" />
+                    {L("View session")}
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -457,6 +575,11 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
             {job.state === "in_progress" && !job.session_id && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowLaunch(true)}>
                 <GitBranchIcon className="size-3" /> {L("Launch")}
+              </Button>
+            )}
+            {job.state === "in_progress" && job.session_id && (
+              <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs text-green-600" onClick={submit}>
+                <CheckCircle2Icon className="size-3" /> {L("Submit")}
               </Button>
             )}
             {job.state === "pending_review" && (
@@ -483,6 +606,34 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
             )}
           </div>
         </div>
+
+        {/* 主任务进度条 */}
+        {isMainTask && (
+          <div className="mt-2">
+            <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span>{L("Progress")}</span>
+              <span className="font-semibold text-foreground">{progress}%</span>
+            </div>
+            <div className="flex h-1.5 gap-0.5 overflow-hidden rounded-full">
+              {children.map((c) => (
+                <div
+                  key={c.id}
+                  className={`flex-1 rounded-full ${
+                    c.state === "completed"
+                      ? "bg-green-500"
+                      : c.state === "in_progress" || c.state === "pending_review"
+                        ? "bg-amber-400"
+                        : "bg-muted"
+                  }`}
+                  title={c.title}
+                />
+              ))}
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              {doneCount}/{children.length} {L("tasks done")}
+            </div>
+          </div>
+        )}
 
         {/* 产物/评价详情 */}
         {expanded && (
@@ -560,6 +711,7 @@ export function JobsPage() {
   // click-free path to make a task (some browsers had stale tab issues
   // where the toggle felt unresponsive).
   const [showCreate, setShowCreate] = useState(true);
+  const [showCreateProject, setShowCreateProject] = useState(false);
   // Team-project filter: when set, the board shows that project's tasks
   // (scope=project) and the header shows project info + flow progress.
   const [projectId, setProjectId] = useState<string>("");
@@ -649,8 +801,16 @@ export function JobsPage() {
           <Button type="button" size="sm" onClick={() => setShowCreate((v) => !v)}>
             <PlusIcon className="size-3.5" /> {L("New job")}
           </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setShowCreateProject((v) => !v)}>
+            <BriefcaseIcon className="size-3.5" /> {L("New team project")}
+          </Button>
         </div>
       </div>
+      {showCreateProject && (
+        <div className="mt-4">
+          <CreateProjectForm onDone={() => setShowCreateProject(false)} />
+        </div>
+      )}
 
       {/* 项目选择 + 流程进度 */}
       {teamProjects.length > 0 && (
