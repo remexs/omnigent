@@ -1090,7 +1090,15 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        # Admin (orchestrator) may browse any host's filesystem to pick
+        # workspaces for scheduling; regular users are still owner-scoped.
+        is_admin = False
+        if user_id is not None and account_store is not None:
+            try:
+                is_admin = await asyncio.to_thread(account_store.is_admin, user_id)
+            except Exception:  # noqa: BLE001 — non-accounts stores lack is_admin
+                is_admin = False
+        if user_id is not None and host.user_id != user_id and not is_admin:
             raise HTTPException(status_code=403, detail="not your host")
 
         if "\x00" in path:
