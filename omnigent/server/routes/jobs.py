@@ -236,15 +236,25 @@ def create_jobs_router(
                         raise OmnigentError(
                             "项目不存在或您不是项目成员", code=ErrorCode.NOT_FOUND
                         )
+                # The project's task tree is ONE tree rooted at its main
+                # task. Scope to the project's roots and return the primary
+                # tree (the first project root that has children, or the
+                # first root) so stray independent tasks don't leak in.
                 roots = [
                     t
                     for t in store.list_roots()
                     if t.project_id == project_id or t.id == project_id
                 ]
-                jobs = []
+                main_root = None
                 for r in roots:
-                    tree = store.get_tree(r.root_job_id or r.id)
-                    jobs.extend(tree)
+                    if r.children:
+                        main_root = r
+                        break
+                if main_root is None and roots:
+                    main_root = roots[0]
+                jobs = []
+                if main_root is not None:
+                    jobs = store.get_tree(main_root.root_job_id or main_root.id)
             else:
                 jobs = store.list_roots()
         else:
