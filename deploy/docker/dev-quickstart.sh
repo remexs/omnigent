@@ -16,7 +16,7 @@
 # 环境变量（默认值见下）：
 #   OMNIGENT_IMAGE       server 镜像名（默认官方 ghcr.io/omnigent-ai/omnigent-server:latest）
 #   OMNIGENT_HOST_IMAGE  host 镜像名（默认官方 ghcr.io/omnigent-ai/omnigent-host:latest）
-#   OMNIGENT_HOSTS       逗号分隔的 host 名称列表（默认 zhangsan,lisi）
+#   OMNIGENT_HOSTS       逗号分隔的 host 名称列表（默认 admin,zhangsan,lisi）
 #   OMNIGENT_PORT        server 对外端口（默认 6767）
 #   OMNIGENT_SRC         源码目录（默认当前仓库根）
 #   POSTGRES_CONTAINER   postgres 容器名（默认 weclaw — 需已在 omnigent-net 网络）
@@ -29,7 +29,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OMNIGENT_IMAGE="${OMNIGENT_IMAGE:-ghcr.io/omnigent-ai/omnigent-server:latest}"
 OMNIGENT_HOST_IMAGE="${OMNIGENT_HOST_IMAGE:-ghcr.io/omnigent-ai/omnigent-host:latest}"
-OMNIGENT_HOSTS="${OMNIGENT_HOSTS:-zhangsan,lisi}"
+OMNIGENT_HOSTS="${OMNIGENT_HOSTS:-admin,zhangsan,lisi}"
 OMNIGENT_PORT="${OMNIGENT_PORT:-6767}"
 OMNIGENT_SRC="${OMNIGENT_SRC:-$REPO_ROOT}"
 POSTGRES_CONTAINER="${POSTGRES_CONTAINER:-weclaw}"
