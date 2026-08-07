@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omnigent 多角色多用户协作平台 — 整体设计与业务逻辑</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; line-height: 1.7; max-width: 960px; margin: 0 auto; padding: 24px; color: #1a1a1a; background: #fff; }
+  h1 { border-bottom: 3px solid #2563eb; padding-bottom: 8px; }
+  h2 { border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-top: 32px; color: #1e40af; }
+  h3 { color: #374151; margin-top: 20px; }
+  code { background: #f3f4f6; padding: 2px 5px; border-radius: 4px; font-size: 0.9em; }
+  pre { background: #f8fafc; padding: 12px; border-radius: 8px; overflow-x: auto; border: 1px solid #e2e8f0; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; font-size: 0.92em; }
+  th { background: #f1f5f9; }
+  .flow { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .warn { background: #fefce8; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .ok { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.8em; font-weight: 600; }
+  .b-blue { background: #dbeafe; color: #1e40af; }
+  .b-green { background: #dcfce7; color: #166534; }
+  .b-red { background: #fee2e2; color: #991b1b; }
+  .b-amber { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+
+<h1>🏗️ Omnigent 多角色多用户协作平台<br>整体设计与业务逻辑</h1>
+<p><em>版本：0.8.0.dev0（remexs/zh-ui 分支）| 更新：2026-08</em></p>
+
+<h2>1. 系统定位</h2>
+<p>在 Omnigent（多 Agent 协作框架）之上构建的<b>多角色、多用户软件协作平台</b>：
+以 <b>项目</b> 为容器、<b>业务任务树（Job）</b> 为管理骨架、<b>Agent 会话（Conversation）</b> 为执行引擎，
+由 <b>调度者（admin/项目经理）</b> 编排、<b>执行者</b> 在各自主机上处理、<b>评审者</b> 把关质量的完整闭环。</p>
+
+<div class="flow">
+<b>一句话流程</b>：admin 建项目 + 配流程 → 分配任务给成员 → 成员在自己的机器上领取执行（Agent 干活）→
+自动待评价 → 评审通过/打回重做 → 阶段完成自动下发下一阶段。
+</div>
+
+<h2>2. 总体架构（双层结构）</h2>
+<pre>
+┌──────────────────────────────────────────────────────────────┐
+│  项目层 Project（团队协作容器）                                 │
+│  • 团队成员（角色：成员/管理员/观察者）                        │
+│  • 流程模板 config.phases[]（阶段顺序 + 各阶段执行者）          │
+└───────────────┬──────────────────────────────────────────────┘
+                │ project_id
+┌───────────────▼──────────────────────────────────────────────┐
+│  任务层 Job（业务任务树 — 管理维度）                           │
+│  • 根任务 = 项目任务，子任务 = 阶段任务                        │
+│  • 状态机：todo → in_progress → pending_review → completed    │
+│                     ↘ returned（打回重做 round+1）             │
+│  • 分配：assignee_user_id（谁做）                             │
+│  • 执行：host_id（在哪台机器）+ session_id（关联会话）          │
+│  • 审批：require_approval（可选执行门禁）                      │
+└───────────────┬──────────────────────────────────────────────┘
+                │ session_id
+┌───────────────▼──────────────────────────────────────────────┐
+│  会话层 Conversation（Agent 执行树 — 执行维度）                │
+│  • 每个任务一个会话（或子会话树）                              │
+│  • agent_id 绑定（执行逻辑：谁的 Agent）                       │
+│  • host_id 绑定（执行环境：谁的机器）                          │
+│  • 消息/工具调用/产物 = Agent 处理全过程记录                    │
+└──────────────────────────────────────────────────────────────┘
+</pre>
+
+<h2>3. 权限模型（核心设计）</h2>
+
+<h3>3.1 两个维度：可见性 vs 执行权</h3>
+<table>
+<tr><th>维度</th><th>存储</th><th>控制</th><th>共享后的行为</th></tr>
+<tr><td><b>可见性</b>（谁能看）</td><td>session_permissions.level ≥ READ</td><td>owner grant</td><td>被共享者能看消息/产物</td></tr>
+<tr><td><b>参与度</b>（谁能发消息）</td><td>level ≥ EDIT</td><td>owner grant</td><td>被共享者能参与会话</td></tr>
+<tr><td><b>执行逻辑</b>（谁的 Agent）</td><td>conv.agent_id（会话固定）</td><td>创建者</td><td><b>永远用创建者的 Agent</b></td></tr>
+<tr><td><b>执行环境</b>（谁的机器）</td><td>conv.host_id（会话固定）</td><td>创建者</td><td><b>永远在创建者的 host</b></td></tr>
+<tr><td><b>管理</b>（谁能共享）</td><td>level ≥ MANAGE</td><td>owner grant</td><td>可再共享给他人</td></tr>
+</table>
+
+<h3>3.2 权限级别</h3>
+<pre>
+LEVEL_READ   = 1   # 只读（看消息/产物）
+LEVEL_EDIT   = 2   # 可参与（发消息/执行）
+LEVEL_MANAGE = 3   # 可管理（共享给他人）
+LEVEL_OWNER  = 4   # 所有者（归档/删除/批准）
+</pre>
+
+<h3>3.3 任务执行权限（本次新增）</h3>
+<div class="ok">
+<b>核心规则：执行权 = 主机所有者</b>
+<ul>
+<li><b>调度者（admin）</b>：可见全部 host（调度视角），但<b>不能</b>在别人的机器上执行 —— launch 校验 403</li>
+<li><b>执行者</b>：只能在自己的 host 上 launch（host owner 校验）</li>
+<li><b>任务转发</b>：admin 分配任务给 zhangsan → zhangsan 在自己的 host 领取执行</li>
+<li><b>可选审批</b>：require_approval=true 的任务，领取后进 blocked，admin 批准后才能执行</li>
+</ul>
+</div>
+
+<h3>3.4 项目可见性</h3>
+<table>
+<tr><th>对象</th><th>可见范围</th></tr>
+<tr><td>个人项目（kind=personal）</td><td>仅 owner（会话分组）</td></tr>
+<tr><td>团队项目（kind=team）</td><td>项目成员可见（含 owner + members）</td></tr>
+<tr><td>项目任务</td><td>项目成员可见（scope=project）</td></tr>
+<tr><td>个人任务</td><td>assignee 可见</td></tr>
+<tr><td>任务会话</td><td>assignee + host owner（grant 授权）</td></tr>
+</table>
+
+<h2>4. 状态机</h2>
+
+<h3>4.1 任务状态（jobs.state）</h3>
+<pre>
+                    ┌──────────────┐
+        创建        │    todo      │
+        ──────────► │  （待办）     │
+                    └──────┬───────┘
+                           │ claim（领取）
+                           ▼
+                    ┌──────────────┐     require_approval=true 时
+                    │ in_progress  │ ──► blocked（等待审批）──admin 批准──► in_progress
+                    └──────┬───────┘
+                           │ agent 执行完成（自动）
+                           ▼
+                    ┌──────────────┐
+                    │pending_review│ ←── complete / persist_job_completion
+                    └──────┬───────┘
+                           │ evaluate
+              ┌────────────┴────────────┐
+              ▼                         ▼
+      ┌──────────────┐          ┌──────────────┐
+      │  completed   │          │  returned    │  ← 打回，round+1
+      │  （已完成）   │          │  （打回）     │
+      └──────────────┘          └──────┬───────┘
+                                        │ 重新 claim → in_progress（重做）
+                                        ▼
+                              （回到 in_progress，round 已 +1）
+</pre>
+
+<h3>4.2 流程自动派生（项目流程模板）</h3>
+<div class="flow">
+项目 <code>config.phases</code> 定义有序阶段，<b>阶段任务评价 pass 后自动创建下一阶段任务</b>：
+<pre>
+config.phases = [
+  {name:"需求分析", assignee:"zhangsan", agent:"pi-native-ui"},
+  {name:"架构设计", assignee:"wangwu",   agent:"pi-native-ui"},
+  {name:"后端开发", assignee:"zhaoliu",  agent:"pi-native-ui"},
+  {name:"前端开发", assignee:"lisi",     agent:"pi-native-ui"},
+  {name:"测试验证", assignee:"admin",    agent:"pi-native-ui"}
+]
+需求分析 pass ✅ → 自动创建「架构设计」(wangwu) → pass → 自动创建「后端开发」(zhaoliu) → ...
+</pre>
+</div>
+
+<h2>5. 数据模型</h2>
+
+<h3>5.1 表结构</h3>
+<pre>
+users（用户，全局公用）
+├── id / is_admin / password_hash ...
+
+projects（项目）
+├── id / name / owner_user_id
+├── kind（'personal' 个人 | 'team' 团队）
+└── config（JSON：流程模板 phases[] 等）
+
+project_members（项目成员）
+├── project_id / user_id / role（1=成员 2=管理员 3=观察者）
+└── created_at
+
+jobs（业务任务树）
+├── id / parent_job_id / root_job_id（树结构）
+├── title / description / state / round
+├── assignee_user_id（谁做）/ created_by_user_id
+├── agent_name（执行角色）/ depends_on
+├── session_id（关联会话）/ host_id（执行机器）
+├── require_approval（执行门禁）/ project_id（归属项目）
+└── created_at / updated_at
+
+job_artifacts（任务产物）
+├── job_id / artifact_type（file|message）/ ref / summary
+└── created_at
+
+job_evaluations（任务评价）
+├── job_id / action（pass|reject）/ evaluator_user_id / comment
+└── created_at
+
+conversations（会话 = Agent 执行记录）
+├── id / title / agent_id（执行逻辑）/ host_id（执行环境）
+├── root_conversation_id / parent_conversation_id（会话树）
+└── workspace_id
+
+session_permissions（会话权限）
+├── conversation_id / user_id / level（1-4）
+└── can_approve（审批委托）
+</pre>
+
+<h3>5.2 核心关联</h3>
+<pre>
+Project ──project_id──► Job（根任务 + 子任务树）
+                          │ session_id
+                          ▼
+                     Conversation（Agent 执行会话）
+                          │ agent_id ──► Agent 定义（谁执行逻辑）
+                          │ host_id  ──► Host（谁的机器）
+</pre>
+
+<h2>6. API 设计</h2>
+
+<h3>6.1 任务（Jobs）— /v1/jobs</h3>
+<table>
+<tr><th>方法</th><th>路径</th><th>说明</th></tr>
+<tr><td>GET</td><td>/v1/jobs</td><td>任务列表：roots 默认；scope=assigned（我的）；scope=project（项目任务）</td></tr>
+<tr><td>POST</td><td>/v1/jobs</td><td>创建任务（含 parent/assignee/require_approval/project_id）</td></tr>
+<tr><td>GET</td><td>/v1/jobs/{id}</td><td>任务详情（含产物/评价）</td></tr>
+<tr><td>GET</td><td>/v1/jobs/tree/{root}</td><td>任务树</td></tr>
+<tr><td>GET</td><td>/v1/jobs/stats</td><td>统计（总数/状态分布/轮次/打回）</td></tr>
+<tr><td>POST</td><td>/v1/jobs/{id}/claim</td><td>领取（assignee + in_progress；审批任务→blocked）</td></tr>
+<tr><td>POST</td><td>/v1/jobs/{id}/approve-execution</td><td>批准执行（admin，blocked→in_progress）</td></tr>
+<tr><td>POST</td><td>/v1/jobs/{id}/launch</td><td>启动执行（host owner 校验 → 建会话 → 派发）</td></tr>
+<tr><td>POST</td><td>/v1/jobs/{id}/complete</td><td>标记完成（→pending_review + 产物）</td></tr>
+<tr><td>POST</td><td>/v1/jobs/{id}/evaluate</td><td>评价（pass→completed 触发流程派生；reject→returned+round）</td></tr>
+<tr><td>POST</td><td>/v1/jobs/{id}/state</td><td>手动改状态</td></tr>
+<tr><td>DELETE</td><td>/v1/jobs/{id}</td><td>删除</td></tr>
+</table>
+
+<h3>6.2 项目（Projects）— /v1/projects</h3>
+<table>
+<tr><th>方法</th><th>路径</th><th>说明</th></tr>
+<tr><td>POST</td><td>/v1/projects</td><td>创建（kind=personal|team，config 存 phases）</td></tr>
+<tr><td>GET</td><td>/v1/projects?scope=mine</td><td>我的项目（创建 + 成员）</td></tr>
+<tr><td>GET</td><td>/v1/projects/{id}</td><td>详情（含成员）</td></tr>
+<tr><td>PATCH</td><td>/v1/projects/{id}</td><td>更新（名称/config/kind）</td></tr>
+<tr><td>DELETE</td><td>/v1/projects/{id}</td><td>删除</td></tr>
+<tr><td>POST</td><td>/v1/projects/{id}/members</td><td>添加成员（owner/admin）</td></tr>
+<tr><td>DELETE</td><td>/v1/projects/{id}/members/{uid}</td><td>移除成员</td></tr>
+<tr><td>GET</td><td>/v1/projects/{id}/members</td><td>成员列表</td></tr>
+</table>
+
+<h3>6.3 主机（Hosts）— /v1/hosts</h3>
+<table>
+<tr><th>方法</th><th>路径</th><th>说明</th></tr>
+<tr><td>GET</td><td>/v1/hosts</td><td>host 列表（admin 见全部含 owner；普通用户见自己）</td></tr>
+<tr><td>GET</td><td>/v1/hosts/{id}/filesystem</td><td>文件系统（admin 可浏览任意 host，普通用户仅自己的）</td></tr>
+</table>
+
+<h2>7. 完整业务流程图（软件开发场景）</h2>
+<pre>
+┌─ admin（项目经理）────────────────────────────────────────────┐
+│ 1. 创建团队项目「软件研发流程」（kind=team）                    │
+│ 2. 配置流程模板 phases[需求→架构→后端→前端→测试]               │
+│ 3. 添加成员 zhangsan/wangwu/zhaoliu/lisi                        │
+│ 4. 建根任务 + 阶段1（需求分析→zhangsan）                        │
+└──────────────┬───────────────────────────────────────────────┘
+               ▼
+┌─ zhangsan（执行者）──────────────────────────────────────────┐
+│ 5. 登录 → 任务页 → 选项目 → 看到「需求分析」（分配给自己）       │
+│ 6. 点【领取】→ 待办→进行中                                     │
+│ 7. 点【启动】→ 选自己的 host → Agent 在自己的机器上执行          │
+└──────────────┬───────────────────────────────────────────────┘
+               ▼ （agent 完成，自动 pending_review + 产物）
+┌─ admin（评审）───────────────────────────────────────────────┐
+│ 8. 评价 ✅ pass → 需求分析 completed                           │
+│    → 【自动创建】架构设计（wangwu）                            │
+└──────────────┬───────────────────────────────────────────────┘
+               ▼
+┌─ wangwu → 领取架构设计 → 自己 host 执行 → admin 评价 ...       │
+│ （依次 zhaoliu 后端 / lisi 前端 / admin 测试）                 │
+└──────────────┬───────────────────────────────────────────────┘
+               ▼
+┌─ 打回重做（质量不达标时）────────────────────────────────────┐
+│ 评价 ❌ reject → returned + round 2 → 执行者重新领取重做        │
+│ → 再评价 ✅ → completed                                       │
+└───────────────────────────────────────────────────────────────┘
+</pre>
+
+<h2>8. Docker 多主机部署</h2>
+<pre>
+┌────────────────────────────────────────────┐
+│ [omnigent-server 容器]                      │
+│  官方镜像 + 挂载源码（/build，热更新）        │
+│  + entrypoint 注入 job_store                │
+│  端口 6767                                  │
+└──────────────┬─────────────────────────────┘
+               │ omnigent-net（内部网络）
+   ┌───────────┼───────────┬─────────────┐
+   ▼           ▼           ▼             ▼
+[host-admin] [host-zhangsan] [host-wangwu] [host-lisi] [host-zhaoliu]
+   │           │           │             │           │
+   └───────────┴───────────┴─────────────┴───────────┘
+   每个 host：官方 host 镜像 + 各自用户登录 + provider 配置
+   （pi harness + opencode-go 网关：default: ["openai","pi"]）
+</pre>
+
+<div class="warn">
+<b>host 配置注意</b>：pi harness 需要 provider 显式声明 <code>default: ["openai", "pi"]</code>，
+否则 pi 报 "no omnigent-configured provider" 退回到自己的 /login（无模型 → 空回复）。
+</div>
+
+<h2>9. 快速部署（热更新）</h2>
+<pre>
+# server（挂载源码，改代码即时生效）
+docker restart omnigent-server
+
+# 前端（重新构建 web-ui）
+cd web && npm run build && docker restart omnigent-server
+
+# 一键拉起（dev-quickstart.sh）
+./deploy/docker/dev-quickstart.sh up
+./deploy/docker/dev-quickstart.sh logs
+./deploy/docker/dev-quickstart.sh down
+</pre>
+
+<h2>10. 测试账号</h2>
+<table>
+<tr><th>用户名</th><th>密码</th><th>角色</th><th>host</th></tr>
+<tr><td>admin</td><td>admin123!</td><td>调度者/评审/测试</td><td>ef997a0579c5</td></tr>
+<tr><td>zhangsan</td><td>Zhang3@123!</td><td>需求分析</td><td>8b079fafc9ac</td></tr>
+<tr><td>wangwu</td><td>Wang5@123!</td><td>架构设计</td><td>eabfef6cece5</td></tr>
+<tr><td>zhaoliu</td><td>Zhao6@123!</td><td>后端开发</td><td>737deb76991e</td></tr>
+<tr><td>lisi</td><td>Lisi@123!</td><td>前端开发</td><td>c859cb47e75e</td></tr>
+</table>
+
+<h2>11. 已知问题与待办</h2>
+<table>
+<tr><th>问题</th><th>严重度</th><th>说明</th></tr>
+<tr><td>pi agent 回复空/不回传</td><td class="badge b-red">高</td><td>tmux 里 pi 在 Working 但回复未通过 extension 回传（harness 层）</td></tr>
+<tr><td>claim 后 UI 不自动刷新</td><td class="badge b-amber">中</td><td>invalidateQueries 后需手动刷新（React Query 缓存）</td></tr>
+<tr><td>LaunchForm hostId 状态</td><td class="badge b-amber">中</td><td>JS 选 host 未进 React state → launch 静默失败（真实事件可解决）</td></tr>
+<tr><td>项目选择器下拉时序</td><td class="badge b-amber">中</td><td>Radix Select 展开慢，自动化测试需等待</td></tr>
+<tr><td>host 重启后 host_id 变化</td><td class="badge b-blue">低</td><td>旧 host_id 失效需重新查询（正常运行）</td></tr>
+</table>
+
+<h2>12. 设计原则（决策记录）</h2>
+<ul>
+<li><b>命名 job</b>（非 task）：避开框架内部 tasks 表，贴合 Databricks Jobs 标准</li>
+<li><b>产物评价独立</b>：job_evaluations（产物质量裁决）与会话评价（审批/评论）完全分离</li>
+<li><b>外层共享不改机制</b>：任务表记"意图"（assignee），领取执行时调用现有 grant() 落地授权</li>
+<li><b>host 权限私有</b>：host.user_id != user_id → 403；admin 可见但不可执行别人的机器</li>
+<li><b>provider 统一</b>：公司统一模型网关（opencode-go），harness 由个人决定（统一 pi）</li>
+<li><b>SkillHub 只协调</b>：技能内容在 SkillHub，Omnigent 只记录/协调不托管</li>
+</ul>
+
+</body>
+</html>
