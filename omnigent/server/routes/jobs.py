@@ -323,13 +323,38 @@ def create_jobs_router(
         root_job_id = body.get("root_job_id") or None
         store = _store(request)
         # If a child and no explicit root, resolve from the parent.
-        if parent_job_id and not root_job_id:
+        project_id: str | None = None
+        if parent_job_id:
             parent = store.get(parent_job_id)
             if parent is None:
                 raise OmnigentError(
                     f"parent job {parent_job_id!r} not found", code=ErrorCode.NOT_FOUND
                 )
             root_job_id = parent.root_job_id or parent.id
+            # Children inherit the parent's project — the client cannot
+            # attach a child to a different project than its parent tree.
+            project_id = parent.project_id
+        else:
+            # A root task only belongs to a project when the caller is the
+            # project manager (admin) creating the main task; otherwise a
+            # stray independent task would be attached to a project it is
+            # not part of.
+            project_id = body.get("project_id") or None
+            if project_id:
+                account_store = getattr(request.app.state, "account_store", None)
+                is_admin = False
+                if account_store is not None:
+                    try:
+                        is_admin = await asyncio.to_thread(
+                            account_store.is_admin, str(user)
+                        )
+                    except Exception:  # noqa: BLE001
+                        is_admin = False
+                if not is_admin:
+                    raise OmnigentError(
+                        "只有项目经理可创建项目主任务（指定 project_id）",
+                        code=ErrorCode.FORBIDDEN,
+                    )
         if not root_job_id:
             root_job_id = None  # this is itself a root
         job_id = secrets.token_hex(16)
@@ -345,7 +370,7 @@ def create_jobs_router(
             depends_on=body.get("depends_on") or None,
             state=body.get("state") or "todo",
             require_approval=bool(body.get("require_approval") or False),
-            project_id=body.get("project_id") or None,
+            project_id=project_id,
         )
         return {"job": _serialize_job(job)}
 
