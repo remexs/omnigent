@@ -610,6 +610,7 @@ class ConversationStore(ABC):
         owned_by: str | None = None,
         include_archived: bool = False,
         project: str | None = None,
+        project_id: str | None = None,
         pinned: bool = False,
         pinned_owner: str | None = None,
         title: str | None = None,

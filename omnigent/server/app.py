@@ -2042,6 +2042,9 @@ def create_app(
         prefix="/v1",
         tags=["jobs"],
     )
+    # Expose account_store for session-project scoping (project manager
+    # sees all project sessions; members only their own).
+    app.state.account_store = account_store
     app.include_router(
         create_harnesses_router(auth_provider=auth_provider),
         prefix="/v1",

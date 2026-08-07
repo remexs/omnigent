@@ -225,6 +225,46 @@ def create_projects_router(
         )
         return {"removed": removed}
 
+    @router.get("/projects/{project_id}/sessions")
+    async def list_project_sessions(request: Request, project_id: str) -> dict[str, Any]:
+        """List every session filed under a team project (manager view).
+
+        The project manager (admin) sees the whole execution trail —
+        every member's task session under this project. Regular members
+        get only their own sessions (caller-owned).
+        """
+        user_id = require_user(request, auth_provider)
+        project = await asyncio.to_thread(project_store.get, project_id, owner_user_id=user_id)
+        if project is None:
+            raise OmnigentError("Project not found", code=ErrorCode.NOT_FOUND)
+        account_store = getattr(request.app.state, "account_store", None)
+        is_admin = False
+        if account_store is not None and user_id:
+            try:
+                is_admin = await asyncio.to_thread(account_store.is_admin, user_id)
+            except Exception:  # noqa: BLE001
+                is_admin = False
+        # Query sessions filed under this project via metadata.project_id.
+        # Manager (admin) sees all; members only their own (owned_by scope).
+        conversation_store = getattr(request.app.state, "conversation_store", None)
+        if conversation_store is None:
+            raise OmnigentError("conversation store not configured", code=ErrorCode.INTERNAL_ERROR)
+        page = await asyncio.to_thread(
+            conversation_store.list_conversations,
+            100,
+            None,
+            None,
+            "default",
+            accessible_by=None,
+            owned_by=None if is_admin else user_id,
+            project_id=project_id,
+        )
+        rows = page.data if hasattr(page, "data") else (page or [])
+        return {"object": "list", "data": [
+            {"id": r.id, "title": r.title, "agent_id": r.agent_id}
+            for r in rows
+        ]}
+
     @router.get("/projects/{project_id}/members")
     async def list_project_members(request: Request, project_id: str) -> dict[str, Any]:
         """List a project's members (owner/admin/member/viewer all may read)."""

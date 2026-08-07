@@ -2165,6 +2165,7 @@ class SqlAlchemyConversationStore(ConversationStore):
         owned_by: str | None = None,
         include_archived: bool = False,
         project: str | None = None,
+        project_id: str | None = None,
         pinned: bool = False,
         pinned_owner: str | None = None,
         title: str | None = None,
@@ -2353,6 +2354,23 @@ class SqlAlchemyConversationStore(ConversationStore):
                     .distinct()
                 )
                 stmt = stmt.where(or_(title_match, content_match))
+            if project_id is not None:
+                # Filter directly by project id (manager whole-process view):
+                # sessions whose metadata.project_id == project_id. No owner
+                # name resolution needed.
+                first_class_id = select(SqlConversationMetadata.id).where(
+                    SqlConversationMetadata.workspace_id == current_workspace_id(),
+                    SqlConversationMetadata.project_id == project_id,
+                )
+                if self._conv_engine is self._engine:
+                    stmt = stmt.where(SqlConversation.id.in_(first_class_id))
+                else:
+                    with self._session() as _msess:
+                        _filed = list(_msess.execute(first_class_id).scalars())
+                    if _filed:
+                        stmt = stmt.where(SqlConversation.id.in_(_filed))
+                    else:
+                        stmt = stmt.where(SqlConversation.id == None)  # noqa: E711 — force empty
             if project is not None:
                 # Dual-read by project NAME: a session is "in <name>" if it has
                 # EITHER the first-class membership (metadata.project_id → the

@@ -761,6 +761,7 @@ def register_core_routes(
         include_archived: bool = Query(default=False),
         kind: str = Query(default="default", pattern="^(default|sub_agent|any)$"),
         project: str | None = Query(default=None),
+        project_id: str | None = Query(default=None),
         pinned: bool = Query(default=False),
     ) -> PaginatedList:
         """
@@ -832,7 +833,44 @@ def register_core_routes(
         # the store resolves the project NAME to the caller's own project id.
         # The flat list (project=None) and Unfiled (project="") stay unscoped so
         # shared sessions still surface for the "Shared with me" tab.
-        owned_by = user_id if project else None
+        # Project-scoped listing: the project manager (admin) sees every
+        # session filed under the project (whole-process monitoring);
+        # regular members still only see their own (project filter is
+        # owner-scoped for them).
+        owned_by = user_id if (project or project_id) else None
+        if project or project_id:
+            # The project manager (admin) sees every session filed under the
+            # project (whole-process monitoring); regular members still only
+            # see their own (owner-scoped project filter).
+            _account_store = getattr(request.app.state, "account_store", None)
+            _is_admin = False
+            if _account_store is not None and user_id:
+                try:
+                    _is_admin = await asyncio.to_thread(
+                        _account_store.is_admin, user_id
+                    )
+                except Exception:  # noqa: BLE001
+                    _is_admin = False
+            if _is_admin:
+                # Manager: resolve the project name → id (via the project
+                # store) so the store's name→id resolution succeeds, then
+                # un-scope owned_by so ALL project sessions are returned.
+                _project_store = getattr(request.app.state, "project_store", None)
+                if _project_store is not None:
+                    if project:
+                        _projects = await asyncio.to_thread(
+                            _project_store.list, owner_user_id=user_id, scope="mine"
+                        )
+                        _match = next((p for p in _projects if p.name == project), None)
+                        if _match is not None:
+                            owned_by = _match.owner_user_id or user_id
+                    elif project_id:
+                        _proj = await asyncio.to_thread(
+                            _project_store.get, project_id, owner_user_id=user_id
+                        )
+                        if _proj is not None:
+                            owned_by = _proj.owner_user_id or user_id
+                            project = _proj.name
         page = await asyncio.to_thread(
             conversation_store.list_conversations,
             limit=limit,
