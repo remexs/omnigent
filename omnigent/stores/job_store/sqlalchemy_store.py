@@ -196,7 +196,10 @@ class SqlAlchemyJobStore(JobStore):
                 .scalars()
                 .all()
             )
-        return [_job_to_entity(r) for r in rows]
+        jobs = [_job_to_entity(r) for r in rows]
+        for t in jobs:
+            t.evaluations = self.list_evaluations(t.id)
+        return jobs
 
     def update(
         self,

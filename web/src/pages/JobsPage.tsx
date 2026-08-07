@@ -482,6 +482,29 @@ export function JobsPage() {
 
   const byState = useMemo(() => stats?.by_state ?? {}, [stats]);
 
+  // ── 多列看板：按状态分列 ──
+  const COLUMNS: { state: string; label: string }[] = [
+    { state: "todo", label: STATE_LABELS.todo },
+    { state: "in_progress", label: STATE_LABELS.in_progress },
+    { state: "pending_review", label: STATE_LABELS.pending_review },
+    { state: "completed", label: STATE_LABELS.completed },
+    { state: "returned", label: STATE_LABELS.returned },
+    { state: "blocked", label: STATE_LABELS.blocked },
+  ];
+
+  const board = useMemo(() => {
+    const byCol = new Map<string, JobWire[]>();
+    for (const col of COLUMNS) byCol.set(col.state, []);
+    for (const j of jobs) {
+      const col = byCol.get(j.state);
+      if (col) col.push(j);
+    }
+    for (const col of byCol.values()) {
+      col.sort((a, b) => b.round - a.round || (b.created_at ?? 0) - (a.created_at ?? 0));
+    }
+    return byCol;
+  }, [jobs]);
+
   return (
     <section className="p-4">
       <div className="flex items-center justify-between">
@@ -543,13 +566,35 @@ export function JobsPage() {
         <p className="mt-4 text-sm text-muted-foreground">{L("No jobs yet. Create one to start.")}</p>
       )}
 
-      <div className="mt-4 space-y-2">
-        {jobs.map((j) => (
-          <Card key={j.id} className="p-2">
-            <JobNode job={j} />
-          </Card>
-        ))}
-      </div>
+      {/* 多列看板 */}
+      {!isLoading && !error && jobs.length > 0 && (
+        <div className="mt-4 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+          {COLUMNS.map((col) => {
+            const colJobs = board.get(col.state) ?? [];
+            return (
+              <div key={col.state} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium">
+                  <span className="flex items-center gap-2">
+                    <StateIcon state={col.state} />
+                    {col.label}
+                  </span>
+                  <Badge variant="secondary">{colJobs.length}</Badge>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {colJobs.length === 0 && (
+                    <div className="rounded-lg border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
+                      {L("None")}
+                    </div>
+                  )}
+                  {colJobs.map((j) => (
+                    <JobNode key={j.id} job={j} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
