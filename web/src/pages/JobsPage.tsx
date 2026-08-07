@@ -547,7 +547,10 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
  */
 export function JobsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showCreate, setShowCreate] = useState(false);
+  // Create form is open by default so the page always offers a visible,
+  // click-free path to make a task (some browsers had stale tab issues
+  // where the toggle felt unresponsive).
+  const [showCreate, setShowCreate] = useState(true);
   const {
     data: jobs = [],
     isLoading,
