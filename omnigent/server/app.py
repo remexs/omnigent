@@ -2423,6 +2423,7 @@ def create_app(
                 permission_store=permission_store,
                 agent_store=agent_store,
                 agent_cache=agent_cache,
+                account_store=account_store,
             ),
             prefix="/v1",
             tags=["hosts"],

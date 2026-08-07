@@ -531,6 +531,7 @@ def create_hosts_router(
     permission_store: PermissionStore | None = None,
     agent_store: AgentStore | None = None,
     agent_cache: AgentCache | None = None,
+    account_store: Any | None = None,
 ) -> APIRouter:
     """Build the router for host REST endpoints.
 
@@ -569,7 +570,20 @@ def create_hosts_router(
         # only when auth is disabled entirely — there the single-user
         # server's hosts are owned by the reserved "local" user.
         user_id = require_user(request, auth_provider)
-        if user_id is None:
+        # Admins see the whole fleet (orchestration view) so they can
+        # schedule work across every user's hosts; regular users only
+        # see their own.
+        is_admin = False
+        if user_id is not None and account_store is not None:
+            try:
+                is_admin = await asyncio.to_thread(
+                    account_store.is_admin, user_id
+                )
+            except Exception:  # noqa: BLE001 — non-accounts stores lack is_admin
+                is_admin = False
+        if is_admin:
+            hosts = await asyncio.to_thread(host_store.list_all_hosts)
+        elif user_id is None:
             hosts = await asyncio.to_thread(host_store.list_hosts, "local")
         else:
             hosts = await asyncio.to_thread(host_store.list_hosts, user_id)
