@@ -4324,6 +4324,15 @@ class CreateProjectRequest(BaseModel):
 
     name: str
     config: dict[str, Any] = Field(default_factory=dict)
+    kind: str = "personal"
+
+    @field_validator("kind")
+    @classmethod
+    def _validate_kind(cls, value: str) -> str:
+        """Only personal/team are valid project kinds."""
+        if value not in ("personal", "team"):
+            raise ValueError("kind must be 'personal' or 'team'")
+        return value
 
     @field_validator("name")
     @classmethod
@@ -4340,6 +4349,19 @@ class CreateProjectRequest(BaseModel):
         if len(trimmed) > 100:
             raise ValueError("name must be at most 100 characters")
         return trimmed
+
+
+class AddProjectMemberRequest(BaseModel):
+    """Request body for ``POST /v1/projects/{id}/members``.
+
+    :param user_id: The member to add (or update).
+    :param role: 1=member (default), 2=admin, 3=viewer.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    user_id: str
+    role: int = 1
 
 
 class UpdateProjectRequest(BaseModel):

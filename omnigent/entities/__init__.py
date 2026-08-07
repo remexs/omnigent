@@ -29,6 +29,7 @@ from omnigent.entities.pagination import PagedList
 from omnigent.entities.permission import ResolvedAccess, SessionPermission
 from omnigent.entities.policy import Policy
 from omnigent.entities.project import Project
+from omnigent.entities.project_member import ProjectMember
 from omnigent.entities.scheduled_task import ScheduledTask, ScheduledTaskRun
 from omnigent.entities.job import (
     Job,
@@ -66,6 +67,7 @@ __all__ = [
     "PagedList",
     "Policy",
     "Project",
+    "ProjectMember",
     "ReasoningData",
     "ResolvedAccess",
     "ResourceEventData",

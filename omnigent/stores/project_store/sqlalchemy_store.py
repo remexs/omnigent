@@ -9,13 +9,13 @@ from sqlalchemy import asc, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from omnigent.db.db_models import SqlProject, current_workspace_id
+from omnigent.db.db_models import SqlProject, SqlProjectMember, current_workspace_id
 from omnigent.db.utils import (
     get_or_create_engine,
     make_managed_session_maker,
     now_epoch,
 )
-from omnigent.entities import Project
+from omnigent.entities import Project, ProjectMember
 from omnigent.errors import ErrorCode, OmnigentError
 from omnigent.stores.project_store import ProjectStore
 
@@ -80,6 +80,14 @@ def _is_name_conflict(exc: IntegrityError) -> bool:
     return "ix_projects_name" in message or "projects.name" in message
 
 
+def _is_member(session: Session, project_id: str, user_id: str | None) -> bool:
+    """Whether ``user_id`` is an explicit member of ``project_id``."""
+    if user_id is None:
+        return False
+    row = session.get(SqlProjectMember, (current_workspace_id(), project_id, user_id))
+    return row is not None
+
+
 def _to_entity(row: SqlProject) -> Project:
     """
     Convert a :class:`SqlProject` ORM row to a :class:`Project`.
@@ -91,6 +99,7 @@ def _to_entity(row: SqlProject) -> Project:
         id=row.id,
         name=row.name,
         owner_user_id=row.owner_user_id,
+        kind=row.kind,
         created_at=row.created_at,
         updated_at=row.updated_at,
         config=_decode_config(row.config),
@@ -155,6 +164,7 @@ class SqlAlchemyProjectStore(ProjectStore):
         name: str,
         owner_user_id: str | None,
         config: dict[str, Any] | None = None,
+        kind: str = "personal",
     ) -> Project:
         """Insert a new, empty project.
 
@@ -176,6 +186,7 @@ class SqlAlchemyProjectStore(ProjectStore):
                 id=project_id,
                 name=name,
                 owner_user_id=owner_user_id,
+                kind=kind,
                 created_at=now_epoch(),
                 updated_at=None,
                 config=_encode_config(config),
@@ -192,23 +203,119 @@ class SqlAlchemyProjectStore(ProjectStore):
                 ) from exc
             return _to_entity(row)
 
-    def get(self, project_id: str, *, owner_user_id: str | None) -> Project | None:
-        """Return an owned project by id, or ``None`` if not found."""
+    def get(
+        self, project_id: str, *, owner_user_id: str | None
+    ) -> Project | None:
+        """Return a project by id (owner or team member), or ``None``."""
         with self._session() as session:
             row = session.get(SqlProject, (current_workspace_id(), project_id))
-            if row is None or row.owner_user_id != owner_user_id:
+            if row is None:
                 return None
-            return _to_entity(row)
+            if row.owner_user_id == owner_user_id or _is_member(
+                session, project_id, owner_user_id
+            ):
+                project = _to_entity(row)
+                project.members = self.list_members(project_id)
+                return project
+            return None
 
-    def list(self, *, owner_user_id: str | None) -> list[Project]:
-        """List the owner's projects ordered by ``created_at ASC, id ASC``."""
+    # ── Team members ────────────────────────────────────────────
+
+    def add_member(
+        self, project_id: str, user_id: str, role: int = 1
+    ) -> ProjectMember:
+        """Add (or update) a member's role in a team project."""
         with self._session() as session:
-            stmt = (
-                select(SqlProject)
-                .where(SqlProject.workspace_id == current_workspace_id())
-                .where(SqlProject.owner_user_id == owner_user_id)
-                .order_by(asc(SqlProject.created_at), asc(SqlProject.id))
+            row = session.get(
+                SqlProjectMember, (current_workspace_id(), project_id, user_id)
             )
+            if row is None:
+                row = SqlProjectMember(
+                    project_id=project_id,
+                    user_id=user_id,
+                    role=role,
+                    created_at=now_epoch(),
+                )
+                session.add(row)
+            else:
+                row.role = role
+            session.flush()
+            return ProjectMember(
+                project_id=row.project_id,
+                user_id=row.user_id,
+                role=row.role,
+                created_at=row.created_at,
+            )
+
+    def remove_member(self, project_id: str, user_id: str) -> bool:
+        """Remove a member; returns False if they weren't a member."""
+        with self._session() as session:
+            row = session.get(
+                SqlProjectMember, (current_workspace_id(), project_id, user_id)
+            )
+            if row is None:
+                return False
+            session.delete(row)
+            session.flush()
+            return True
+
+    def list_members(self, project_id: str) -> list[ProjectMember]:
+        """List a project's members (excluding the owner, who is implicit)."""
+        with self._session() as session:
+            rows = session.execute(
+                select(SqlProjectMember)
+                .where(SqlProjectMember.workspace_id == current_workspace_id())
+                .where(SqlProjectMember.project_id == project_id)
+                .order_by(asc(SqlProjectMember.user_id))
+            ).scalars().all()
+            return [
+                ProjectMember(
+                    project_id=r.project_id,
+                    user_id=r.user_id,
+                    role=r.role,
+                    created_at=r.created_at,
+                )
+                for r in rows
+            ]
+
+    def member_role(
+        self, project_id: str, user_id: str | None
+    ) -> int | None:
+        """Return a user's role in a project, or None if not a member."""
+        if user_id is None:
+            return None
+        with self._session() as session:
+            row = session.get(
+                SqlProjectMember, (current_workspace_id(), project_id, user_id)
+            )
+            return row.role if row is not None else None
+
+    def list(
+        self, *, owner_user_id: str | None, scope: str = "mine"
+    ) -> list[Project]:
+        """List projects: ``mine`` = owned + member-of; ``owned`` = owned only."""
+        with self._session() as session:
+            if scope == "owned":
+                stmt = (
+                    select(SqlProject)
+                    .where(SqlProject.workspace_id == current_workspace_id())
+                    .where(SqlProject.owner_user_id == owner_user_id)
+                )
+            else:
+                # owned OR member-of
+                member_ids = session.execute(
+                    select(SqlProjectMember.project_id).where(
+                        SqlProjectMember.workspace_id == current_workspace_id(),
+                        SqlProjectMember.user_id == owner_user_id,
+                    )
+                ).scalars().all() if owner_user_id else []
+                stmt = select(SqlProject).where(
+                    SqlProject.workspace_id == current_workspace_id()
+                ).where(
+                    (SqlProject.owner_user_id == owner_user_id)
+                    | (SqlProject.id.in_(member_ids))
+                )
+            stmt = stmt.order_by(asc(SqlProject.created_at), asc(SqlProject.id))
             rows = session.execute(stmt).scalars().all()
             return [_to_entity(r) for r in rows]
 
@@ -219,6 +326,7 @@ class SqlAlchemyProjectStore(ProjectStore):
         owner_user_id: str | None,
         name: str | None = None,
         config: dict[str, Any] | None = None,
+        kind: str | None = None,
     ) -> Project | None:
         """Update mutable fields of an owned project.
 
@@ -246,6 +354,9 @@ class SqlAlchemyProjectStore(ProjectStore):
                 if row.config != encoded:
                     row.config = encoded
                     changed = True
+            if kind is not None and row.kind != kind:
+                row.kind = kind
+                changed = True
             if changed:
                 row.updated_at = now_epoch()
             try:

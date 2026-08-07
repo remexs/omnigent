@@ -38,5 +38,7 @@ class Project:
     name: str
     owner_user_id: str | None
     created_at: int
+    kind: str = "personal"
     updated_at: int | None = None
     config: dict[str, Any] = field(default_factory=dict)
+    members: list["ProjectMember"] = field(default_factory=list)

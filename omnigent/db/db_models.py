@@ -68,8 +68,6 @@ _LEGACY_ID_PREFIXES = frozenset(
         "agy_conv",
     }
 )
-
-
 class InvalidUuidError(ValueError):
     """An id string could not be normalised to a 32-char hex uuid.
 
@@ -705,6 +703,7 @@ class SqlProject(OmnigentBase):
     id: Mapped[str] = mapped_column(Uuid16(), primary_key=True)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     owner_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    kind: Mapped[str] = mapped_column(String(16), nullable=False, server_default="personal")
     created_at: Mapped[int] = mapped_column(Integer, nullable=False)
     updated_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Default session settings as a compact JSON object (host/workspace/harness/
@@ -740,6 +739,32 @@ class SqlProject(OmnigentBase):
             unique=True,
         ),
     )
+
+
+
+
+class SqlProjectMember(OmnigentBase):
+    """Project membership row (team projects).
+
+    :param project_id: Owning team project id.
+    :param user_id: Member user id.
+    :param role: 1=member, 2=admin, 3=viewer. The owner is always
+        implicitly an admin; rows are additive.
+    """
+
+    __tablename__ = "project_members"
+
+    workspace_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        nullable=False,
+        server_default="0",
+        default=current_workspace_id,
+    )
+    project_id: Mapped[str] = mapped_column(Uuid16(), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    role: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
+    created_at: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
 class SqlConversation(ConversationBase):
@@ -1627,6 +1652,7 @@ class SqlJob(OmnigentBase):
     session_id: Mapped[str | None] = mapped_column(Uuid16, nullable=True)
     host_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     require_approval: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=false())
+    project_id: Mapped[str | None] = mapped_column(Uuid16(), nullable=True)
     created_at: Mapped[int] = mapped_column(Integer, nullable=False)
     updated_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
 

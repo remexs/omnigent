@@ -25,6 +25,7 @@ from omnigent.errors import ErrorCode, OmnigentError
 from omnigent.server.auth import AuthProvider
 from omnigent.server.routes._auth_helpers import require_user
 from omnigent.server.schemas import (
+    AddProjectMemberRequest,
     CreateProjectRequest,
     UpdateProjectRequest,
 )
@@ -41,9 +42,14 @@ def _to_response(project: Project) -> dict[str, Any]:
         "id": project.id,
         "object": "project",
         "name": project.name,
+        "kind": project.kind,
         "created_at": project.created_at,
         "updated_at": project.updated_at,
         "config": project.config,
+        "members": [
+            {"user_id": m.user_id, "role": m.role, "created_at": m.created_at}
+            for m in project.members
+        ],
     }
 
 
@@ -80,6 +86,7 @@ def create_projects_router(
             body.name,
             user_id,
             body.config,
+            kind=body.kind,
         )
         return _to_response(project)
 
@@ -92,7 +99,10 @@ def create_projects_router(
         :raises OmnigentError: 401 if unauthenticated in multi-user mode.
         """
         user_id = require_user(request, auth_provider)
-        projects = await asyncio.to_thread(project_store.list, owner_user_id=user_id)
+        scope = request.query_params.get("scope", "mine")
+        projects = await asyncio.to_thread(
+            project_store.list, owner_user_id=user_id, scope=scope
+        )
         return {"object": "list", "data": [_to_response(p) for p in projects]}
 
     @router.get("/projects/{project_id}")
@@ -157,5 +167,74 @@ def create_projects_router(
         if not deleted:
             raise OmnigentError("Project not found", code=ErrorCode.NOT_FOUND)
         return {"id": project_id, "object": "project.deleted", "deleted": True}
+
+    @router.post("/projects/{project_id}/members")
+    async def add_project_member(
+        request: Request,
+        project_id: str,
+        body: AddProjectMemberRequest,
+    ) -> dict[str, Any]:
+        """Add (or update) a member's role in a team project (owner/admin)."""
+        user_id = require_user(request, auth_provider)
+        project = await asyncio.to_thread(project_store.get, project_id, owner_user_id=user_id)
+        if project is None:
+            raise OmnigentError("Project not found", code=ErrorCode.NOT_FOUND)
+        if project.kind != "team":
+            raise OmnigentError(
+                "只有团队项目可以添加成员", code=ErrorCode.INVALID_INPUT
+            )
+        role = await asyncio.to_thread(
+            project_store.member_role, project_id, user_id
+        )
+        is_owner = project.owner_user_id == user_id
+        if not is_owner and role != 2:
+            raise OmnigentError(
+                "仅项目所有者或管理员可添加成员", code=ErrorCode.FORBIDDEN
+            )
+        member = await asyncio.to_thread(
+            project_store.add_member, project_id, body.user_id, body.role
+        )
+        return {
+            "project_id": project_id,
+            "user_id": member.user_id,
+            "role": member.role,
+        }
+
+    @router.delete("/projects/{project_id}/members/{user_id}")
+    async def remove_project_member(
+        request: Request,
+        project_id: str,
+        user_id: str,
+    ) -> dict[str, Any]:
+        """Remove a member from a team project (owner/admin)."""
+        caller = require_user(request, auth_provider)
+        project = await asyncio.to_thread(project_store.get, project_id, owner_user_id=caller)
+        if project is None:
+            raise OmnigentError("Project not found", code=ErrorCode.NOT_FOUND)
+        role = await asyncio.to_thread(
+            project_store.member_role, project_id, caller
+        )
+        is_owner = project.owner_user_id == caller
+        if not is_owner and role != 2:
+            raise OmnigentError(
+                "仅项目所有者或管理员可移除成员", code=ErrorCode.FORBIDDEN
+            )
+        removed = await asyncio.to_thread(
+            project_store.remove_member, project_id, user_id
+        )
+        return {"removed": removed}
+
+    @router.get("/projects/{project_id}/members")
+    async def list_project_members(request: Request, project_id: str) -> dict[str, Any]:
+        """List a project's members (owner/admin/member/viewer all may read)."""
+        user_id = require_user(request, auth_provider)
+        project = await asyncio.to_thread(project_store.get, project_id, owner_user_id=user_id)
+        if project is None:
+            raise OmnigentError("Project not found", code=ErrorCode.NOT_FOUND)
+        members = await asyncio.to_thread(project_store.list_members, project_id)
+        return {"object": "list", "data": [
+            {"user_id": m.user_id, "role": m.role, "created_at": m.created_at}
+            for m in members
+        ]}
 
     return router

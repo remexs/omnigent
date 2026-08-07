@@ -39,6 +39,8 @@ def _serialize_job(t: Job) -> dict[str, Any]:
         "depends_on": t.depends_on,
         "session_id": t.session_id,
         "host_id": t.host_id,
+        "require_approval": t.require_approval,
+        "project_id": t.project_id,
         "created_at": t.created_at,
         "updated_at": t.updated_at,
         "artifacts": [
@@ -65,6 +67,66 @@ def _serialize_job(t: Job) -> dict[str, Any]:
     }
 
 
+async def _maybe_advance_flow(
+    job, store: Any, request: Request
+) -> None:
+    """Auto-create the next project phase job after a phase passes.
+
+    Reads the owning project's ``config.phases`` (ordered list of
+    ``{"name", "assignee", "agent"}``) and creates the phase whose title
+    follows the completed job's title, unless a sibling job with that
+    title already exists. Best-effort: any project/config/phase issue
+    logs and is skipped so evaluation still succeeds.
+    """
+    import logging
+
+    _lgr = logging.getLogger("omnigent.server.routes.jobs")
+    project_id = getattr(job, "project_id", None)
+    if not project_id:
+        return
+    try:
+        project_store = getattr(request.app.state, "project_store", None)
+        if project_store is None:
+            return
+        project = await asyncio.to_thread(
+            project_store.get, project_id, owner_user_id=job.created_by_user_id
+        )
+        if project is None:
+            return
+        phases = (project.config or {}).get("phases") or []
+        if not phases:
+            return
+        titles = [p.get("name") for p in phases if p.get("name")]
+        if job.title not in titles:
+            return
+        idx = titles.index(job.title)
+        if idx + 1 >= len(titles):
+            return  # last phase — project complete
+        next_phase = phases[idx + 1]
+        next_title = next_phase.get("name")
+        # Skip if a job with that title already exists under this project root.
+        roots = store.list_roots()
+        root = next((t for t in roots if t.id == job.root_job_id), None)
+        existing = store.get_tree(job.root_job_id or job.id) if job.root_job_id else []
+        if any(t.title == next_title for t in existing):
+            return
+        store.create(
+            secrets.token_hex(16),
+            next_title,
+            job.created_by_user_id or "admin",
+            parent_job_id=job.root_job_id,
+            root_job_id=job.root_job_id or job.id,
+            description=next_phase.get("description"),
+            assignee_user_id=next_phase.get("assignee") or None,
+            agent_name=next_phase.get("agent") or job.agent_name,
+            state="todo",
+            project_id=project_id,
+        )
+        _lgr.info("job flow: created next phase %r after %r", next_title, job.title)
+    except Exception as _exc:  # noqa: BLE001 — flow advance is best-effort
+        _lgr.warning("job flow advance skipped: %s", _exc)
+
+
 def create_jobs_router(
     *, auth_provider: AuthProvider | None = None, account_store: Any | None = None
 ) -> APIRouter:
@@ -86,11 +148,25 @@ def create_jobs_router(
         user_id = _require_user(request, auth_provider)
         store = _store(request)
         q = request.query_params
-        scope = q.get("scope", "roots")  # roots | assigned | created
+        scope = q.get("scope", "roots")  # roots | assigned | created | project
         if scope == "assigned" and user_id:
             jobs = store.list_by_assignee(user_id)
         elif scope == "created" and user_id:
             jobs = store.list_by_creator(user_id)
+        elif scope == "project":
+            project_id = q.get("project_id") or q.get("root_id")
+            if project_id:
+                roots = [
+                    t
+                    for t in store.list_roots()
+                    if t.project_id == project_id or t.id == project_id
+                ]
+                jobs = []
+                for r in roots:
+                    tree = store.get_tree(r.root_job_id or r.id)
+                    jobs.extend(tree)
+            else:
+                jobs = store.list_roots()
         else:
             jobs = store.list_roots()
         return {"jobs": [_serialize_job(t) for t in jobs]}
@@ -179,6 +255,7 @@ def create_jobs_router(
             depends_on=body.get("depends_on") or None,
             state=body.get("state") or "todo",
             require_approval=bool(body.get("require_approval") or False),
+            project_id=body.get("project_id") or None,
         )
         return {"job": _serialize_job(job)}
 
@@ -275,6 +352,11 @@ def create_jobs_router(
         )
         if action == "pass":
             updated = store.update(job_id, state="completed")
+            # Flow template: when this job belongs to a project whose config
+            # defines ordered phases, passing a phase auto-creates the next
+            # phase job (assigned to the phase's configured executor) so the
+            # project advances without manual task creation.
+            await _maybe_advance_flow(job, store, request)
         else:
             # Reject → returned, round + 1, back to todo for rework.
             updated = store.update(job_id, state="returned", round=job.round + 1)

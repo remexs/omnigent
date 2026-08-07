@@ -47,6 +47,7 @@ def _job_to_entity(row: SqlJob) -> Job:
         session_id=row.session_id,
         host_id=row.host_id,
         require_approval=row.require_approval,
+        project_id=row.project_id,
         updated_at=row.updated_at,
     )
 
@@ -99,6 +100,7 @@ class SqlAlchemyJobStore(JobStore):
         round: int = 1,
         host_id: str | None = None,
         require_approval: bool = False,
+        project_id: str | None = None,
     ) -> Job:
         row = SqlJob(
             id=job_id,
@@ -115,6 +117,7 @@ class SqlAlchemyJobStore(JobStore):
             session_id=None,
             host_id=host_id,
             require_approval=require_approval,
+            project_id=project_id,
             created_at=now_epoch(),
             updated_at=None,
         )

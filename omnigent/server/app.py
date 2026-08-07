@@ -2141,6 +2141,7 @@ def create_app(
     # First-class projects (owner-private session containers). Mounted only
     # when a project store is wired; the endpoints self-scope to the caller.
     if project_store is not None:
+        app.state.project_store = project_store
         app.include_router(
             create_projects_router(
                 project_store=project_store,
