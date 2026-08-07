@@ -116,7 +116,7 @@ async def _maybe_advance_flow(
         existing = store.get_tree(job.root_job_id or job.id) if job.root_job_id else []
         if any(t.title == next_title for t in existing):
             return
-        store.create(
+        new_job = store.create(
             secrets.token_hex(16),
             next_title,
             job.created_by_user_id or "admin",
@@ -128,6 +128,19 @@ async def _maybe_advance_flow(
             state="todo",
             project_id=project_id,
         )
+        # auto_accept: the assigned member accepts automatically (no
+        # manual claim) — the job moves straight to in_progress.
+        if (
+            new_job is not None
+            and new_job.assignee_user_id
+            and next_phase.get("auto_accept")
+        ):
+            store.update(new_job.id, state="in_progress")
+            _lgr.info(
+                "job flow: %r auto-accepted by %s",
+                next_title,
+                new_job.assignee_user_id,
+            )
         _lgr.info("job flow: created next phase %r after %r", next_title, job.title)
     except Exception as _exc:  # noqa: BLE001 — flow advance is best-effort
         _lgr.warning("job flow advance skipped: %s", _exc)
@@ -157,8 +170,11 @@ async def _maybe_complete_root(
         if not children:
             return
         if all(c.state == "completed" for c in children):
-            store.update(root_id, state="completed")
-            _lgr.info("job root %s auto-completed (all children done)", root_id)
+            # All children done → root moves to pending_review so the
+            # project manager confirms completion (manual gate).
+            if root.state != "pending_review":
+                store.update(root_id, state="pending_review")
+            _lgr.info("job root %s → pending_review (all children done)", root_id)
     except Exception as _exc:  # noqa: BLE001 — best-effort
         _lgr.warning("root auto-complete skipped: %s", _exc)
 

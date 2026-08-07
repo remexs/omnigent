@@ -133,7 +133,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
   const [name, setName] = useState("");
   const [membersText, setMembersText] = useState("");
   const [phasesText, setPhasesText] = useState(
-    "需求分析,zhangsan\n架构设计,wangwu\n后端开发,zhaoliu\n前端开发,lisi\n测试验证,admin",
+    "需求分析,zhangsan,zhangsan-agent\n架构设计,wangwu,wangwu-agent\n后端开发,zhaoliu,zhaoliu-agent\n前端开发,lisi,lisi-agent\n测试验证,admin,admin-agent",
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,8 +152,14 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => {
-          const [n, a] = line.split(/[,，]/).map((x) => x.trim());
-          return { name: n, assignee: a || undefined, agent: "pi-native-ui" };
+          const parts = line.split(/[,，]/).map((x) => x.trim());
+          const [n, a, ag, mode] = parts;
+          return {
+            name: n,
+            assignee: a || undefined,
+            agent: ag || "pi-native-ui",
+            mode: mode || "manual",
+          };
         });
       const res = await authenticatedFetch("/v1/projects", {
         method: "POST",
@@ -161,7 +167,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
         body: JSON.stringify({
           name: name.trim(),
           kind: "team",
-          config: { phases },
+          config: { workflow: { phases } },
         }),
       });
       if (!res.ok) throw new Error(`${res.status}`);
@@ -201,7 +207,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
         <Input value={membersText} onChange={(e) => setMembersText(e.target.value)} placeholder="zhangsan, wangwu, zhaoliu, lisi" />
       </label>
       <label className="space-y-1">
-        <span className="text-sm">{L("Flow phases")}（每行：阶段名,执行者）</span>
+        <span className="text-sm">{L("Flow phases")}（每行：阶段名,成员,agent,模式manual/auto）</span>
         <textarea
           className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           rows={5}
