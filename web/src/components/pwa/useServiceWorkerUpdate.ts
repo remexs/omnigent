@@ -39,6 +39,12 @@ function start(): void {
   // registration would fail — and a dev SW fights HMR anyway. Standard PWA
   // practice; vite-plugin-pwa keeps its dev service worker off for the same reason.
   if (!import.meta.env.PROD) return;
+  // Internal/self-hosted deployments disable the PWA service worker
+  // (VITE_DISABLE_SW=1) so browsers never cache a stale build — every
+  // deploy is served fresh on the next reload. The update prompt is
+  // PWA-only; without a SW there is nothing to detect, so we skip
+  // registration entirely and the banner never renders.
+  if (import.meta.env.VITE_DISABLE_SW === "1") return;
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
 
   workbox = new Workbox("/sw.js");

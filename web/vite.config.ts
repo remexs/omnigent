@@ -254,6 +254,14 @@ function safariLookbehindWorkarounds(): Plugin {
 
 export default defineConfig({
   plugins: [emitPwaAssets(), safariLookbehindWorkarounds(), react(), tailwindcss()],
+  // Internal/self-hosted builds disable the PWA service worker so browsers
+  // never serve a stale cached build after a deploy. Override with
+  // VITE_DISABLE_SW=0 to keep the PWA update flow (offline/update banner).
+  define: {
+    "import.meta.env.VITE_DISABLE_SW": JSON.stringify(
+      process.env.VITE_DISABLE_SW ?? "1",
+    ),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
