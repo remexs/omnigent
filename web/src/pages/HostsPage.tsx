@@ -1,6 +1,15 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { RefreshCwIcon, ServerIcon, CheckIcon, AlertTriangleIcon } from "lucide-react";
+import {
+  RefreshCwIcon,
+  ServerIcon,
+  CheckIcon,
+  AlertTriangleIcon,
+  UsersIcon,
+  ActivityIcon,
+  WifiIcon,
+  WifiOffIcon,
+} from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
 import { L } from "@/i18n";
 import { Button } from "@/components/ui/button";
@@ -67,7 +76,10 @@ function HostCard({ host }: { host: HostWire }) {
             {online ? L("Online") : L("Offline")}
           </Badge>
           {host.owner && host.owner !== "local" && (
-            <span className="truncate text-xs text-muted-foreground">({host.owner})</span>
+            <span className="truncate text-xs text-muted-foreground">
+              <UsersIcon className="mr-0.5 inline size-3" />
+              {host.owner}
+            </span>
           )}
         </span>
         <span className="text-xs text-muted-foreground">
@@ -121,13 +133,8 @@ function HostCard({ host }: { host: HostWire }) {
 /**
  * Hosts management (Settings → Hosts).
  *
- * Lists every machine registered as a host on this server and the
- * harnesses each one actually joined (installed & usable, or installed
- * but needing auth / a newer binary). Harnesses the machine does NOT
- * have are deliberately hidden — they can't be scheduled here anyway,
- * and showing them would clutter the picker. Harness installation is
- * decided per machine by its owner; the server only observes and
- * schedules.
+ * 调度视图（admin）：列出所有用户的 host 舰队 + 在线统计 + 按用户分组。
+ * 普通用户只看到自己的 host（服务端按 user_id 过滤）。
  */
 export function HostsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -141,7 +148,30 @@ export function HostsPage() {
     staleTime: 10_000,
   });
 
-  const sorted = useMemo(() => [...hosts].sort((a, b) => a.name.localeCompare(b.name)), [hosts]);
+  const stats = useMemo(() => {
+    const total = hosts.length;
+    const online = hosts.filter((h) => h.status === "online").length;
+    const offline = total - online;
+    const owners = new Set(hosts.map((h) => h.owner ?? "local"));
+    return { total, online, offline, ownerCount: owners.size };
+  }, [hosts]);
+
+  // Group by owner (admin fleet view), sorted by owner then name.
+  const grouped = useMemo(() => {
+    const map = new Map<string, HostWire[]>();
+    for (const h of [...hosts].sort((a, b) => {
+      const ao = a.owner ?? "local";
+      const bo = b.owner ?? "local";
+      if (ao !== bo) return ao.localeCompare(bo);
+      return a.name.localeCompare(b.name);
+    })) {
+      const owner = h.owner ?? "local";
+      map.set(owner, [...(map.get(owner) ?? []), h]);
+    }
+    return [...map.entries()];
+  }, [hosts]);
+
+  const showFleet = grouped.length > 1 || (grouped.length === 1 && grouped[0][0] !== "local");
 
   return (
     <section>
@@ -149,6 +179,38 @@ export function HostsPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         {L("Machines registered as hosts on this server and the harnesses they joined.")}
       </p>
+
+      {/* 调度统计条 */}
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Card className="flex items-center gap-3 p-3">
+          <ServerIcon className="size-4 text-muted-foreground" />
+          <div>
+            <div className="text-lg font-semibold leading-none">{stats.total}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{L("Total hosts")}</div>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-3 p-3">
+          <WifiIcon className="size-4 text-emerald-500" />
+          <div>
+            <div className="text-lg font-semibold leading-none">{stats.online}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{L("Online")}</div>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-3 p-3">
+          <WifiOffIcon className="size-4 text-muted-foreground" />
+          <div>
+            <div className="text-lg font-semibold leading-none">{stats.offline}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{L("Offline")}</div>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-3 p-3">
+          <UsersIcon className="size-4 text-muted-foreground" />
+          <div>
+            <div className="text-lg font-semibold leading-none">{stats.ownerCount}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{L("Owners")}</div>
+          </div>
+        </Card>
+      </div>
 
       <div className="mt-6 flex items-center justify-end">
         <Button
@@ -169,13 +231,28 @@ export function HostsPage() {
         </p>
       )}
 
-      {!isLoading && !error && sorted.length === 0 && (
+      {!isLoading && !error && hosts.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">{L("No hosts connected yet")}</p>
       )}
 
-      <div className="mt-4 space-y-2">
-        {sorted.map((h) => (
-          <HostCard key={h.host_id} host={h} />
+      {/* 按 owner 分组展示（调度视图） */}
+      <div className="mt-4 space-y-4">
+        {grouped.map(([owner, list]) => (
+          <div key={owner}>
+            <div className="mb-1.5 flex items-center gap-2">
+              <UsersIcon className="size-3.5 text-muted-foreground" />
+              <span className="text-sm font-medium">{owner}</span>
+              <Badge variant="outline" className="text-xs">
+                {list.filter((h) => h.status === "online").length}/{list.length}{" "}
+                {L("online")}
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              {list.map((h) => (
+                <HostCard key={h.host_id} host={h} />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </section>

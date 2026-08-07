@@ -1408,6 +1408,9 @@ export const zhCN: Record<string, string> = {
   "Create orchestrator": "创建编排器",
   "Machines registered as hosts on this server and the harnesses they joined.":
     "注册为此服务器主机（host）的机器，以及它们已加入的 harness。",
+  "Total hosts": "主机总数",
+  "Owners": "拥有者",
+  "online": "在线",
   "Not installed": "未安装",
   "Binary missing": "缺少二进制文件",
   "Needs auth": "需要认证",
