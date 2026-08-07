@@ -394,6 +394,11 @@ def build_app(resolved_config: _ResolvedConfig | None = None) -> _BuiltApp:
         policy_store=policy_store,
     )
 
+    # Job store (job task tree / evaluations) — same DB as the rest.
+    from omnigent.stores.job_store.sqlalchemy_store import SqlAlchemyJobStore
+
+    job_store = SqlAlchemyJobStore(database_url)
+
     # Build the auth provider from the live env (header/oidc/accounts).
     # Accounts mode also needs an AccountStore explicitly wired — the
     # entrypoint constructs it here rather than letting create_app do
@@ -422,6 +427,7 @@ def build_app(resolved_config: _ResolvedConfig | None = None) -> _BuiltApp:
         host_store=host_store,
         scheduled_task_store=scheduled_task_store,
         project_store=project_store,
+        job_store=job_store,
         auth_provider=auth_provider,
         account_store=account_store,
         # Non-secret auth settings from the config file (admins are the
