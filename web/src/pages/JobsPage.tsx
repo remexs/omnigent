@@ -8,6 +8,7 @@ import {
   GitBranchIcon,
   PlusIcon,
   RefreshCwIcon,
+  ServerIcon,
   ThumbsDownIcon,
   ThumbsUpIcon,
   XIcon,
@@ -18,6 +19,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /** Wire shapes. */
 interface JobWire {
@@ -32,6 +40,7 @@ interface JobWire {
   created_by_user_id?: string | null;
   agent_name?: string | null;
   session_id?: string | null;
+  host_id?: string | null;
   created_at?: number;
   artifacts?: { id: string; artifact_type: string; ref?: string | null; summary?: string | null }[];
   evaluations?: { id: string; action: string; evaluator_user_id?: string | null; comment?: string | null }[];
@@ -44,6 +53,13 @@ interface JobStatsWire {
   total_rounds?: number;
   total_rejects?: number;
   root_count?: number;
+}
+
+interface HostWire {
+  host_id: string;
+  name: string;
+  status: string;
+  owner?: string;
 }
 
 const STATE_LABELS: Record<string, string> = {
@@ -218,10 +234,104 @@ function EvaluateForm({ job, onDone }: { job: JobWire; onDone: () => void }) {
   );
 }
 
+/** Launch dialog — pick an online host from the fleet. */
+function LaunchForm({ job, onDone }: { job: JobWire; onDone: () => void }) {
+  const [hostId, setHostId] = useState("");
+  const [workspace, setWorkspace] = useState("/workspace");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const {
+    data: hosts = [],
+    isLoading: hostsLoading,
+  } = useQuery({
+    queryKey: ["hosts"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/hosts");
+      if (!res.ok) throw new Error(`${res.status}`);
+      const body = (await res.json()) as { hosts: HostWire[] };
+      return body.hosts;
+    },
+    staleTime: 15_000,
+  });
+  const online = hosts.filter((h) => h.status === "online");
+
+  const launch = useCallback(async () => {
+    if (!hostId) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await authenticatedFetch(`/v1/jobs/${job.id}/launch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ host_id: hostId, workspace }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [hostId, workspace, job.id, onDone, queryClient]);
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">
+          {L("Launch")} · {job.title}
+        </span>
+        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
+          <XIcon className="size-3.5" />
+        </Button>
+      </div>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Host")}</span>
+        {hostsLoading ? (
+          <div className="text-xs text-muted-foreground">{L("Loading…")}</div>
+        ) : online.length === 0 ? (
+          <div className="text-xs text-destructive">{L("No online hosts")}</div>
+        ) : (
+          <Select value={hostId} onValueChange={setHostId}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={L("Select a host…")} />
+            </SelectTrigger>
+            <SelectContent>
+              {online.map((h) => (
+                <SelectItem key={h.host_id} value={h.host_id}>
+                  <span className="flex items-center gap-2">
+                    <ServerIcon className="size-3.5" />
+                    {h.name}
+                    {h.owner && h.owner !== "local" && (
+                      <span className="text-xs text-muted-foreground">({h.owner})</span>
+                    )}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </label>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Workspace")}</span>
+        <Input value={workspace} onChange={(e) => setWorkspace(e.target.value)} placeholder="/workspace" />
+      </label>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      <div className="flex justify-end">
+        <Button type="button" size="sm" disabled={saving || !hostId} onClick={launch}>
+          <GitBranchIcon className="size-3.5" /> {saving ? L("Launching…") : L("Launch")}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 /** One job node in the tree. */
 function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
   const [showEvaluate, setShowEvaluate] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [showLaunch, setShowLaunch] = useState(false);
   const queryClient = useQueryClient();
   const indent = { paddingLeft: `${depth * 20 + 8}px` };
 
@@ -231,19 +341,6 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
       headers: { "Content-Type": "application/json" },
       body: "{}",
     });
-    await queryClient.invalidateQueries({ queryKey: ["jobs"] });
-  }, [job.id, queryClient]);
-
-  const launch = useCallback(async () => {
-    const res = await authenticatedFetch(`/v1/jobs/${job.id}/launch`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        host_id: "30ccdc66801f4b359963974a6e37493c",
-        workspace: "/tmp/team_test2",
-      }),
-    });
-    if (!res.ok) alert(`Launch failed: ${res.status}`);
     await queryClient.invalidateQueries({ queryKey: ["jobs"] });
   }, [job.id, queryClient]);
 
@@ -265,6 +362,12 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
         {job.assignee_user_id && (
           <span className="text-xs text-muted-foreground">→ {job.assignee_user_id}</span>
         )}
+        {job.host_id && (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <ServerIcon className="size-3" />
+            {job.host_id.slice(0, 8)}
+          </span>
+        )}
         <div className="ml-auto flex shrink-0 items-center gap-1">
           {job.state === "todo" && (
             <Button type="button" variant="ghost" size="sm" onClick={claim}>
@@ -272,7 +375,7 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
             </Button>
           )}
           {job.state === "in_progress" && !job.session_id && (
-            <Button type="button" variant="ghost" size="sm" onClick={launch}>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setShowLaunch(true)}>
               <GitBranchIcon className="size-3.5" /> {L("Launch")}
             </Button>
           )}
@@ -308,6 +411,11 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
               </span>
             </div>
           ))}
+        </div>
+      )}
+      {showLaunch && (
+        <div className="mt-1" style={indent}>
+          <LaunchForm job={job} onDone={() => setShowLaunch(false)} />
         </div>
       )}
       {showEvaluate && (

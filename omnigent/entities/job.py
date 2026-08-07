@@ -95,6 +95,7 @@ class Job:
     agent_name: str | None = None
     depends_on: str | None = None
     session_id: str | None = None
+    host_id: str | None = None
     updated_at: int | None = None
     artifacts: list[JobArtifact] = field(default_factory=list)
     evaluations: list[JobEvaluation] = field(default_factory=list)

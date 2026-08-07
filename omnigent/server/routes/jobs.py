@@ -38,6 +38,7 @@ def _serialize_job(t: Job) -> dict[str, Any]:
         "agent_name": t.agent_name,
         "depends_on": t.depends_on,
         "session_id": t.session_id,
+        "host_id": t.host_id,
         "created_at": t.created_at,
         "updated_at": t.updated_at,
         "artifacts": [
@@ -339,7 +340,7 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
             )
 
         # Record the session on the job.
-        store.update(job_id, session_id=conv.id, state="in_progress")
+        store.update(job_id, session_id=conv.id, state="in_progress", host_id=host_id)
 
         # Dispatch the job description so the agent runs.
         from omnigent.server.routes.sessions import (
