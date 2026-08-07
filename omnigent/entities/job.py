@@ -96,6 +96,7 @@ class Job:
     depends_on: str | None = None
     session_id: str | None = None
     host_id: str | None = None
+    require_approval: bool = False
     updated_at: int | None = None
     artifacts: list[JobArtifact] = field(default_factory=list)
     evaluations: list[JobEvaluation] = field(default_factory=list)

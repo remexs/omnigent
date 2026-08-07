@@ -1626,6 +1626,7 @@ class SqlJob(OmnigentBase):
     depends_on: Mapped[str | None] = mapped_column(String(512), nullable=True)
     session_id: Mapped[str | None] = mapped_column(Uuid16, nullable=True)
     host_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    require_approval: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=false())
     created_at: Mapped[int] = mapped_column(Integer, nullable=False)
     updated_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
 

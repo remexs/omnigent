@@ -2038,7 +2038,7 @@ def create_app(
         tags=["skills"],
     )
     app.include_router(
-        create_jobs_router(auth_provider=auth_provider),
+        create_jobs_router(auth_provider=auth_provider, account_store=account_store),
         prefix="/v1",
         tags=["jobs"],
     )

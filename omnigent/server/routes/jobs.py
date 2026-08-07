@@ -65,7 +65,9 @@ def _serialize_job(t: Job) -> dict[str, Any]:
     }
 
 
-def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRouter:
+def create_jobs_router(
+    *, auth_provider: AuthProvider | None = None, account_store: Any | None = None
+) -> APIRouter:
     """Build the router exposing business-job management."""
     router = APIRouter()
 
@@ -176,6 +178,7 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
             agent_name=body.get("agent_name") or None,
             depends_on=body.get("depends_on") or None,
             state=body.get("state") or "todo",
+            require_approval=bool(body.get("require_approval") or False),
         )
         return {"job": _serialize_job(job)}
 
@@ -187,11 +190,40 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
         job = store.get(job_id)
         if job is None:
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        # Execution gate: jobs that require approval do not go straight to
+        # in_progress — they sit in blocked (waiting) until an admin
+        # approves execution. Executors can still claim (become assignee).
+        next_state = "blocked" if job.require_approval else "in_progress"
         updated = store.update(
             job_id,
-            state="in_progress",
+            state=next_state,
             assignee_user_id=str(user) if user else None,
         )
+        return {"job": _serialize_job(updated) if updated else {}}
+
+    @router.post("/jobs/{job_id}/approve-execution")
+    async def approve_execution(job_id: str, request: Request) -> dict:
+        """Approve a gated job's execution (admin only), unblocking launch."""
+        user = _require_user(request, auth_provider)
+        is_admin = False
+        if account_store is not None:
+            try:
+                is_admin = await asyncio.to_thread(account_store.is_admin, str(user))
+            except Exception:  # noqa: BLE001 — non-accounts stores lack is_admin
+                is_admin = False
+        if not is_admin:
+            raise OmnigentError(
+                "仅管理员可批准任务执行", code=ErrorCode.FORBIDDEN
+            )
+        store = _store(request)
+        job = store.get(job_id)
+        if job is None:
+            raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        if not job.require_approval:
+            raise OmnigentError(
+                "该任务未启用执行审批", code=ErrorCode.INVALID_INPUT
+            )
+        updated = store.update(job_id, state="in_progress")
         return {"job": _serialize_job(updated) if updated else {}}
 
     @router.post("/jobs/{job_id}/complete")
@@ -298,6 +330,33 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
                 "job has no agent_name — set an agent before launching",
                 code=ErrorCode.INVALID_INPUT,
             )
+        # Gated jobs must be approved before they can be launched.
+        if job.require_approval and job.state != "in_progress":
+            raise OmnigentError(
+                "该任务需要管理员批准执行后才能启动 — 请等待审批通过",
+                code=ErrorCode.FORBIDDEN,
+            )
+        # Execution is owned by the host's owner: only the machine's owner
+        # may launch a runner on it (the orchestrator/admin can see all hosts
+        # for scheduling, but cannot execute on someone else's machine).
+        # Dispatch to another executor instead — claim/assign the job to
+        # them and let them launch on their own host.
+        if user is not None:
+            host_store = getattr(request.app.state, "host_store", None)
+            host_rec = (
+                await asyncio.to_thread(host_store.get_host, host_id)
+                if host_store is not None
+                else None
+            )
+            if host_rec is None:
+                raise OmnigentError(
+                    f"host {host_id!r} not found", code=ErrorCode.NOT_FOUND
+                )
+            if str(user) != host_rec.user_id:
+                raise OmnigentError(
+                    "只能在自己的主机上执行 — 如需调度请把任务转发给该主机所有者，由他们在自己的机器上启动",
+                    code=ErrorCode.FORBIDDEN,
+                )
         assignee = job.assignee_user_id or (str(user) if user else None)
 
         # Resolve the agent id from the agent name.

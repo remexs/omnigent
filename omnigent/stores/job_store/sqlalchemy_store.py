@@ -46,6 +46,7 @@ def _job_to_entity(row: SqlJob) -> Job:
         depends_on=row.depends_on,
         session_id=row.session_id,
         host_id=row.host_id,
+        require_approval=row.require_approval,
         updated_at=row.updated_at,
     )
 
@@ -97,6 +98,7 @@ class SqlAlchemyJobStore(JobStore):
         state: str = "todo",
         round: int = 1,
         host_id: str | None = None,
+        require_approval: bool = False,
     ) -> Job:
         row = SqlJob(
             id=job_id,
@@ -112,6 +114,7 @@ class SqlAlchemyJobStore(JobStore):
             depends_on=depends_on,
             session_id=None,
             host_id=host_id,
+            require_approval=require_approval,
             created_at=now_epoch(),
             updated_at=None,
         )
@@ -212,6 +215,7 @@ class SqlAlchemyJobStore(JobStore):
         session_id: str | None = None,
         depends_on: str | None = None,
         host_id: str | None = None,
+        require_approval: bool | None = None,
     ) -> Job | None:
         with self._session() as session:
             row = session.get(SqlJob, (current_workspace_id(), job_id))
@@ -229,6 +233,8 @@ class SqlAlchemyJobStore(JobStore):
                 row.session_id = session_id
             if host_id is not None:
                 row.host_id = host_id
+            if require_approval is not None:
+                row.require_approval = require_approval
             if depends_on is not None:
                 row.depends_on = depends_on
             row.updated_at = now_epoch()

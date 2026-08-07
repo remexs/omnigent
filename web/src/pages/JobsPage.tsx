@@ -9,6 +9,7 @@ import {
   PlusIcon,
   RefreshCwIcon,
   ServerIcon,
+  ShieldIcon,
   ThumbsDownIcon,
   ThumbsUpIcon,
   XIcon,
@@ -41,6 +42,7 @@ interface JobWire {
   agent_name?: string | null;
   session_id?: string | null;
   host_id?: string | null;
+  require_approval?: boolean;
   created_at?: number;
   artifacts?: { id: string; artifact_type: string; ref?: string | null; summary?: string | null }[];
   evaluations?: { id: string; action: string; evaluator_user_id?: string | null; comment?: string | null }[];
@@ -124,6 +126,7 @@ function CreateJobForm({ onDone }: { onDone: () => void }) {
   const [agentName, setAgentName] = useState("");
   const [assignee, setAssignee] = useState("");
   const [parentId, setParentId] = useState("");
+  const [requireApproval, setRequireApproval] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -137,6 +140,7 @@ function CreateJobForm({ onDone }: { onDone: () => void }) {
       if (agentName.trim()) payload.agent_name = agentName.trim();
       if (assignee.trim()) payload.assignee_user_id = assignee.trim();
       if (parentId.trim()) payload.parent_job_id = parentId.trim();
+      if (requireApproval) payload.require_approval = true;
       const res = await authenticatedFetch("/v1/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +154,7 @@ function CreateJobForm({ onDone }: { onDone: () => void }) {
     } finally {
       setSaving(false);
     }
-  }, [title, description, agentName, assignee, parentId, onDone, queryClient]);
+  }, [title, description, agentName, assignee, parentId, requireApproval, onDone, queryClient]);
 
   return (
     <Card className="space-y-3 p-4">
@@ -180,6 +184,15 @@ function CreateJobForm({ onDone }: { onDone: () => void }) {
         <label className="space-y-1 sm:col-span-2">
           <span className="text-sm">{L("Description")}</span>
           <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="任务描述" />
+        </label>
+        <label className="flex items-center gap-2 sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={requireApproval}
+            onChange={(e) => setRequireApproval(e.target.checked)}
+            className="size-4 accent-primary"
+          />
+          <span className="text-sm">{L("Require approval before execution")}</span>
         </label>
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -363,6 +376,16 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
     await queryClient.invalidateQueries({ queryKey: ["jobs"] });
   }, [job.id, queryClient]);
 
+  const approveExecution = useCallback(async () => {
+    const res = await authenticatedFetch(`/v1/jobs/${job.id}/approve-execution`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    if (!res.ok) alert(`${res.status}`);
+    await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+  }, [job.id, queryClient]);
+
   const hasDetail = (job.artifacts?.length ?? 0) > 0 || (job.evaluations?.length ?? 0) > 0 || (job.children?.length ?? 0) > 0;
 
   return (
@@ -406,6 +429,12 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
                     {job.host_id.slice(0, 8)}
                   </span>
                 )}
+                {job.require_approval && job.state === "blocked" && (
+                  <span className="inline-flex items-center gap-1 text-amber-600">
+                    <ShieldIcon className="size-3" />
+                    {L("Awaiting approval")}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -424,6 +453,11 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
             {job.state === "pending_review" && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowEvaluate(true)}>
                 <ThumbsUpIcon className="size-3" /> {L("Evaluate")}
+              </Button>
+            )}
+            {job.state === "blocked" && job.require_approval && (
+              <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs text-green-600" onClick={approveExecution}>
+                <ShieldIcon className="size-3" /> {L("Approve execution")}
               </Button>
             )}
             {hasDetail && (
