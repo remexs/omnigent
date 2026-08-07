@@ -611,7 +611,7 @@ export function JobsPage() {
       </div>
 
       {showCreate && (
-        <div className="mt-4">
+        <div className="mt-4" id="new-job-form" ref={(el) => { if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" }); }}>
           <CreateJobForm onDone={() => setShowCreate(false)} />
         </div>
       )}
