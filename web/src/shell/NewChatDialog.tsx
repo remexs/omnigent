@@ -343,6 +343,11 @@ function HostOption({ host, subtitle }: { host: Host; subtitle?: string }) {
       <span className="flex min-w-0 flex-col">
         <span className="flex items-center gap-2">
           <span className="truncate text-xs">{host.name}</span>
+          {host.owner && host.owner !== "local" && (
+            <span className="shrink-0 rounded bg-muted px-1 py-px text-[10px] font-medium text-muted-foreground">
+              @{host.owner}
+            </span>
+          )}
           <span
             className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold uppercase tracking-wider ${isOnline ? "text-green-600" : "text-muted-foreground"}`}
           >
@@ -2821,7 +2826,13 @@ export function NewChatLandingScreen() {
     ? L("Connecting…")
     : sandboxSelected
       ? sandboxLabel
-      : (selectedHost?.name ?? (onlineHosts.length === 0 ? L("No hosts") : L("Select host")));
+      : selectedHost
+        ? selectedHost.owner && selectedHost.owner !== "local"
+          ? `${selectedHost.name} @${selectedHost.owner}`
+          : selectedHost.name
+        : onlineHosts.length === 0
+          ? L("No hosts")
+          : L("Select host");
   // The chip shows just the branch (the "(existing)" distinction lives in the
   // popover's warning; appending it here only gets clipped by the chip's cap).
   const worktreeLabel = branchName.trim() || L("No worktree");

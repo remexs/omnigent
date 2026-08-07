@@ -330,6 +330,9 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
             workspace=body.get("workspace"),
         )
         # Grant ownership to the assignee so they can see / continue it.
+        # Also grant to the host owner (the executor machine's user) so
+        # their runner can fetch the agent spec (agent/contents) while
+        # executing the session.
         if permission_store is not None and assignee:
             from omnigent.server.auth import LEVEL_OWNER, RESERVED_USER_LOCAL
 
@@ -338,6 +341,16 @@ def create_jobs_router(*, auth_provider: AuthProvider | None = None) -> APIRoute
             await asyncio.to_thread(
                 permission_store.grant, owner, conv.id, LEVEL_OWNER
             )
+        if permission_store is not None and host_registry is not None:
+            _host_rec = host_registry.get(host_id)
+            _host_owner = getattr(_host_rec, "owner", None)
+            if _host_owner and _host_owner != assignee:
+                from omnigent.server.auth import LEVEL_OWNER as _LO
+
+                await asyncio.to_thread(permission_store.ensure_user, _host_owner)
+                await asyncio.to_thread(
+                    permission_store.grant, _host_owner, conv.id, _LO
+                )
 
         # Record the session on the job.
         store.update(job_id, session_id=conv.id, state="in_progress", host_id=host_id)

@@ -68,6 +68,11 @@ function HostLabel({ host }: { host: Host }) {
         <MonitorIcon className="size-4 text-muted-foreground" />
       )}
       <span className="font-mono text-xs">{host.name}</span>
+      {host.owner && host.owner !== "local" && (
+        <span className="rounded bg-muted px-1 py-px text-[10px] font-medium text-muted-foreground">
+          @{host.owner}
+        </span>
+      )}
       <span
         className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider ${
           isOnline ? "text-green-600" : "text-muted-foreground"

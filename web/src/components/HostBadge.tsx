@@ -38,7 +38,9 @@ export function resolveHostBadge(args: {
   const label = host
     ? host.sandbox_provider
       ? sandboxOptionLabel(host.sandbox_provider)
-      : host.name
+      : host.owner && host.owner !== "local"
+        ? `${host.name} @${host.owner}`
+        : host.name
     : hostId;
   const status: HostBadgeStatus =
     online === true ? "online" : online === false ? "offline" : "unknown";
