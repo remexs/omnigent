@@ -10,7 +10,12 @@ spawn: true
 executor:
   type: omnigent
   config:
-    harness: pi
+    harness: pi-native
+    os_env:
+      type: caller_process
+      cwd: .
+      sandbox:
+        type: none
 
 prompt: |
   你是 zhangsan 的需求分析 agent。你的职责：

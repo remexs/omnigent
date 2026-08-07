@@ -9,7 +9,12 @@ spawn: true
 executor:
   type: omnigent
   config:
-    harness: pi
+    harness: pi-native
+    os_env:
+      type: caller_process
+      cwd: .
+      sandbox:
+        type: none
 
 prompt: |
   你是 lisi 的前端开发 agent。你的职责：
