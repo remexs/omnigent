@@ -113,6 +113,7 @@ def _to_agent_object(agent: Agent, agent_cache: AgentCache) -> AgentObject:
         id=agent.id,
         name=agent.name,
         version=agent.version,
+        owner_user_id=agent.owner_user_id,
         description=description,
         created_at=agent.created_at,
         updated_at=agent.updated_at,

@@ -280,6 +280,7 @@ class AgentObject(BaseModel):
     description: str | None = None
     created_at: int
     updated_at: int | None = None
+    owner_user_id: str | None = None
     harness: str | None = None
     mcp_servers: list[MCPServerSummary] = Field(default_factory=list)
     mcp_servers_editable: bool = False

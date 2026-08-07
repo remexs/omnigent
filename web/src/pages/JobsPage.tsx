@@ -131,10 +131,47 @@ function StateIcon({ state }: { state: string }) {
 /** Create-team-project dialog: name + members + flow phases. */
 function CreateProjectForm({ onDone }: { onDone: () => void }) {
   const [name, setName] = useState("");
-  const [membersText, setMembersText] = useState("");
-  const [phasesText, setPhasesText] = useState(
-    "需求分析,zhangsan,zhangsan-agent\n架构设计,wangwu,wangwu-agent\n后端开发,zhaoliu,zhaoliu-agent\n前端开发,lisi,lisi-agent\n测试验证,admin,admin-agent",
-  );
+  // Members picked from the user/host list (participant pool).
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  // Workflow phases: name + agent (agent binds member+host) + mode.
+  const [phases, setPhases] = useState([
+    { name: "需求分析", agent: "zhangsan-agent", mode: "manual" },
+    { name: "架构设计", agent: "wangwu-agent", mode: "manual" },
+    { name: "后端开发", agent: "zhaoliu-agent", mode: "manual" },
+    { name: "前端开发", agent: "lisi-agent", mode: "manual" },
+    { name: "测试验证", agent: "admin-agent", mode: "manual" },
+  ]);
+  const {
+    data: memberOptions = [],
+  } = useQuery({
+    queryKey: ["member-options"],
+    queryFn: async () => {
+      // Host owners = people with machines who can execute; fall back
+      // to the user list when hosts are empty.
+      const hostsRes = await authenticatedFetch("/v1/hosts");
+      const hosts = hostsRes.ok ? (await hostsRes.json() as { hosts: { owner?: string }[] }).hosts ?? [] : [];
+      const owners = [...new Set(hosts.map((h) => h.owner).filter(Boolean))];
+      if (owners.length > 0) return owners as string[];
+      const usersRes = await authenticatedFetch("/v1/users");
+      if (!usersRes.ok) return [];
+      const users = (await usersRes.json()) as { users?: { id: string }[] };
+      return (users.users ?? []).map((u) => u.id);
+    },
+    staleTime: 30_000,
+  });
+  // Member agent options (name → owner) for the workflow agent picker.
+  const {
+    data: agentOptions = [],
+  } = useQuery({
+    queryKey: ["member-agents"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/agents");
+      if (!res.ok) return [];
+      const body = (await res.json()) as { data: { name: string; owner_user_id?: string | null }[] };
+      return body.data ?? [];
+    },
+    staleTime: 30_000,
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -143,31 +180,18 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
     setSaving(true);
     setError(null);
     try {
-      const members = membersText
-        .split(/[,，\n]/)
-        .map((m) => m.trim())
-        .filter(Boolean);
-      const phases = phasesText
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line) => {
-          const parts = line.split(/[,，]/).map((x) => x.trim());
-          const [n, a, ag, mode] = parts;
-          return {
-            name: n,
-            assignee: a || undefined,
-            agent: ag || "pi-native-ui",
-            mode: mode || "manual",
-          };
-        });
+      const members = selectedMembers;
+      // Each phase: agent auto-resolves assignee via owner (member+host).
+      const cleanPhases = phases
+        .map((p) => ({ ...p, name: p.name.trim() }))
+        .filter((p) => p.name);
       const res = await authenticatedFetch("/v1/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
           kind: "team",
-          config: { workflow: { phases } },
+          config: { workflow: { phases: cleanPhases } },
         }),
       });
       if (!res.ok) throw new Error(`${res.status}`);
@@ -188,7 +212,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
     } finally {
       setSaving(false);
     }
-  }, [name, membersText, phasesText, onDone, queryClient]);
+  }, [name, selectedMembers, phases, onDone, queryClient]);
 
   return (
     <Card className="space-y-3 p-4">
@@ -202,19 +226,104 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
         <span className="text-sm">{L("Project name")}</span>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="电商平台" />
       </label>
+
+      {/* 项目成员（参与者池，从 host 查询勾选） */}
       <label className="space-y-1">
-        <span className="text-sm">{L("Members")}（逗号分隔）</span>
-        <Input value={membersText} onChange={(e) => setMembersText(e.target.value)} placeholder="zhangsan, wangwu, zhaoliu, lisi" />
+        <span className="text-sm">{L("Members")}</span>
+        <div className="flex flex-wrap gap-2">
+          {memberOptions.length === 0 && (
+            <span className="text-xs text-muted-foreground">{L("Loading…")}</span>
+          )}
+          {memberOptions.map((m) => (
+            <label key={m} className="flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs">
+              <input
+                type="checkbox"
+                className="size-3.5 accent-primary"
+                checked={selectedMembers.includes(m)}
+                onChange={(e) => {
+                  setSelectedMembers((prev) =>
+                    e.target.checked ? [...prev, m] : prev.filter((x) => x !== m),
+                  );
+                }}
+              />
+              {m}
+            </label>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {L("Members")}: {selectedMembers.join(", ") || "—"}
+        </p>
       </label>
-      <label className="space-y-1">
-        <span className="text-sm">{L("Flow phases")}（每行：阶段名,成员,agent,模式manual/auto）</span>
-        <textarea
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          rows={5}
-          value={phasesText}
-          onChange={(e) => setPhasesText(e.target.value)}
-        />
-      </label>
+
+      {/* 执行流程（工作流 YAML 定义：阶段 + agent 下拉，agent 绑定成员/主机） */}
+      <div className="space-y-1">
+        <span className="text-sm">{L("Flow phases")}（agent 自动绑定成员与主机）</span>
+        <div className="space-y-1.5">
+          {phases.map((ph, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <Input
+                className="flex-1"
+                placeholder={L("Phase name")}
+                value={ph.name}
+                onChange={(e) =>
+                  setPhases((prev) => prev.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))
+                }
+              />
+              <Select
+                value={ph.agent}
+                onValueChange={(v) =>
+                  setPhases((prev) => prev.map((x, j) => (j === i ? { ...x, agent: v } : x)))
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {agentOptions.map((a) => (
+                    <SelectItem key={a.name} value={a.name}>
+                      {a.name}{a.owner_user_id ? ` (@${a.owner_user_id})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={ph.mode}
+                onValueChange={(v) =>
+                  setPhases((prev) => prev.map((x, j) => (j === i ? { ...x, mode: v } : x)))
+                }
+              >
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">manual</SelectItem>
+                  <SelectItem value="auto">auto</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 shrink-0 px-0"
+                onClick={() => setPhases((prev) => prev.filter((_, j) => j !== i))}
+                aria-label="remove phase"
+              >
+                <XIcon className="size-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-1"
+          onClick={() => setPhases((prev) => [...prev, { name: "", agent: "zhangsan-agent", mode: "manual" }])}
+        >
+          <PlusIcon className="size-3.5" /> {L("Add phase")}
+        </Button>
+      </div>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex justify-end">
         <Button type="button" size="sm" disabled={saving || !name.trim()} onClick={save}>
