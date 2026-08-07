@@ -116,6 +116,22 @@ async def _maybe_advance_flow(
         existing = store.get_tree(job.root_job_id or job.id) if job.root_job_id else []
         if any(t.title == next_title for t in existing):
             return
+        # The phase's agent binds the executor: agent → owner (member)
+        # → assignee. If the workflow phase carries an explicit assignee
+        # it wins; otherwise resolve from the agent's owner_user_id.
+        next_agent = next_phase.get("agent") or job.agent_name
+        assignee = next_phase.get("assignee")
+        if not assignee and next_agent:
+            agent_store = getattr(request.app.state, "agent_store", None)
+            if agent_store is not None:
+                try:
+                    _agent = await asyncio.to_thread(
+                        agent_store.get_by_name, next_agent
+                    )
+                    if _agent is not None and _agent.owner_user_id:
+                        assignee = _agent.owner_user_id
+                except Exception:  # noqa: BLE001
+                    pass
         new_job = store.create(
             secrets.token_hex(16),
             next_title,
@@ -123,8 +139,8 @@ async def _maybe_advance_flow(
             parent_job_id=job.root_job_id,
             root_job_id=job.root_job_id or job.id,
             description=next_phase.get("description"),
-            assignee_user_id=next_phase.get("assignee") or None,
-            agent_name=next_phase.get("agent") or job.agent_name,
+            assignee_user_id=assignee or None,
+            agent_name=next_agent,
             state="todo",
             project_id=project_id,
         )
@@ -164,9 +180,9 @@ async def _maybe_complete_root(
     try:
         tree = store.get_tree(root_id)
         root = next((t for t in tree if t.id == root_id), None)
-        if root is None or root.state == "completed":
+        if root is None or root.state in ("completed", "pending_review"):
             return
-        children = [t for t in tree if t.parent_job_id == root_id]
+        children = root.children or []
         if not children:
             return
         if all(c.state == "completed" for c in children):
@@ -499,6 +515,11 @@ def create_jobs_router(
             # Root auto-completion: once every child of a root job is
             # completed, mark the root itself completed (the root is an
             # aggregate container — progress bar — with no executor).
+            import logging as _lcr
+            _lcr.getLogger("omnigent.server.routes.jobs").info(
+                "eval pass: calling complete_root for %s (root=%s parent=%s)",
+                job_id, job.root_job_id, job.parent_job_id,
+            )
             await _maybe_complete_root(job, store, request)
         else:
             # Reject → returned, round + 1, back to todo for rework.
