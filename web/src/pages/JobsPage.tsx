@@ -716,7 +716,7 @@ export function JobsPage() {
   // Create form is open by default so the page always offers a visible,
   // click-free path to make a task (some browsers had stale tab issues
   // where the toggle felt unresponsive).
-  const [showCreate, setShowCreate] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
   const [showCreateProject, setShowCreateProject] = useState(false);
   // Team-project filter: when set, the board shows that project's tasks
   // (scope=project) and the header shows project info + flow progress.
@@ -790,7 +790,7 @@ export function JobsPage() {
   }, [jobs]);
 
   return (
-    <section className="p-4">
+    <section className="px-4 pb-4 pt-16">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2">

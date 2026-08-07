@@ -317,7 +317,11 @@ class SqlAlchemyProjectStore(ProjectStore):
                 )
             stmt = stmt.order_by(asc(SqlProject.created_at), asc(SqlProject.id))
             rows = session.execute(stmt).scalars().all()
-            return [_to_entity(r) for r in rows]
+            projects = [_to_entity(r) for r in rows]
+            # Attach members so the list response carries them too.
+            for project in projects:
+                project.members = self.list_members(project.id)
+            return projects
 
     def update(
         self,
