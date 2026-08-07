@@ -80,6 +80,25 @@ const STATE_COLORS: Record<string, string> = {
   blocked: "bg-slate-100 text-slate-500",
 };
 
+/** 列头状态色（色条 + 文字） */
+const COLUMN_HEADER_COLORS: Record<string, string> = {
+  todo: "text-slate-700 border-slate-300",
+  in_progress: "text-blue-700 border-blue-400",
+  pending_review: "text-amber-700 border-amber-400",
+  completed: "text-green-700 border-green-500",
+  returned: "text-red-700 border-red-400",
+  blocked: "text-slate-500 border-slate-300",
+};
+
+const COLUMN_BG: Record<string, string> = {
+  todo: "bg-slate-50/60",
+  in_progress: "bg-blue-50/40",
+  pending_review: "bg-amber-50/40",
+  completed: "bg-green-50/40",
+  returned: "bg-red-50/40",
+  blocked: "bg-slate-50/40",
+};
+
 function StateBadge({ state }: { state: string }) {
   const label = STATE_LABELS[state] ?? state;
   const color = STATE_COLORS[state] ?? "bg-slate-100";
@@ -327,13 +346,13 @@ function LaunchForm({ job, onDone }: { job: JobWire; onDone: () => void }) {
   );
 }
 
-/** One job node in the tree. */
+/** One job card in the board. */
 function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
   const [showEvaluate, setShowEvaluate] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [showLaunch, setShowLaunch] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
-  const indent = { paddingLeft: `${depth * 20 + 8}px` };
 
   const claim = useCallback(async () => {
     await authenticatedFetch(`/v1/jobs/${job.id}/claim`, {
@@ -344,100 +363,141 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
     await queryClient.invalidateQueries({ queryKey: ["jobs"] });
   }, [job.id, queryClient]);
 
+  const hasDetail = (job.artifacts?.length ?? 0) > 0 || (job.evaluations?.length ?? 0) > 0 || (job.children?.length ?? 0) > 0;
+
   return (
     <div>
-      <div
-        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent/40"
-        style={indent}
+      <Card
+        className={`group relative overflow-hidden p-3 transition-shadow hover:shadow-md ${
+          depth > 0 ? "ml-3 border-dashed" : ""
+        }`}
       >
-        <StateIcon state={job.state} />
-        <span className="font-medium">{job.title}</span>
-        <span className="text-xs text-muted-foreground">r{job.round}</span>
-        <StateBadge state={job.state} />
-        {job.agent_name && (
-          <Badge variant="outline" className="text-xs">
-            {job.agent_name}
-          </Badge>
-        )}
-        {job.assignee_user_id && (
-          <span className="text-xs text-muted-foreground">→ {job.assignee_user_id}</span>
-        )}
-        {job.host_id && (
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <ServerIcon className="size-3" />
-            {job.host_id.slice(0, 8)}
-          </span>
-        )}
-        <div className="ml-auto flex shrink-0 items-center gap-1">
-          {job.state === "todo" && (
-            <Button type="button" variant="ghost" size="sm" onClick={claim}>
-              {L("Claim")}
-            </Button>
-          )}
-          {job.state === "in_progress" && !job.session_id && (
-            <Button type="button" variant="ghost" size="sm" onClick={() => setShowLaunch(true)}>
-              <GitBranchIcon className="size-3.5" /> {L("Launch")}
-            </Button>
-          )}
-          {job.state === "pending_review" && (
-            <Button type="button" variant="ghost" size="sm" onClick={() => setShowEvaluate(true)}>
-              <ThumbsUpIcon className="size-3.5" /> {L("Evaluate")}
-            </Button>
-          )}
-          <Button type="button" variant="ghost" size="sm" onClick={() => setShowCreate(true)}>
-            <PlusIcon className="size-3.5" />
-          </Button>
-        </div>
-      </div>
-      {job.artifacts && job.artifacts.length > 0 && (
-        <div className="pl-8 text-xs text-muted-foreground" style={indent}>
-          {job.artifacts.map((a) => (
-            <div key={a.id} className="flex gap-1">
-              <span className="font-medium">{a.artifact_type}:</span>
-              <span className="truncate">{a.summary ?? a.ref}</span>
+        {/* 顶部状态色条 */}
+        <div className={`absolute inset-x-0 top-0 h-0.5 ${STATE_COLORS[job.state].split(" ")[0]}`} />
+
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-start gap-2">
+            <StateIcon state={job.state} />
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="truncate text-sm font-semibold">{job.title}</span>
+                {job.round > 1 && (
+                  <span className="shrink-0 rounded bg-muted px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    R{job.round}
+                  </span>
+                )}
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+                {job.agent_name && (
+                  <span className="inline-flex items-center gap-1">
+                    <BriefcaseIcon className="size-3" />
+                    {job.agent_name}
+                  </span>
+                )}
+                {job.assignee_user_id && (
+                  <span className="inline-flex items-center gap-1">
+                    <span className="text-muted-foreground/60">→</span>
+                    {job.assignee_user_id}
+                  </span>
+                )}
+                {job.host_id && (
+                  <span className="inline-flex items-center gap-1">
+                    <ServerIcon className="size-3" />
+                    {job.host_id.slice(0, 8)}
+                  </span>
+                )}
+              </div>
             </div>
-          ))}
+          </div>
+
+          <div className="flex shrink-0 items-center gap-0.5">
+            {job.state === "todo" && (
+              <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={claim}>
+                {L("Claim")}
+              </Button>
+            )}
+            {job.state === "in_progress" && !job.session_id && (
+              <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowLaunch(true)}>
+                <GitBranchIcon className="size-3" /> {L("Launch")}
+              </Button>
+            )}
+            {job.state === "pending_review" && (
+              <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowEvaluate(true)}>
+                <ThumbsUpIcon className="size-3" /> {L("Evaluate")}
+              </Button>
+            )}
+            {hasDetail && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5 text-xs"
+                onClick={() => setExpanded((v) => !v)}
+                aria-label="details"
+              >
+                {expanded ? "−" : "+"}
+              </Button>
+            )}
+          </div>
         </div>
-      )}
-      {job.evaluations && job.evaluations.length > 0 && (
-        <div className="pl-8 text-xs" style={indent}>
-          {job.evaluations.map((e) => (
-            <div key={e.id} className="flex gap-1">
-              <span className={e.action === "pass" ? "text-green-600" : "text-red-600"}>
-                {e.action === "pass" ? "✅" : "❌"}
-              </span>
-              <span className="text-muted-foreground">
-                {e.evaluator_user_id ?? "?"}: {e.comment}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+
+        {/* 产物/评价详情 */}
+        {expanded && (
+          <div className="mt-2 space-y-1.5 border-t pt-2 text-[11px]">
+            {job.artifacts && job.artifacts.length > 0 && (
+              <div className="space-y-1">
+                {job.artifacts.map((a) => (
+                  <div key={a.id} className="flex gap-1.5 text-muted-foreground">
+                    <span className="shrink-0 font-medium">📄</span>
+                    <span className="line-clamp-2">{a.summary ?? a.ref}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {job.evaluations && job.evaluations.length > 0 && (
+              <div className="space-y-1">
+                {job.evaluations.map((e) => (
+                  <div key={e.id} className="flex gap-1.5">
+                    <span className="shrink-0">{e.action === "pass" ? "✅" : "❌"}</span>
+                    <span className="text-muted-foreground">
+                      <span className="font-medium">{e.evaluator_user_id ?? "?"}</span>
+                      {e.comment ? `: ${e.comment}` : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 子任务 */}
+        {job.children && job.children.length > 0 && (
+          <div className="mt-2 space-y-1.5">
+            {job.children.map((c) => (
+              <JobNode key={c.id} job={c} depth={depth + 1} />
+            ))}
+          </div>
+        )}
+      </Card>
+
       {showLaunch && (
-        <div className="mt-1" style={indent}>
+        <div className="mt-1">
           <LaunchForm job={job} onDone={() => setShowLaunch(false)} />
         </div>
       )}
       {showEvaluate && (
-        <div className="mt-1" style={indent}>
+        <div className="mt-1">
           <EvaluateForm job={job} onDone={() => setShowEvaluate(false)} />
         </div>
       )}
       {showCreate && (
-        <div className="mt-1" style={indent}>
+        <div className="mt-1">
           <CreateJobForm
             onDone={() => {
               setShowCreate(false);
               queryClient.invalidateQueries({ queryKey: ["jobs"] });
             }}
           />
-        </div>
-      )}
-      {job.children && job.children.length > 0 && (
-        <div>
-          {job.children.map((c) => (
-            <JobNode key={c.id} job={c} depth={depth + 1} />
-          ))}
         </div>
       )}
     </div>
@@ -572,17 +632,22 @@ export function JobsPage() {
           {COLUMNS.map((col) => {
             const colJobs = board.get(col.state) ?? [];
             return (
-              <div key={col.state} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium">
-                  <span className="flex items-center gap-2">
+              <div
+                key={col.state}
+                className={`flex min-h-[120px] flex-col gap-2 rounded-xl border p-2 ${COLUMN_BG[col.state] ?? "bg-muted/30"}`}
+              >
+                <div className={`flex items-center justify-between border-b-2 px-1.5 pb-1.5 ${COLUMN_HEADER_COLORS[col.state] ?? "border-slate-300"}`}>
+                  <span className="flex items-center gap-1.5 text-sm font-bold">
                     <StateIcon state={col.state} />
                     {col.label}
                   </span>
-                  <Badge variant="secondary">{colJobs.length}</Badge>
+                  <span className="rounded-full bg-background px-2 py-0.5 text-xs font-bold text-foreground shadow-sm">
+                    {colJobs.length}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-1 flex-col gap-2">
                   {colJobs.length === 0 && (
-                    <div className="rounded-lg border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
+                    <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed px-3 py-6 text-center text-xs text-muted-foreground/60">
                       {L("None")}
                     </div>
                   )}
