@@ -42,6 +42,7 @@ def _to_response(project: Project) -> dict[str, Any]:
         "id": project.id,
         "object": "project",
         "name": project.name,
+        "owner_user_id": project.owner_user_id,
         "kind": project.kind,
         "created_at": project.created_at,
         "updated_at": project.updated_at,

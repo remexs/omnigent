@@ -888,10 +888,16 @@ export function JobsPage() {
   const board = useMemo(() => {
     const byCol = new Map<string, JobWire[]>();
     for (const col of COLUMNS) byCol.set(col.state, []);
-    for (const j of jobs) {
-      const col = byCol.get(j.state);
-      if (col) col.push(j);
-    }
+    // Flatten the nested tree so every job (main + children) appears in its
+    // state column — the whole team's work tree is visible per status.
+    const flatten = (list: JobWire[]) => {
+      for (const j of list) {
+        const col = byCol.get(j.state);
+        if (col) col.push(j);
+        if (j.children && j.children.length > 0) flatten(j.children);
+      }
+    };
+    flatten(jobs);
     for (const col of byCol.values()) {
       col.sort((a, b) => b.round - a.round || (b.created_at ?? 0) - (a.created_at ?? 0));
     }
@@ -955,6 +961,13 @@ export function JobsPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-sm font-semibold">{activeProject.name}</div>
+                  {activeProject.owner_user_id && (
+                    <div className="mt-1 flex items-center gap-1.5 text-xs">
+                      <span className="rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">
+                        {L("Project manager")}: {activeProject.owner_user_id}
+                      </span>
+                    </div>
+                  )}
                   {activeProject.members && activeProject.members.length > 0 && (
                     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                       {activeProject.members.map((m) => (

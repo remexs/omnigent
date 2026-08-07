@@ -565,6 +565,7 @@ export const zhCN: Record<string, string> = {
   "Searching…": "搜索中…",
   "See more": "查看更多",
   "Select a host": "选择主机",
+  "Project manager": "项目经理",
   "Add phase": "添加阶段",
   "Phase name": "阶段名称",
   "tasks done": "个任务完成",
