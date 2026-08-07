@@ -899,7 +899,7 @@ export function JobsPage() {
   }, [jobs]);
 
   return (
-    <section className="px-4 pb-4 pt-16">
+    <section className="h-full overflow-y-auto px-4 pb-4 pt-16">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2">
