@@ -746,6 +746,11 @@ def create_jobs_router(
         body = await request.json()
         store = _store(request)
         job = store.get(job_id)
+        # Idempotency guard: an already-completed (or in-review) job must not
+        # be re-submitted — a still-running pi might re-fire submit and flip
+        # the state back to pending_review after admin accepted it.
+        if job is not None and job.state in ("completed", "pending_review"):
+            return {"job": _serialize_job(job)}
         if job is None:
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
         artifact = body.get("artifact") or {}
@@ -985,16 +990,28 @@ def create_jobs_router(
                     root_conv_id = _root.id
                 except Exception:  # noqa: BLE001 — best-effort
                     root_conv_id = None
-        conv = await asyncio.to_thread(
-            conversation_store.create_conversation,
-            kind="sub_agent" if root_conv_id else "default",
-            parent_conversation_id=root_conv_id,
-            sub_agent_name=job.agent_name,
-            agent_id=agent.id,
-            title=job.title,
-            host_id=host_id,
-            workspace=body.get("workspace"),
-        )
+        # Reuse the job's existing session if it already has one (a prior
+        # launch may have created it) — re-creating a sub_agent session with
+        # the same name under the same parent raises NameAlreadyExists.
+        if job.session_id:
+            conv = await asyncio.to_thread(
+                conversation_store.get_conversation, job.session_id
+            )
+            if conv is None:
+                conv = None
+        else:
+            conv = None
+        if conv is None:
+            conv = await asyncio.to_thread(
+                conversation_store.create_conversation,
+                kind="sub_agent" if root_conv_id else "default",
+                parent_conversation_id=root_conv_id,
+                sub_agent_name=job.agent_name,
+                agent_id=agent.id,
+                title=job.title,
+                host_id=host_id,
+                workspace=body.get("workspace"),
+            )
         # File the task's session under its project so project members can
         # find it (task session lives under the project; personal sessions
         # stay private with project_id = NULL).
