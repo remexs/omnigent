@@ -41,6 +41,7 @@ def _serialize_job(t: Job) -> dict[str, Any]:
         "host_id": t.host_id,
         "require_approval": t.require_approval,
         "project_id": t.project_id,
+        "config": t.config,
         "created_at": t.created_at,
         "updated_at": t.updated_at,
         "artifacts": [
@@ -526,6 +527,13 @@ def create_jobs_router(
         if not root_job_id:
             root_job_id = None  # this is itself a root
         job_id = secrets.token_hex(16)
+        import json as _json
+        _config_raw = body.get("config")
+        _config_str = (
+            _json.dumps(_config_raw, ensure_ascii=False)
+            if isinstance(_config_raw, dict)
+            else _config_raw
+        )
         job = store.create(
             job_id,
             title,
@@ -539,7 +547,79 @@ def create_jobs_router(
             state=body.get("state") or "todo",
             require_approval=bool(body.get("require_approval") or False),
             project_id=project_id,
+            config=_config_str,
         )
+
+        # Auto-derive sub-tasks from the task's OWN workflow YAML. The
+        # workflow uses the industry-standard ``steps`` list; each step has
+        # a unique ``id`` (the reference key — depends_on refers to step
+        # ids, never names, so duplicate names can't collide) plus a
+        # display ``name``, optional ``agent`` and optional ``depends_on``.
+        _config = _config_str
+        if parent_job_id is None and _config and job_id:
+            try:
+                _cfg = _json.loads(_config)
+                _wf = _cfg.get("workflow") or {}
+                _steps = _wf.get("steps") if isinstance(_wf, dict) else _cfg.get("steps") or _wf.get("phases") or _cfg.get("phases") or []
+                _prev_id: str | None = None
+                # step id → job id (and step id → itself for late refs).
+                _step_job_ids: dict[str, str] = {}
+                for _st in _steps:
+                    _stid = str(_st.get("id") or "").strip()
+                    _ptitle = str(_st.get("name") or "").strip() or _stid
+                    if not _ptitle:
+                        continue
+                    _agent_store = getattr(request.app.state, "agent_store", None)
+                    _assignee = _st.get("assignee")
+                    _agent_name = _st.get("agent")
+                    if not _assignee and _agent_name and _agent_store is not None:
+                        try:
+                            _ag = await asyncio.to_thread(
+                                _agent_store.get_by_name, _agent_name
+                            )
+                            if _ag is not None and _ag.owner_user_id:
+                                _assignee = _ag.owner_user_id
+                        except Exception:  # noqa: BLE001
+                            pass
+                    _dep = _st.get("depends_on")
+                    if _dep is None and _prev_id:
+                        _dep = _prev_id  # sequential by default
+                    elif _dep:
+                        # depends_on references STEP IDs — resolve each to
+                        # its derived job id (fall back to raw value).
+                        _resolved = []
+                        if isinstance(_dep, list):
+                            _dep_items = [str(d) for d in _dep]
+                        else:
+                            _dep_items = [d.strip() for d in str(_dep).split(",") if d.strip()]
+                        for _dn in _dep_items:
+                            if _dn in _step_job_ids:
+                                _resolved.append(_step_job_ids[_dn])
+                            else:
+                                _resolved.append(_dn)
+                        _dep = ",".join(_resolved)
+                    _child = store.create(
+                        secrets.token_hex(16),
+                        _ptitle,
+                        str(user) if user else None,
+                        parent_job_id=job_id,
+                        root_job_id=job_id,
+                        description=_st.get("description"),
+                        assignee_user_id=_assignee or None,
+                        agent_name=_agent_name or None,
+                        depends_on=_dep,
+                        project_id=project_id,
+                        config=_json.dumps(_st, ensure_ascii=False),
+                    )
+                    _prev_id = _child.id
+                    if _stid:
+                        _step_job_ids[_stid] = _child.id
+            except Exception as _ce:  # noqa: BLE001 — phase derivation best-effort
+                import logging as _lc
+
+                _lc.getLogger("omnigent.server.routes.jobs").warning(
+                    "phase derivation failed for %s: %s", job_id, _ce
+                )
 
         # A1: creating the project MAIN task also creates its MAIN SESSION
         # (the collaboration root the execution sub-sessions hang under).

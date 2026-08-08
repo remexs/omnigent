@@ -1648,6 +1648,9 @@ class SqlJob(OmnigentBase):
     round: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
     assignee_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_by_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    # Task-level workflow YAML (project is just a grouping; each task
+    # configures its own phases + work team).
+    config: Mapped[str | None] = mapped_column(Text, nullable=True)
     agent_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     depends_on: Mapped[str | None] = mapped_column(String(512), nullable=True)
     session_id: Mapped[str | None] = mapped_column(Uuid16, nullable=True)
