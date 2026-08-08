@@ -1,4 +1,3 @@
-# host 容器运行时文件（登录态/日志/crashes/pi 会话）不入库，仅保留 config.yaml
+# host 容器运行时配置目录：由 dev-quickstart.sh 生成，不入库
 *
-!/*/
-!config.yaml
+!.gitignore
