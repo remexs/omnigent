@@ -67,6 +67,13 @@ def _serialize_job(t: Job) -> dict[str, Any]:
     }
 
 
+def _walk_titles(job, title: str) -> bool:
+    """Return True if ``title`` appears anywhere in the job's tree."""
+    if job.title == title:
+        return True
+    return any(_walk_titles(c, title) for c in (job.children or []))
+
+
 async def _maybe_advance_flow(
     job, store: Any, request: Request
 ) -> None:
@@ -110,11 +117,12 @@ async def _maybe_advance_flow(
             return  # last phase — project complete
         next_phase = phases[idx + 1]
         next_title = next_phase.get("name")
-        # Skip if a job with that title already exists under this project root.
-        roots = store.list_roots()
-        root = next((t for t in roots if t.id == job.root_job_id), None)
+        # Skip if a job with that title already exists under this project
+        # root. get_tree returns the root(s) with children nested, so walk
+        # the whole tree — a phase whose title already exists (manually
+        # created or previously derived) must not be re-created.
         existing = store.get_tree(job.root_job_id or job.id) if job.root_job_id else []
-        if any(t.title == next_title for t in existing):
+        if any(_walk_titles(t, next_title) for t in existing):
             return
         # The phase's agent binds the executor: agent → owner (member)
         # → assignee. If the workflow phase carries an explicit assignee
@@ -385,9 +393,15 @@ def create_jobs_router(
         # Claim is owner-scoped: a project member may only claim jobs
         # assigned to them (assignee_user_id == caller). The project
         # manager (admin) may claim any job (to re-run/review).
-        # Main task (root, parent_job_id is null): only the manager may
-        # claim/manage it — members see it as an aggregate progress bar.
-        if job.parent_job_id is None and job.root_job_id is None:
+        # Main task: a project root (project-scoped, no parent) is the
+        # aggregate container the manager manages — members must not claim
+        # it. A standalone job (no project, no parent) with an assignee is
+        # an ordinary task its assignee may claim.
+        if (
+            job.parent_job_id is None
+            and job.root_job_id is None
+            and job.project_id
+        ):
             account_store = getattr(request.app.state, "account_store", None)
             is_admin = False
             if account_store is not None:

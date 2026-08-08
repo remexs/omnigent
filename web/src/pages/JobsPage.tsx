@@ -335,7 +335,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
 }
 
 /** Create-job dialog. */
-function CreateJobForm({ onDone }: { onDone: () => void }) {
+function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () => void }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [agentName, setAgentName] = useState("");
@@ -356,6 +356,7 @@ function CreateJobForm({ onDone }: { onDone: () => void }) {
       if (assignee.trim()) payload.assignee_user_id = assignee.trim();
       if (parentId.trim()) payload.parent_job_id = parentId.trim();
       if (requireApproval) payload.require_approval = true;
+      if (projectId) payload.project_id = projectId;
       const res = await authenticatedFetch("/v1/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -802,6 +803,7 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
       {showCreate && (
         <div className="mt-1">
           <CreateJobForm
+            projectId={projectId}
             onDone={() => {
               setShowCreate(false);
               queryClient.invalidateQueries({ queryKey: ["jobs"] });
@@ -1047,7 +1049,7 @@ export function JobsPage() {
 
       {showCreate && (
         <div className="mt-4" id="new-job-form" ref={(el) => { if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" }); }}>
-          <CreateJobForm onDone={() => setShowCreate(false)} />
+          <CreateJobForm projectId={projectId} onDone={() => setShowCreate(false)} />
         </div>
       )}
 

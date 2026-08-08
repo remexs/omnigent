@@ -1,4 +1,5 @@
 host:
+  host_id: cd1f548cac364b87b40c2bc8cc58f91e
   name: a2b77c7e58bd
 providers:
   opencode-go:
