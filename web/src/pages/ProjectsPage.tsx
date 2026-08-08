@@ -403,19 +403,21 @@ export function ProjectsPage() {
       </div>
 
       {teamProjects.length > 0 && (
-        <div className="mt-3 flex gap-1.5">
-          {teamProjects.map((p) => (
-            <Button
-              key={p.id}
-              type="button"
-              size="sm"
-              variant={active?.id === p.id ? "default" : "outline"}
-              className="h-7 text-xs"
-              onClick={() => setProjectId(p.id)}
-            >
-              <FolderIcon className="size-3" /> {p.name}
-            </Button>
-          ))}
+        <div className="mt-3 overflow-x-auto">
+          <div className="flex min-w-max gap-1.5">
+            {teamProjects.map((p) => (
+              <Button
+                key={p.id}
+                type="button"
+                size="sm"
+                variant={active?.id === p.id ? "default" : "outline"}
+                className="h-7 whitespace-nowrap text-xs"
+                onClick={() => setProjectId(p.id)}
+              >
+                <FolderIcon className="size-3 shrink-0" /> {p.name}
+              </Button>
+            ))}
+          </div>
         </div>
       )}
 

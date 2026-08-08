@@ -981,11 +981,11 @@ function TaskTree({
   };
 
   return (
-    <div className="rounded-xl border bg-background p-2">
+    <div className="min-w-max rounded-xl border bg-background p-2 lg:min-w-0">
       <div className="px-2 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         {L("Task tree")}
       </div>
-      <div className="space-y-0.5">{jobs.map((j) => renderNode(j, 0))}</div>
+      <div className="min-w-max space-y-0.5 lg:min-w-0">{jobs.map((j) => renderNode(j, 0))}</div>
     </div>
   );
 }
@@ -1240,19 +1240,22 @@ export function JobsPage() {
 
       {/* 选中项目：左侧任务树 + 右侧状态看板 */}
       {!isLoading && !error && jobs.length > 0 && (
-        <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
-          {/* 左：项目+任务树导航 */}
-          <div className="lg:sticky lg:top-20 lg:h-fit">
-            <TaskTree jobs={jobs} activeJobId={activeJobId} onSelect={setActiveJobId} />
+        <div className="mt-4 grid gap-4 lg:grid-cols-[280px_1fr]">
+          {/* 左：项目+任务树导航（窄屏横向滚动，宽屏固定宽度） */}
+          <div className="min-w-0 lg:sticky lg:top-20 lg:h-fit">
+            <div className="overflow-x-auto lg:overflow-visible">
+              <TaskTree jobs={jobs} activeJobId={activeJobId} onSelect={setActiveJobId} />
+            </div>
           </div>
-          {/* 右：状态看板（只放可执行子任务） */}
-          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+          {/* 右：状态看板（5 列，窄屏横向滚动 / 宽屏网格） */}
+          <div className="min-w-0 overflow-x-auto">
+            <div className="flex min-w-max gap-3 lg:grid lg:min-w-0 lg:grid-cols-5">
             {COLUMNS.map((col) => {
               const colJobs = board.get(col.state) ?? [];
               return (
                 <div
                   key={col.state}
-                  className={`flex min-h-[120px] flex-col gap-2 rounded-xl border p-2 ${COLUMN_BG[col.state] ?? "bg-muted/30"}`}
+                  className={`flex w-60 shrink-0 flex-col gap-2 rounded-xl border p-2 lg:w-auto ${COLUMN_BG[col.state] ?? "bg-muted/30"}`}
                 >
                   <div className={`flex items-center justify-between border-b-2 px-1.5 pb-1.5 ${COLUMN_HEADER_COLORS[col.state] ?? "border-slate-300"}`}>
                     <span className="flex items-center gap-1.5 text-sm font-bold">
@@ -1283,6 +1286,7 @@ export function JobsPage() {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       )}
