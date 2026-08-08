@@ -2851,6 +2851,17 @@ class SqlAlchemyConversationStore(ConversationStore):
                 .values(runner_last_seen=None)
             )
 
+    def last_item_created_at(self, conversation_id: str) -> int | None:
+        """Return the created_at of the conversation's newest item, or None."""
+        with self._session() as session:
+            row = session.execute(
+                select(SqlConversationItem.created_at)
+                .where(SqlConversationItem.conversation_id == conversation_id)
+                .order_by(desc(SqlConversationItem.created_at))
+                .limit(1)
+            ).scalar()
+            return row if row is not None else None
+
     def set_session_live_status(self, conversation_id: str, status: str) -> None:
         """
         Persist the relay-observed turn status for one session.

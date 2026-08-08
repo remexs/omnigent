@@ -869,6 +869,33 @@ def create_jobs_router(
             return {"job": _serialize_job(job)}
         if job is None:
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        # Completion gate: the executor may only submit AFTER the agent has
+        # finished executing. The reliable signal is the LAST MESSAGE's
+        # created_at — the conversation row's updated_at is refreshed by
+        # runner heartbeats even when the agent is idle, so it can't be
+        # used. Require no new conversation items for AGENT_IDLE_GATE_S
+        # (30s) before accepting submit.
+        if job.session_id:
+            try:
+                conversation_store = getattr(request.app.state, "conversation_store", None)
+                if conversation_store is not None:
+                    from omnigent.db.utils import now_epoch as _now_epoch
+
+                    last_ts = await asyncio.to_thread(
+                        conversation_store.last_item_created_at, job.session_id
+                    )
+                    if last_ts is not None:
+                        idle_s = _now_epoch() - last_ts
+                        if idle_s < 30:
+                            raise OmnigentError(
+                                "agent 仍在执行中（最后消息 %ds 前）— 请等待执行稳定后再提交"
+                                % idle_s,
+                                code=ErrorCode.FORBIDDEN,
+                            )
+            except OmnigentError:
+                raise
+            except Exception:  # noqa: BLE001 — gate is best-effort
+                pass
         artifact = body.get("artifact") or {}
         a_type = artifact.get("artifact_type") or "none"
         if a_type in ("file", "message"):
