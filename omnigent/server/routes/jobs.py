@@ -344,15 +344,28 @@ async def _maybe_complete_root(
         root = next((t for t in tree if t.id == root_id), None)
         if root is None or root.state in ("completed", "pending_review"):
             return
+        # D2: every EXECUTABLE node in the tree must be done — walk the
+        # whole subtree (nested children + DAG dependents), not just the
+        # direct children, so a partially-finished deep tree never marks
+        # the root complete.
+        def _all_done(nodes) -> bool:
+            for n in nodes:
+                if n.children:
+                    if not _all_done(n.children):
+                        return False
+                elif n.state != "completed":
+                    return False
+            return True
+
         children = root.children or []
         if not children:
             return
-        if all(c.state == "completed" for c in children):
-            # All children done → root moves to pending_review so the
-            # project manager confirms completion (manual gate).
+        if _all_done(children):
+            # All executable nodes done → root moves to pending_review so
+            # the project manager confirms completion (manual gate).
             if root.state != "pending_review":
                 store.update(root_id, state="pending_review")
-            _lgr.info("job root %s → pending_review (all children done)", root_id)
+            _lgr.info("job root %s → pending_review (all tree nodes done)", root_id)
     except Exception as _exc:  # noqa: BLE001 — best-effort
         _lgr.warning("root auto-complete skipped: %s", _exc)
 
@@ -554,6 +567,30 @@ def create_jobs_router(
                             _root_conv.id,
                             project_id,
                         )
+                        # F5: project members get READ on the main session so
+                        # they can see the collaboration tree (child_sessions).
+                        try:
+                            from omnigent.server.auth import LEVEL_READ
+
+                            _perm = getattr(request.app.state, "permission_store", None)
+                            _pstore = getattr(request.app.state, "project_store", None)
+                            if _perm is not None and _pstore is not None:
+                                _members = await asyncio.to_thread(
+                                    _pstore.list_members, project_id
+                                )
+                                for _m in _members:
+                                    _mid = getattr(_m, "user_id", None) or (
+                                        _m.get("user_id") if isinstance(_m, dict) else None
+                                    )
+                                    if _mid:
+                                        await asyncio.to_thread(
+                                            _perm.ensure_user, _mid
+                                        )
+                                        await asyncio.to_thread(
+                                            _perm.grant, _mid, _root_conv.id, LEVEL_READ
+                                        )
+                        except Exception:  # noqa: BLE001 — best-effort
+                            pass
                     if _root_conv is not None:
                         await asyncio.to_thread(
                             store.update, job_id, session_id=_root_conv.id
