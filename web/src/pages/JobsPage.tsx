@@ -5,6 +5,7 @@ import {
   CheckCircle2Icon,
   CircleIcon,
   CircleDotIcon,
+  FolderIcon,
   GitBranchIcon,
   PlusIcon,
   RefreshCwIcon,
@@ -14,7 +15,7 @@ import {
   ThumbsUpIcon,
   XIcon,
 } from "lucide-react";
-import { authenticatedFetch } from "@/lib/identity";
+import { authenticatedFetch, getCurrentIsAdmin, getCurrentUserId } from "@/lib/identity";
 import { L } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -575,8 +576,23 @@ function LaunchForm({ job, onDone }: { job: JobWire; onDone: () => void }) {
   );
 }
 
-/** One job card in the board. */
-function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
+/** One executable job card in the board (leaf tasks only — roots live
+ *  in the left tree nav). */
+function JobNode({
+  job,
+  currentUserId,
+  isAdmin,
+  rootTitle,
+  highlighted,
+}: {
+  job: JobWire;
+  currentUserId: string | null;
+  isAdmin: boolean;
+  /** Title of the root (main task) this job belongs to, shown as a
+   *  breadcrumb on the card so the board identifies the owning tree. */
+  rootTitle?: string | null;
+  highlighted?: boolean;
+}) {
   const [showEvaluate, setShowEvaluate] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [showLaunch, setShowLaunch] = useState(false);
@@ -612,19 +628,13 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
     await queryClient.invalidateQueries({ queryKey: ["jobs"] });
   }, [job.id, queryClient]);
 
-  const hasDetail = (job.artifacts?.length ?? 0) > 0 || (job.evaluations?.length ?? 0) > 0 || (job.children?.length ?? 0) > 0;
-
-  // Root (main task) progress: fraction of completed children.
-  const children = job.children ?? [];
-  const isMainTask = !job.parent_job_id && children.length > 0;
-  const doneCount = children.filter((c) => c.state === "completed").length;
-  const progress = children.length > 0 ? Math.round((doneCount / children.length) * 100) : 0;
+  const hasDetail = (job.artifacts?.length ?? 0) > 0 || (job.evaluations?.length ?? 0) > 0;
 
   return (
     <div>
       <Card
         className={`group relative overflow-hidden p-3 transition-shadow hover:shadow-md ${
-          depth > 0 ? "ml-3 border-dashed" : ""
+          highlighted ? "ring-2 ring-blue-500 shadow-lg" : ""
         }`}
       >
         {/* 顶部状态色条 */}
@@ -634,6 +644,15 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
           <div className="flex min-w-0 items-start gap-2">
             <StateIcon state={job.state} />
             <div className="min-w-0">
+              {rootTitle && rootTitle !== job.title && (
+                <div className="mb-0.5 flex items-center gap-1 text-[10px] text-muted-foreground/70">
+                  <span className="inline-flex items-center gap-0.5 rounded bg-muted/60 px-1 py-px">
+                    <FolderIcon className="size-2.5" />
+                    {rootTitle}
+                  </span>
+                  <span aria-hidden>›</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5">
                 <span className="truncate text-sm font-semibold">{job.title}</span>
                 {job.round > 1 && (
@@ -683,27 +702,27 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5">
-            {job.state === "todo" && (
+            {job.state === "todo" && (isAdmin || job.assignee_user_id === currentUserId) && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={claim}>
                 {L("Claim")}
               </Button>
             )}
-            {job.state === "in_progress" && !job.session_id && (
+            {job.state === "in_progress" && !job.session_id && (isAdmin || job.assignee_user_id === currentUserId) && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowLaunch(true)}>
                 <GitBranchIcon className="size-3" /> {L("Launch")}
               </Button>
             )}
-            {job.state === "in_progress" && job.session_id && (
+            {job.state === "in_progress" && job.session_id && (isAdmin || job.assignee_user_id === currentUserId) && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs text-green-600" onClick={submit}>
                 <CheckCircle2Icon className="size-3" /> {L("Submit")}
               </Button>
             )}
-            {job.state === "pending_review" && (
+            {job.state === "pending_review" && isAdmin && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowEvaluate(true)}>
                 <ThumbsUpIcon className="size-3" /> {L("Evaluate")}
               </Button>
             )}
-            {job.state === "blocked" && job.require_approval && (
+            {job.state === "blocked" && job.require_approval && (isAdmin || job.assignee_user_id === currentUserId) && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs text-green-600" onClick={approveExecution}>
                 <ShieldIcon className="size-3" /> {L("Approve execution")}
               </Button>
@@ -722,34 +741,6 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
             )}
           </div>
         </div>
-
-        {/* 主任务进度条 */}
-        {isMainTask && (
-          <div className="mt-2">
-            <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{L("Progress")}</span>
-              <span className="font-semibold text-foreground">{progress}%</span>
-            </div>
-            <div className="flex h-1.5 gap-0.5 overflow-hidden rounded-full">
-              {children.map((c) => (
-                <div
-                  key={c.id}
-                  className={`flex-1 rounded-full ${
-                    c.state === "completed"
-                      ? "bg-green-500"
-                      : c.state === "in_progress" || c.state === "pending_review"
-                        ? "bg-amber-400"
-                        : "bg-muted"
-                  }`}
-                  title={c.title}
-                />
-              ))}
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              {doneCount}/{children.length} {L("tasks done")}
-            </div>
-          </div>
-        )}
 
         {/* 产物/评价详情 */}
         {expanded && (
@@ -780,14 +771,6 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
           </div>
         )}
 
-        {/* 子任务 */}
-        {job.children && job.children.length > 0 && (
-          <div className="mt-2 space-y-1.5">
-            {job.children.map((c) => (
-              <JobNode key={c.id} job={c} depth={depth + 1} />
-            ))}
-          </div>
-        )}
       </Card>
 
       {showLaunch && (
@@ -822,6 +805,97 @@ function JobNode({ job, depth = 0 }: { job: JobWire; depth?: number }) {
  * (spawning a session on their own host); reviewers evaluate the produced
  * artifacts (approve → next stage, reject → redo with round+1).
  */
+/** Left nav: every task tree under the project (a project can have
+ *  several main tasks). Each root shows its progress bar; clicking a
+ *  node highlights the matching card in the board. */
+function TaskTree({
+  jobs,
+  activeJobId,
+  onSelect,
+}: {
+  jobs: JobWire[];
+  activeJobId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggle = (id: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const renderNode = (job: JobWire, depth: number) => {
+    const children = job.children ?? [];
+    const isRoot = !job.parent_job_id;
+    const doneCount = children.filter((c) => c.state === "completed").length;
+    const progress = children.length > 0 ? Math.round((doneCount / children.length) * 100) : 0;
+    const isCollapsed = collapsed.has(job.id);
+    const isActive = activeJobId === job.id;
+    return (
+      <div key={job.id}>
+        <button
+          type="button"
+          onClick={() => onSelect(job.id)}
+          className={`flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-xs transition-colors ${
+            isActive
+              ? "bg-blue-100 font-semibold text-blue-700"
+              : "text-foreground hover:bg-muted"
+          }`}
+          style={{ paddingLeft: `${8 + depth * 14}px` }}
+        >
+          <span
+            role="button"
+            tabIndex={-1}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggle(job.id);
+            }}
+            className="flex size-4 shrink-0 items-center justify-center text-muted-foreground"
+          >
+            {children.length > 0 ? (isCollapsed ? "▸" : "▾") : "•"}
+          </span>
+          {isRoot && <BriefcaseIcon className="size-3 shrink-0 text-blue-600" />}
+          <span className="min-w-0 flex-1 truncate">{job.title}</span>
+          {job.state === "completed" && (
+            <CheckCircle2Icon className="size-3 shrink-0 text-green-600" />
+          )}
+          {job.state === "in_progress" && (
+            <CircleDotIcon className="size-3 shrink-0 text-amber-500" />
+          )}
+          {job.state === "pending_review" && (
+            <ThumbsUpIcon className="size-3 shrink-0 text-amber-500" />
+          )}
+          {job.state === "returned" && (
+            <ThumbsDownIcon className="size-3 shrink-0 text-red-500" />
+          )}
+        </button>
+        {isRoot && children.length > 0 && (
+          <div className="mb-1 ml-6 mt-0.5 h-1 w-16 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-green-500 transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+        {!isCollapsed && children.length > 0 && (
+          <div>{children.map((c) => renderNode(c, depth + 1))}</div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="rounded-xl border bg-background p-2">
+      <div className="px-2 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {L("Task tree")}
+      </div>
+      <div className="space-y-0.5">{jobs.map((j) => renderNode(j, 0))}</div>
+    </div>
+  );
+}
+
 export function JobsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   // Create form is open by default so the page always offers a visible,
@@ -832,6 +906,10 @@ export function JobsPage() {
   // Team-project filter: when set, the board shows that project's tasks
   // (scope=project) and the header shows project info + flow progress.
   const [projectId, setProjectId] = useState<string>("");
+  // Board highlight: id of the card the user clicked in the left tree.
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const currentUserId = getCurrentUserId();
+  const isAdmin = getCurrentIsAdmin();
   const {
     data: projects = [],
   } = useQuery({
@@ -887,15 +965,34 @@ export function JobsPage() {
     { state: "blocked", label: STATE_LABELS.blocked },
   ];
 
+  // Map each job id → its root (main task) title so board cards show a
+  // breadcrumb identifying which tree they belong to.
+  const rootTitleById = useMemo(() => {
+    const m = new Map<string, string>();
+    const walk = (list: JobWire[]) => {
+      for (const j of list) {
+        const children = j.children ?? [];
+        if (children.length > 0) {
+          for (const c of children) m.set(c.id, j.title);
+          walk(children);
+        }
+      }
+    };
+    walk(jobs);
+    return m;
+  }, [jobs]);
+
   const board = useMemo(() => {
     const byCol = new Map<string, JobWire[]>();
     for (const col of COLUMNS) byCol.set(col.state, []);
-    // Flatten the nested tree so every job (main + children) appears in its
-    // state column — the whole team's work tree is visible per status.
+    // The board holds EXECUTABLE tasks only (children). Roots (main
+    // tasks) are aggregate containers and live in the left task tree.
     const flatten = (list: JobWire[]) => {
       for (const j of list) {
-        const col = byCol.get(j.state);
-        if (col) col.push(j);
+        if (j.parent_job_id) {
+          const col = byCol.get(j.state);
+          if (col) col.push(j);
+        }
         if (j.children && j.children.length > 0) flatten(j.children);
       }
     };
@@ -1063,38 +1160,52 @@ export function JobsPage() {
         <p className="mt-4 text-sm text-muted-foreground">{L("No jobs yet. Create one to start.")}</p>
       )}
 
-      {/* 多列看板 */}
+      {/* 选中项目：左侧任务树 + 右侧状态看板 */}
       {!isLoading && !error && jobs.length > 0 && (
-        <div className="mt-4 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-          {COLUMNS.map((col) => {
-            const colJobs = board.get(col.state) ?? [];
-            return (
-              <div
-                key={col.state}
-                className={`flex min-h-[120px] flex-col gap-2 rounded-xl border p-2 ${COLUMN_BG[col.state] ?? "bg-muted/30"}`}
-              >
-                <div className={`flex items-center justify-between border-b-2 px-1.5 pb-1.5 ${COLUMN_HEADER_COLORS[col.state] ?? "border-slate-300"}`}>
-                  <span className="flex items-center gap-1.5 text-sm font-bold">
-                    <StateIcon state={col.state} />
-                    {col.label}
-                  </span>
-                  <span className="rounded-full bg-background px-2 py-0.5 text-xs font-bold text-foreground shadow-sm">
-                    {colJobs.length}
-                  </span>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
+          {/* 左：任务树（多棵树导航） */}
+          <div className="lg:sticky lg:top-20 lg:h-fit">
+            <TaskTree jobs={jobs} activeJobId={activeJobId} onSelect={setActiveJobId} />
+          </div>
+          {/* 右：状态看板（只放可执行子任务） */}
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+            {COLUMNS.map((col) => {
+              const colJobs = board.get(col.state) ?? [];
+              return (
+                <div
+                  key={col.state}
+                  className={`flex min-h-[120px] flex-col gap-2 rounded-xl border p-2 ${COLUMN_BG[col.state] ?? "bg-muted/30"}`}
+                >
+                  <div className={`flex items-center justify-between border-b-2 px-1.5 pb-1.5 ${COLUMN_HEADER_COLORS[col.state] ?? "border-slate-300"}`}>
+                    <span className="flex items-center gap-1.5 text-sm font-bold">
+                      <StateIcon state={col.state} />
+                      {col.label}
+                    </span>
+                    <span className="rounded-full bg-background px-2 py-0.5 text-xs font-bold text-foreground shadow-sm">
+                      {colJobs.length}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-2">
+                    {colJobs.length === 0 && (
+                      <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed px-3 py-6 text-center text-xs text-muted-foreground/60">
+                        {L("None")}
+                      </div>
+                    )}
+                    {colJobs.map((j) => (
+                      <JobNode
+                        key={j.id}
+                        job={j}
+                        currentUserId={currentUserId}
+                        isAdmin={isAdmin}
+                        rootTitle={rootTitleById.get(j.id)}
+                        highlighted={activeJobId === j.id}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-1 flex-col gap-2">
-                  {colJobs.length === 0 && (
-                    <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed px-3 py-6 text-center text-xs text-muted-foreground/60">
-                      {L("None")}
-                    </div>
-                  )}
-                  {colJobs.map((j) => (
-                    <JobNode key={j.id} job={j} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </section>

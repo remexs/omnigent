@@ -188,6 +188,7 @@ export const zhCN: Record<string, string> = {
   "Create folder": "创建文件夹",
   "Create invite": "创建邀请",
   "Create task": "创建任务",
+  "Task tree": "任务树",
   "Create the admin account": "创建管理员账号",
   "Create your account": "创建您的账号",
   "Creating…": "创建中…",
