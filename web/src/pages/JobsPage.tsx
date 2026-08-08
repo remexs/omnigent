@@ -1202,8 +1202,8 @@ export function JobsPage() {
         </div>
       )}
 
-      {/* Stats bar */}
-      <div className="mt-4 grid gap-2 sm:grid-cols-5">
+      {/* Stats bar: 5 cards, responsive (2 cols narrow → 5 wide) */}
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         <Card className="p-3 text-center">
           <div className="text-xl font-semibold">{stats?.total_jobs ?? 0}</div>
           <div className="text-xs text-muted-foreground">{L("Total jobs")}</div>
@@ -1218,7 +1218,7 @@ export function JobsPage() {
         </Card>
         <Card className="p-3 text-center">
           <div className="text-xl font-semibold text-red-600">{stats?.total_rejects ?? 0}</div>
-          <div className="text-xs text-muted-foreground">{L("Rejects")}</div>
+          <div className="text-xs text-muted-foreground">{L("Reworks")}</div>
         </Card>
         <Card className="p-3 text-center">
           <div className="text-xl font-semibold">{byState.completed ?? 0}</div>
