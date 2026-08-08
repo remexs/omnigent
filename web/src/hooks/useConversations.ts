@@ -1465,6 +1465,9 @@ async function fetchProjectSessionsPage(
     sort_by: "updated_at",
     limit: String(limit),
     project,
+    // kind=any so task execution (sub-agent) sessions appear inside the
+    // project folder alongside the main session.
+    kind: "any",
   });
   if (after) params.set("after", after);
   const res = await authenticatedFetch(`/v1/sessions?${params.toString()}`);

@@ -837,40 +837,55 @@ def register_core_routes(
         # session filed under the project (whole-process monitoring);
         # regular members still only see their own (project filter is
         # owner-scoped for them).
-        owned_by = user_id if (project or project_id) else None
+        # The project manager (admin) sees EVERY session (whole-fleet
+        # monitoring): unscope both accessible_by and owned_by for admins.
+        _account_store = getattr(request.app.state, "account_store", None)
+        _caller_is_admin = False
+        if _account_store is not None and user_id:
+            try:
+                _caller_is_admin = await asyncio.to_thread(
+                    _account_store.is_admin, user_id
+                )
+            except Exception:  # noqa: BLE001
+                _caller_is_admin = False
+        accessible_by = user_id
+        # owned_by (owner-only filter) is NOT applied for project views —
+        # project sessions include the main session (members hold READ,
+        # not OWNER), so restricting to owned would hide it.
+        owned_by = None
+        if _caller_is_admin:
+            accessible_by = None
         if project or project_id:
-            # The project manager (admin) sees every session filed under the
-            # project (whole-process monitoring); regular members still only
-            # see their own (owner-scoped project filter).
-            _account_store = getattr(request.app.state, "account_store", None)
-            _is_admin = False
-            if _account_store is not None and user_id:
-                try:
-                    _is_admin = await asyncio.to_thread(
-                        _account_store.is_admin, user_id
-                    )
-                except Exception:  # noqa: BLE001
-                    _is_admin = False
-            if _is_admin:
-                # Manager: resolve the project name → id (via the project
-                # store) so the store's name→id resolution succeeds, then
-                # un-scope owned_by so ALL project sessions are returned.
-                _project_store = getattr(request.app.state, "project_store", None)
-                if _project_store is not None:
-                    if project:
+            # Resolve the project name → id so BOTH admin and members can
+            # filter by project id directly (the store's name resolution
+            # requires the project OWNER, which members aren't). Members
+            # still keep accessible_by=user_id so they only see sessions
+            # they can access.
+            _project_store = getattr(request.app.state, "project_store", None)
+            if _project_store is not None:
+                if project and not project_id:
+                    try:
                         _projects = await asyncio.to_thread(
                             _project_store.list, owner_user_id=user_id, scope="mine"
                         )
                         _match = next((p for p in _projects if p.name == project), None)
                         if _match is not None:
-                            owned_by = _match.owner_user_id or user_id
-                    elif project_id:
+                            project_id = _match.id
+                    except Exception:  # noqa: BLE001
+                        pass
+                elif project_id and not project:
+                    try:
                         _proj = await asyncio.to_thread(
                             _project_store.get, project_id, owner_user_id=user_id
                         )
                         if _proj is not None:
-                            owned_by = _proj.owner_user_id or user_id
                             project = _proj.name
+                    except Exception:  # noqa: BLE001
+                        pass
+            # Admin sees the whole project; members keep owner-scoped
+            # filtering via accessible_by.
+            if _caller_is_admin:
+                owned_by = None
         page = await asyncio.to_thread(
             conversation_store.list_conversations,
             limit=limit,
@@ -878,8 +893,12 @@ def register_core_routes(
             before=before,
             agent_id=agent_id,
             agent_name=agent_name,
-            accessible_by=user_id,
+            accessible_by=accessible_by,
             owned_by=owned_by,
+            # Admin: filter by project id directly (no owner-scoped name
+            # resolution); members keep the name-based project filter.
+            project_id=project_id or None,
+            project=None if (project_id or _caller_is_admin) else project,
             has_agent_id=True,
             # The store treats ``None`` as "no kind filter"; the API
             # spells that ``kind=any`` to keep the param required-ish
@@ -889,7 +908,6 @@ def register_core_routes(
             sort_by=sort_by,
             search_query=normalized_query,
             include_archived=include_archived,
-            project=project,
             pinned=pinned,
             # Pins are per-user: filter to the caller's own pin key.
             pinned_owner=user_id,
