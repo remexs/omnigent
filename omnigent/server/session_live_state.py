@@ -303,7 +303,7 @@ def clear_runner_liveness(runner_id: str) -> None:
 
 # ── Job completion hook (outer collaboration layer) ──────────────────────
 # When a session bound to a business job reaches a terminal edge (idle =
-# completed, failed = errored), mark the job pending_review and register the
+# completed, failed = errored), mark the job in_review and register the
 # produced artifact. The callback is registered at app startup with the
 # job store; a conversation with no job association is a cheap no-op.
 _job_completion_handler: object | None = None
@@ -320,7 +320,7 @@ def register_job_completion_handler(handler: object | None) -> None:
 
 
 def persist_job_completion(conversation_id: str, status: str) -> None:
-    """Mark a job pending_review when its bound session reaches terminal.
+    """Mark a job in_review when its bound session reaches terminal.
 
     Called from ``_publish_status`` on idle/failed edges. No-op unless a
     handler was registered (job feature disabled or no bound job).

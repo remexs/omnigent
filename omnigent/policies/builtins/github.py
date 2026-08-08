@@ -408,7 +408,7 @@ _MCP_WRITE_TOOLS: frozenset[str] = frozenset(
         "update_pull_request",
         "merge_pull_request",
         "create_pull_request_review",
-        "add_pull_request_review_comment_to_pending_review",
+        "add_pull_request_review_comment_to_in_review",
         "request_copilot_review",
         "update_pull_request_branch",
         "create_issue",

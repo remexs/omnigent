@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 # Job lifecycle states (mirror TASK_STATE int codes).
 TASK_STATE_TODO = "todo"
 TASK_STATE_IN_PROGRESS = "in_progress"
-TASK_STATE_PENDING_REVIEW = "pending_review"
+TASK_STATE_PENDING_REVIEW = "in_review"
 TASK_STATE_COMPLETED = "completed"
 TASK_STATE_RETURNED = "returned"
 TASK_STATE_BLOCKED = "blocked"
@@ -63,7 +63,7 @@ class Job:
 
     :param id: Job id (uuid hex).
     :param title: Human-readable task name, e.g. "需求分析".
-    :param state: Lifecycle state (todo / in_progress / pending_review /
+    :param state: Lifecycle state (todo / in_progress / in_review /
         completed / returned / blocked).
     :param round: Round counter — 1 for first execution, incremented on each
         reject/redo.

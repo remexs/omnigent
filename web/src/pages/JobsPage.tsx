@@ -1,12 +1,4 @@
-import {
-  Component,
-  lazy,
-  Suspense,
-  useCallback,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BriefcaseIcon,
@@ -15,7 +7,7 @@ import {
   CircleDotIcon,
   FolderIcon,
   GitBranchIcon,
-  NetworkIcon,
+  LockIcon,
   PlusIcon,
   RefreshCwIcon,
   ServerIcon,
@@ -86,38 +78,38 @@ interface HostWire {
 const STATE_LABELS: Record<string, string> = {
   todo: "待办",
   in_progress: "进行中",
-  pending_review: "待评价",
+  in_review: "待验收",
   completed: "已完成",
-  returned: "打回",
-  blocked: "阻塞",
+  returned: "返工",
+  
 };
 
 const STATE_COLORS: Record<string, string> = {
   todo: "bg-slate-100 text-slate-700",
   in_progress: "bg-blue-100 text-blue-700",
-  pending_review: "bg-amber-100 text-amber-700",
+  in_review: "bg-amber-100 text-amber-700",
   completed: "bg-green-100 text-green-700",
   returned: "bg-red-100 text-red-700",
-  blocked: "bg-slate-100 text-slate-500",
+  
 };
 
 /** 列头状态色（色条 + 文字） */
 const COLUMN_HEADER_COLORS: Record<string, string> = {
   todo: "text-slate-700 border-slate-300",
   in_progress: "text-blue-700 border-blue-400",
-  pending_review: "text-amber-700 border-amber-400",
+  in_review: "text-amber-700 border-amber-400",
   completed: "text-green-700 border-green-500",
   returned: "text-red-700 border-red-400",
-  blocked: "text-slate-500 border-slate-300",
+  
 };
 
 const COLUMN_BG: Record<string, string> = {
   todo: "bg-slate-50/60",
   in_progress: "bg-blue-50/40",
-  pending_review: "bg-amber-50/40",
+  in_review: "bg-amber-50/40",
   completed: "bg-green-50/40",
   returned: "bg-red-50/40",
-  blocked: "bg-slate-50/40",
+  
 };
 
 function StateBadge({ state }: { state: string }) {
@@ -133,7 +125,7 @@ function StateBadge({ state }: { state: string }) {
 function StateIcon({ state }: { state: string }) {
   if (state === "completed") return <CheckCircle2Icon className="size-4 text-green-500" />;
   if (state === "in_progress") return <CircleDotIcon className="size-4 text-blue-500" />;
-  if (state === "pending_review") return <ThumbsUpIcon className="size-4 text-amber-500" />;
+  if (state === "in_review") return <ThumbsUpIcon className="size-4 text-amber-500" />;
   if (state === "returned") return <ThumbsDownIcon className="size-4 text-red-500" />;
   return <CircleIcon className="size-4 text-muted-foreground" />;
 }
@@ -143,14 +135,10 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
   const [name, setName] = useState("");
   // Members picked from the user/host list (participant pool).
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  // Workflow phases: name + agent (agent binds member+host) + mode.
-  const [phases, setPhases] = useState([
-    { name: "需求分析", agent: "zhangsan-agent", mode: "manual" },
-    { name: "架构设计", agent: "wangwu-agent", mode: "manual" },
-    { name: "后端开发", agent: "zhaoliu-agent", mode: "manual" },
-    { name: "前端开发", agent: "lisi-agent", mode: "manual" },
-    { name: "测试验证", agent: "admin-agent", mode: "manual" },
-  ]);
+  // Task workflow YAML (industry-standard steps; users edit directly).
+  const [workflowYaml, setWorkflowYaml] = useState(
+    "workflow:\n  steps:\n    - id: requirement\n      name: 需求分析\n      agent: zhangsan-agent\n    - id: architecture\n      name: 架构设计\n      agent: wangwu-agent\n    - id: backend\n      name: 后端开发\n      agent: zhaoliu-agent\n    - id: frontend\n      name: 前端开发\n      agent: lisi-agent\n    - id: test\n      name: 测试验证\n      agent: admin-agent",
+  );
   const {
     data: memberOptions = [],
   } = useQuery({
@@ -191,17 +179,31 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
     setError(null);
     try {
       const members = selectedMembers;
-      // Each phase: agent auto-resolves assignee via owner (member+host).
-      const cleanPhases = phases
-        .map((p) => ({ ...p, name: p.name.trim() }))
-        .filter((p) => p.name);
+      // Parse the YAML steps into config.workflow.steps (industry standard).
+      const steps: { id: string; name: string; agent?: string }[] = [];
+      let cur: { id: string; name: string; agent?: string } | null = null;
+      for (const line of workflowYaml.split("\n")) {
+        const t = line.trim();
+        if (!t || t.startsWith("#")) continue;
+        if (/^- id:/.test(t)) {
+          if (cur) steps.push(cur);
+          cur = { id: t.replace(/^- id:\s*/, "").trim(), name: "" };
+        } else if (cur) {
+          const m = t.match(/^(\w+):\s*(.*)$/);
+          if (m) {
+            if (m[1] === "name") cur.name = m[2].trim();
+            else if (m[1] === "agent") cur.agent = m[2].trim();
+          }
+        }
+      }
+      if (cur) steps.push(cur);
       const res = await authenticatedFetch("/v1/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
           kind: "team",
-          config: { workflow: { phases: cleanPhases } },
+          config: { workflow: { steps } },
         }),
       });
       if (!res.ok) throw new Error(`${res.status}`);
@@ -222,7 +224,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
     } finally {
       setSaving(false);
     }
-  }, [name, selectedMembers, phases, onDone, queryClient]);
+  }, [name, selectedMembers, workflowYaml, onDone, queryClient]);
 
   return (
     <Card className="space-y-3 p-4">
@@ -265,73 +267,18 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
         </p>
       </label>
 
-      {/* 执行流程（工作流 YAML 定义：阶段 + agent 下拉，agent 绑定成员/主机） */}
+      {/* 任务工作流 YAML（用户直接编辑 steps） */}
       <div className="space-y-1">
-        <span className="text-sm">{L("Flow phases")}（agent 自动绑定成员与主机）</span>
-        <div className="space-y-1.5">
-          {phases.map((ph, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <Input
-                className="flex-1"
-                placeholder={L("Phase name")}
-                value={ph.name}
-                onChange={(e) =>
-                  setPhases((prev) => prev.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))
-                }
-              />
-              <Select
-                value={ph.agent}
-                onValueChange={(v) =>
-                  setPhases((prev) => prev.map((x, j) => (j === i ? { ...x, agent: v } : x)))
-                }
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {agentOptions.map((a) => (
-                    <SelectItem key={a.name} value={a.name}>
-                      {a.name}{a.owner_user_id ? ` (@${a.owner_user_id})` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={ph.mode}
-                onValueChange={(v) =>
-                  setPhases((prev) => prev.map((x, j) => (j === i ? { ...x, mode: v } : x)))
-                }
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manual">manual</SelectItem>
-                  <SelectItem value="auto">auto</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 shrink-0 px-0"
-                onClick={() => setPhases((prev) => prev.filter((_, j) => j !== i))}
-                aria-label="remove phase"
-              >
-                <XIcon className="size-3.5" />
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-1"
-          onClick={() => setPhases((prev) => [...prev, { name: "", agent: "zhangsan-agent", mode: "manual" }])}
-        >
-          <PlusIcon className="size-3.5" /> {L("Add phase")}
-        </Button>
+        <span className="text-sm">{L("Workflow YAML")}</span>
+        <textarea
+          value={workflowYaml}
+          onChange={(e) => setWorkflowYaml(e.target.value)}
+          spellCheck={false}
+          className="h-44 w-full resize-y rounded-md border bg-muted/30 p-2 font-mono text-[11px] leading-relaxed"
+        />
+        <p className="text-[11px] text-muted-foreground">
+          steps: id(唯一) + name(显示) + agent(绑定成员/主机)；任务页按此生成任务树
+        </p>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -352,9 +299,37 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
   const [assignee, setAssignee] = useState("");
   const [parentId, setParentId] = useState("");
   const [requireApproval, setRequireApproval] = useState(false);
+  // Task-level workflow (industry-standard steps: unique id + display name
+  // + agent + depends_on referencing step ids) and work-team selection.
+  const [steps, setSteps] = useState<{ id: string; name: string; agent: string; depends_on: string }[]>([
+    { id: "requirement", name: "需求分析", agent: "zhangsan-agent", depends_on: "" },
+  ]);
+  const [team, setTeam] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { data: agentOptions = [] } = useQuery({
+    queryKey: ["agents", "member"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/agents");
+      if (!res.ok) throw new Error(`${res.status}`);
+      const body = (await res.json()) as { data: { name: string; owner_user_id?: string | null }[] };
+      return (body.data ?? []).filter((a) => a.owner_user_id);
+    },
+    staleTime: 30_000,
+  });
+  const { data: projects = [] } = useQuery({
+    queryKey: ["projects-mine"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/projects");
+      if (!res.ok) throw new Error(`${res.status}`);
+      const body = (await res.json()) as { data: ProjectWire[] };
+      return body.data ?? [];
+    },
+    staleTime: 30_000,
+  });
+  const activeProject = projects.find((p) => p.id === projectId) ?? null;
+  const projectMembers = activeProject?.members ?? [];
 
   const save = useCallback(async () => {
     setSaving(true);
@@ -367,12 +342,37 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
       if (parentId.trim()) payload.parent_job_id = parentId.trim();
       if (requireApproval) payload.require_approval = true;
       if (projectId) payload.project_id = projectId;
+      // Task workflow YAML: config.workflow.steps (industry standard).
+      const cleanSteps = steps
+        .map((st) => ({
+          id: st.id.trim(),
+          name: st.name.trim() || st.id.trim(),
+          ...(st.agent.trim() ? { agent: st.agent.trim() } : {}),
+          ...(st.depends_on.trim()
+            ? { depends_on: st.depends_on.split(",").map((x) => x.trim()).filter(Boolean) }
+            : {}),
+        }))
+        .filter((st) => st.id);
+      if (cleanSteps.length > 0) {
+        payload.config = { workflow: { steps: cleanSteps } };
+      }
       const res = await authenticatedFetch("/v1/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`${res.status}`);
+      // Add the task's work-team members (subset of the project team).
+      if (projectId && team.size > 0) {
+        const jid = ((await res.clone().json()) as { job: { id: string } }).job.id;
+        for (const uid of team) {
+          await authenticatedFetch(`/v1/jobs/${jid}/members`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: uid }),
+          });
+        }
+      }
       await queryClient.invalidateQueries({ queryKey: ["jobs"] });
       onDone();
     } catch (e) {
@@ -380,7 +380,10 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
     } finally {
       setSaving(false);
     }
-  }, [title, description, agentName, assignee, parentId, requireApproval, onDone, queryClient]);
+  }, [title, description, agentName, assignee, parentId, requireApproval, projectId, steps, team, onDone, queryClient]);
+
+  const updateStep = (i: number, field: string, value: string) =>
+    setSteps((prev) => prev.map((st, idx) => (idx === i ? { ...st, [field]: value } : st)));
 
   return (
     <Card className="space-y-3 p-4">
@@ -421,6 +424,80 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
           <span className="text-sm">{L("Require approval before execution")}</span>
         </label>
       </div>
+
+      {/* 工作团队：从项目成员选择 */}
+      {projectMembers.length > 0 && (
+        <div className="space-y-1.5 border-t pt-2">
+          <span className="text-sm font-medium">{L("Work team")}</span>
+          <div className="flex flex-wrap gap-2">
+            {projectMembers.map((m) => (
+              <label key={m.user_id} className="flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-xs hover:bg-muted">
+                <input
+                  type="checkbox"
+                  checked={team.has(m.user_id)}
+                  onChange={(e) =>
+                    setTeam((prev) => {
+                      const next = new Set(prev);
+                      if (e.target.checked) next.add(m.user_id);
+                      else next.delete(m.user_id);
+                      return next;
+                    })
+                  }
+                  className="size-3.5 accent-primary"
+                />
+                {m.user_id}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 工作流 steps 编辑器 */}
+      <div className="space-y-1.5 border-t pt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">{L("Workflow steps")}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs"
+            onClick={() =>
+              setSteps((prev) => [...prev, { id: "", name: "", agent: "", depends_on: "" }])
+            }
+          >
+            <PlusIcon className="size-3" /> {L("Add step")}
+          </Button>
+        </div>
+        {steps.map((st, i) => (
+          <div key={i} className="grid grid-cols-[1fr_1.2fr_1.2fr_1.4fr_auto] items-center gap-1.5">
+            <Input value={st.id} onChange={(e) => updateStep(i, "id", e.target.value)} placeholder="id" className="h-7 text-xs" />
+            <Input value={st.name} onChange={(e) => updateStep(i, "name", e.target.value)} placeholder="名称" className="h-7 text-xs" />
+            <select
+              value={st.agent}
+              onChange={(e) => updateStep(i, "agent", e.target.value)}
+              className="h-7 rounded-md border bg-background px-1.5 text-xs"
+            >
+              <option value="">agent…</option>
+              {agentOptions.map((a) => (
+                <option key={a.name} value={a.name}>
+                  {a.name} ({a.owner_user_id})
+                </option>
+              ))}
+            </select>
+            <Input value={st.depends_on} onChange={(e) => updateStep(i, "depends_on", e.target.value)} placeholder="depends_on (step id)" className="h-7 text-xs" />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-1.5 text-xs"
+              onClick={() => setSteps((prev) => prev.filter((_, idx) => idx !== i))}
+            >
+              <XIcon className="size-3" />
+            </Button>
+          </div>
+        ))}
+      </div>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex justify-end">
         <Button type="button" size="sm" disabled={saving || !title.trim()} onClick={save}>
@@ -689,10 +766,16 @@ function JobNode({
                     {job.host_id.slice(0, 8)}
                   </span>
                 )}
-                {job.require_approval && job.state === "blocked" && (
+                {job.require_approval && (
                   <span className="inline-flex items-center gap-1 text-amber-600">
                     <ShieldIcon className="size-3" />
                     {L("Awaiting approval")}
+                  </span>
+                )}
+                {job.depends_on && job.state === "todo" && (
+                  <span className="inline-flex items-center gap-1 text-slate-500">
+                    <LockIcon className="size-3" />
+                    {L("Awaiting dependency")}
                   </span>
                 )}
                 {job.session_id && (
@@ -726,12 +809,12 @@ function JobNode({
                 <CheckCircle2Icon className="size-3" /> {L("Submit")}
               </Button>
             )}
-            {job.state === "pending_review" && isAdmin && (
+            {job.state === "in_review" && isAdmin && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowEvaluate(true)}>
                 <ThumbsUpIcon className="size-3" /> {L("Evaluate")}
               </Button>
             )}
-            {job.state === "blocked" && job.require_approval && (isAdmin || job.assignee_user_id === currentUserId) && (
+            {job.require_approval && (isAdmin || job.assignee_user_id === currentUserId) && (
               <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-xs text-green-600" onClick={approveExecution}>
                 <ShieldIcon className="size-3" /> {L("Approve execution")}
               </Button>
@@ -814,27 +897,7 @@ function JobNode({
  * (spawning a session on their own host); reviewers evaluate the produced
  * artifacts (approve → next stage, reject → redo with round+1).
  */
-const SubagentsPanel = lazy(() =>
-  import("@/shell/SubagentsPanel").then((m) => ({ default: m.SubagentsPanel })),
-);
 
-/** Error boundary so a graph render failure can't blank the whole jobs page. */
-class GraphErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    if (this.state.failed) {
-      return (
-        <p className="p-3 text-xs text-muted-foreground">
-          执行关系图加载失败（查看会话页可看协作树）
-        </p>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 /** Left nav: every task tree under the project (a project can have
  *  several main tasks). Each root shows its progress bar; clicking a
@@ -990,10 +1053,9 @@ export function JobsPage() {
   const COLUMNS: { state: string; label: string }[] = [
     { state: "todo", label: STATE_LABELS.todo },
     { state: "in_progress", label: STATE_LABELS.in_progress },
-    { state: "pending_review", label: STATE_LABELS.pending_review },
+    { state: "in_review", label: STATE_LABELS.in_review },
     { state: "completed", label: STATE_LABELS.completed },
     { state: "returned", label: STATE_LABELS.returned },
-    { state: "blocked", label: STATE_LABELS.blocked },
   ];
 
   // Map each job id → its root (main task) title so board cards show a
@@ -1049,19 +1111,8 @@ export function JobsPage() {
           <Button type="button" variant="outline" size="sm" onClick={() => setRefreshKey((k) => k + 1)}>
             <RefreshCwIcon className="size-3.5" /> {L("Refresh")}
           </Button>
-          <Button type="button" size="sm" onClick={() => setShowCreate((v) => !v)}>
-            <PlusIcon className="size-3.5" /> {L("New job")}
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={() => setShowCreateProject((v) => !v)}>
-            <BriefcaseIcon className="size-3.5" /> {L("New team project")}
-          </Button>
         </div>
       </div>
-      {showCreateProject && (
-        <div className="mt-4">
-          <CreateProjectForm onDone={() => setShowCreateProject(false)} />
-        </div>
-      )}
 
       {/* 项目选择 + 流程进度 */}
       {teamProjects.length > 0 && (
@@ -1175,11 +1226,7 @@ export function JobsPage() {
         </Card>
       </div>
 
-      {showCreate && (
-        <div className="mt-4" id="new-job-form" ref={(el) => { if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" }); }}>
-          <CreateJobForm projectId={projectId} onDone={() => setShowCreate(false)} />
-        </div>
-      )}
+
 
       {isLoading && <p className="mt-4 text-sm text-muted-foreground">{L("Loading…")}</p>}
       {error && (
@@ -1194,34 +1241,9 @@ export function JobsPage() {
       {/* 选中项目：左侧任务树 + 右侧状态看板 */}
       {!isLoading && !error && jobs.length > 0 && (
         <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
-          {/* 左：任务树（多棵树导航）+ 执行关系图 */}
-          <div className="lg:sticky lg:top-20 lg:h-fit space-y-3">
+          {/* 左：项目+任务树导航 */}
+          <div className="lg:sticky lg:top-20 lg:h-fit">
             <TaskTree jobs={jobs} activeJobId={activeJobId} onSelect={setActiveJobId} />
-            {(() => {
-              // B: execution-collaboration graph — the project main task's
-              // session is the root; its execution sub-sessions (children)
-              // render as the collaboration graph.
-              const mainRoot = jobs.find((j) => !j.parent_job_id);
-              if (!mainRoot?.session_id) return null;
-              return (
-                <details className="rounded-xl border bg-background p-2">
-                  <summary className="cursor-pointer px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    <NetworkIcon className="mr-1 inline size-3" />
-                    {L("Execution graph")}
-                  </summary>
-                  <div className="mt-1 h-64 overflow-hidden rounded-lg border">
-                    <GraphErrorBoundary>
-                      <Suspense fallback={<p className="p-3 text-xs text-muted-foreground">{L("Loading…")}</p>}>
-                        <SubagentsPanel
-                          conversationId={mainRoot.session_id}
-                          rootSessionId={mainRoot.session_id}
-                        />
-                      </Suspense>
-                    </GraphErrorBoundary>
-                  </div>
-                </details>
-              );
-            })()}
           </div>
           {/* 右：状态看板（只放可执行子任务） */}
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">

@@ -1127,7 +1127,7 @@ def create_app(
             app_inst.state.agent_store = agent_store
             app_inst.state.tunnel_registry = tunnel_registry
             app_inst.state.host_registry = host_registry
-            # Session terminal → mark the bound job pending_review.
+            # Session terminal → mark the bound job in_review.
             from omnigent.server import session_live_state as _sls
 
             def _job_session_terminal(conversation_id: str, status: str) -> None:
@@ -1140,7 +1140,7 @@ def create_app(
                             job_store.update(
                                 _jid,
                                 state=(
-                                    "pending_review"
+                                    "in_review"
                                     if status == "idle"
                                     else "blocked"
                                 ),

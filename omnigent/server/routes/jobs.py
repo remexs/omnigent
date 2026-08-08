@@ -42,6 +42,7 @@ def _serialize_job(t: Job) -> dict[str, Any]:
         "require_approval": t.require_approval,
         "project_id": t.project_id,
         "config": t.config,
+        "members": getattr(t, "member_ids", None) or [],
         "created_at": t.created_at,
         "updated_at": t.updated_at,
         "artifacts": [
@@ -343,7 +344,7 @@ async def _maybe_complete_root(
     try:
         tree = store.get_tree(root_id)
         root = next((t for t in tree if t.id == root_id), None)
-        if root is None or root.state in ("completed", "pending_review"):
+        if root is None or root.state in ("completed", "in_review"):
             return
         # D2: every EXECUTABLE node in the tree must be done — walk the
         # whole subtree (nested children + DAG dependents), not just the
@@ -362,11 +363,11 @@ async def _maybe_complete_root(
         if not children:
             return
         if _all_done(children):
-            # All executable nodes done → root moves to pending_review so
+            # All executable nodes done → root moves to in_review so
             # the project manager confirms completion (manual gate).
-            if root.state != "pending_review":
-                store.update(root_id, state="pending_review")
-            _lgr.info("job root %s → pending_review (all tree nodes done)", root_id)
+            if root.state != "in_review":
+                store.update(root_id, state="in_review")
+            _lgr.info("job root %s → in_review (all tree nodes done)", root_id)
     except Exception as _exc:  # noqa: BLE001 — best-effort
         _lgr.warning("root auto-complete skipped: %s", _exc)
 
@@ -479,6 +480,29 @@ def create_jobs_router(
         if job is None:
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
         return {"job": _serialize_job(job)}
+
+    @router.post("/jobs/{job_id}/members")
+    async def add_job_member(job_id: str, request: Request) -> dict:
+        """Add a member to the task's work team."""
+        _require_user(request, auth_provider)
+        body = await request.json()
+        user_id = str(body.get("user_id") or "").strip()
+        if not user_id:
+            raise OmnigentError("user_id is required", code=ErrorCode.INVALID_INPUT)
+        store = _store(request)
+        job = store.get(job_id)
+        if job is None:
+            raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
+        await asyncio.to_thread(store.add_member, job_id, user_id)
+        return {"ok": True, "members": await asyncio.to_thread(store.list_members, job_id)}
+
+    @router.get("/jobs/{job_id}/members")
+    async def list_job_members(job_id: str, request: Request) -> dict:
+        """List the task's work-team member user ids."""
+        _require_user(request, auth_provider)
+        store = _store(request)
+        members = await asyncio.to_thread(store.list_members, job_id)
+        return {"members": members}
 
     @router.post("/jobs")
     async def create_job(request: Request) -> dict:
@@ -744,13 +768,12 @@ def create_jobs_router(
                         f"任务依赖「{_dep.title}」尚未完成 — 请先完成依赖任务",
                         code=ErrorCode.FORBIDDEN,
                     )
-        # Execution gate: jobs that require approval do not go straight to
-        # in_progress — they sit in blocked (waiting) until an admin
-        # approves execution. Executors can still claim (become assignee).
-        next_state = "blocked" if job.require_approval else "in_progress"
+        # Execution gate: jobs that require approval are claimed into
+        # in_progress but stay PAUSED (🛡 marker) until an admin approves
+        # execution — blocked is a marker, not a state.
         updated = store.update(
             job_id,
-            state=next_state,
+            state="in_progress",
             assignee_user_id=str(user) if user else None,
         )
         return {"job": _serialize_job(updated) if updated else {}}
@@ -777,6 +800,14 @@ def create_jobs_router(
             raise OmnigentError(
                 "该任务未启用执行审批", code=ErrorCode.INVALID_INPUT
             )
+        await asyncio.to_thread(
+            store.add_evaluation,
+            secrets.token_hex(16),
+            job_id,
+            "approve",
+            str(user) if user else None,
+            "管理员批准执行",
+        )
         updated = store.update(job_id, state="in_progress")
         return {"job": _serialize_job(updated) if updated else {}}
 
@@ -821,15 +852,15 @@ def create_jobs_router(
 
     @router.post("/jobs/{job_id}/complete")
     async def complete_job(job_id: str, request: Request) -> dict:
-        """Mark a job complete with an optional artifact, moving to pending_review."""
+        """Mark a job complete with an optional artifact, moving to in_review."""
         _require_user(request, auth_provider)
         body = await request.json()
         store = _store(request)
         job = store.get(job_id)
         # Idempotency guard: an already-completed (or in-review) job must not
         # be re-submitted — a still-running pi might re-fire submit and flip
-        # the state back to pending_review after admin accepted it.
-        if job is not None and job.state in ("completed", "pending_review"):
+        # the state back to in_review after admin accepted it.
+        if job is not None and job.state in ("completed", "in_review"):
             return {"job": _serialize_job(job)}
         if job is None:
             raise OmnigentError(f"job {job_id!r} not found", code=ErrorCode.NOT_FOUND)
@@ -843,10 +874,10 @@ def create_jobs_router(
                 ref=artifact.get("ref") or None,
                 summary=artifact.get("summary") or None,
             )
-        # Mark this job pending_review. If it has no parent and no
-        # dependents, it may be done — keep pending_review so the user
+        # Mark this job in_review. If it has no parent and no
+        # dependents, it may be done — keep in_review so the user
         # evaluates the artifact (quality gate).
-        updated = store.update(job_id, state="pending_review")
+        updated = store.update(job_id, state="in_review")
         # Unblock dependents: for now, dependents stay blocked until an
         # evaluation passes; evaluation handles unblocking.
         return {"job": _serialize_job(updated) if updated else {}}
@@ -874,7 +905,7 @@ def create_jobs_router(
         if action == "pass":
             updated = store.update(job_id, state="completed")
             # The task is done — stop its live runner so a still-running pi
-            # can't re-submit and flip the state back to pending_review.
+            # can't re-submit and flip the state back to in_review.
             if job.session_id:
                 try:
                     runner_router = getattr(request.app.state, "runner_router", None)
@@ -920,7 +951,7 @@ def create_jobs_router(
         _require_user(request, auth_provider)
         body = await request.json()
         state = str(body.get("state") or "").strip()
-        valid = {"todo", "in_progress", "pending_review", "completed", "returned", "blocked"}
+        valid = {"todo", "in_progress", "in_review", "completed", "returned"}
         if state not in valid:
             raise OmnigentError(f"invalid state {state!r}", code=ErrorCode.INVALID_INPUT)
         store = _store(request)
@@ -974,12 +1005,19 @@ def create_jobs_router(
                         f"任务依赖「{_dep.title}」尚未完成 — 请先完成依赖任务",
                         code=ErrorCode.FORBIDDEN,
                     )
-        # Gated jobs must be approved before they can be launched.
-        if job.require_approval and job.state != "in_progress":
-            raise OmnigentError(
-                "该任务需要管理员批准执行后才能启动 — 请等待审批通过",
-                code=ErrorCode.FORBIDDEN,
+        # Gated jobs must be approved before they can be launched. The
+        # claim keeps the job in_progress with a 🛡 marker; launch is the
+        # gate — only an APPROVED gated job may launch (approval is
+        # recorded as an evaluation with action "approve").
+        if job.require_approval:
+            _approved = any(
+                e.action == "approve" for e in (job.evaluations or [])
             )
+            if not _approved:
+                raise OmnigentError(
+                    "该任务需要管理员批准执行后才能启动 — 请等待审批通过",
+                    code=ErrorCode.FORBIDDEN,
+                )
         # Execution is owned by the host's owner: only the machine's owner
         # may launch a runner on it (the orchestrator/admin can see all hosts
         # for scheduling, but cannot execute on someone else's machine).

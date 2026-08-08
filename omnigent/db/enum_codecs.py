@@ -341,15 +341,16 @@ def decode_scheduled_task_run_status(code: int) -> str:
 
 
 # ── Business task tree enums (outer collaboration layer) ───────────────
-# jobs.state: todo=1, in_progress=2, pending_review=3, completed=4,
-# returned=5, blocked=6.
+# jobs.state: todo=1, in_progress=2, in_review=3, completed=4,
+# returned=5. Blocked is a MARKER (dependency/approval gate), not a
+# state — a task awaiting a dependency stays "todo" with a 🔒 marker,
+# one awaiting approval stays "in_progress" with a 🛡 marker.
 JOB_STATE: dict[str, int] = {
     "todo": 1,
     "in_progress": 2,
-    "pending_review": 3,
+    "in_review": 3,
     "completed": 4,
     "returned": 5,
-    "blocked": 6,
 }
 
 # job_artifacts.artifact_type: none=1, file=2, message=3.

@@ -1620,7 +1620,7 @@ class SqlJob(OmnigentBase):
     :param title: Task name, e.g. "需求分析".
     :param description: Opaque free text (stored compressed).
     :param state: Lifecycle state as a stable int code
-        (TASK_STATE: todo=1, in_progress=2, pending_review=3,
+        (TASK_STATE: todo=1, in_progress=2, in_review=3,
         completed=4, returned=5, blocked=6).
     :param round: Round counter — incremented on each reject/redo.
     :param assignee_user_id: Executor user, e.g. "zhangsan".
@@ -1684,6 +1684,20 @@ class SqlJobArtifact(OmnigentBase):
     artifact_type: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
     ref: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     summary: Mapped[str | None] = mapped_column(CompressedText, nullable=True)
+    created_at: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class SqlJobMember(OmnigentBase):
+    """Task work-team member (subset of the project team)."""
+
+    __tablename__ = "job_members"
+
+    workspace_id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, nullable=False, server_default="0", default=current_workspace_id
+    )
+    job_id: Mapped[str] = mapped_column(Uuid16, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    role: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
     created_at: Mapped[int] = mapped_column(Integer, nullable=False)
 
 

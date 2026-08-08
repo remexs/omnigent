@@ -14,6 +14,7 @@ from omnigent.db.db_models import (
     SqlJobArtifact,
     SqlJobEvaluation,
     SqlJob,
+    SqlJobMember,
     current_workspace_id,
 )
 from omnigent.db.enum_codecs import (
@@ -296,6 +297,28 @@ class SqlAlchemyJobStore(JobStore):
         return [_artifact_to_entity(r) for r in rows]
 
     # ── Evaluations ──────────────────────────────────────────────
+
+    def add_member(self, job_id: str, user_id: str, role: int = 1) -> None:
+        """Add a member to the task's work team."""
+        row = SqlJobMember(
+            job_id=job_id,
+            user_id=user_id,
+            role=role,
+            created_at=now_epoch(),
+        )
+        with self._session() as session:
+            session.merge(row)
+            session.flush()
+
+    def list_members(self, job_id: str) -> list[str]:
+        """Return the task's work-team member user ids."""
+        with self._session() as session:
+            rows = session.execute(
+                select(SqlJobMember.user_id)
+                .where(SqlJobMember.workspace_id == current_workspace_id())
+                .where(SqlJobMember.job_id == job_id)
+            ).scalars().all()
+            return list(rows)
 
     def add_evaluation(
         self,
