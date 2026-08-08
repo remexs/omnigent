@@ -259,6 +259,10 @@ async function fetchConversationsPage({
     order: "desc",
     sort_by: "updated_at",
     limit: "30",
+    // kind=any surfaces sub-agent (task execution) sessions in the
+    // sidebar too — a member's task sessions are their own work, not
+    // hidden implementation detail of the parent conversation.
+    kind: "any",
   });
   if (after) params.set("after", after);
   if (searchQuery) params.set("search_query", searchQuery);
