@@ -1,0 +1,11 @@
+{
+  "config_sig": "cf94d5f3e45fa5d5",
+  "host_id": "299d5387422f448a99553c471f0b5cd0",
+  "log_path": null,
+  "mode": "server",
+  "pid": 1,
+  "resolved_server_url": null,
+  "server_url": "http://omnigent-server:8000",
+  "started_at": 1786161789,
+  "target": "http://omnigent-server:8000"
+}

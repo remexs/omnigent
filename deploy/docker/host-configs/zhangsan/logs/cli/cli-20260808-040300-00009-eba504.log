@@ -1,0 +1,1 @@
+INFO  08-08 04:03:00.608 cli_diagnostics                  setup_cli_logging  | CLI start — argv=['login', 'http://omnigent-server:8000'] pid=9

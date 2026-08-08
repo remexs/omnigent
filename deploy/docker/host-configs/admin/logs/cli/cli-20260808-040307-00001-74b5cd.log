@@ -1,0 +1,4 @@
+INFO  08-08 04:03:07.369 cli_diagnostics                  setup_cli_logging  | CLI start — argv=['host', '--server', 'http://omnigent-server:8000', '--non-interactive'] pid=1
+INFO  08-08 04:03:09.558 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/15ca677188434a3f8dcffa53ab6ef7ec/tunnel
+INFO  08-08 04:03:14.321 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
+INFO  08-08 04:04:19.598 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)

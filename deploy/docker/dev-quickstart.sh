@@ -40,7 +40,7 @@ PROVIDER_CONFIG="${PROVIDER_CONFIG:-providers:
     default: true
     kind: key
     openai:
-      api_key: sk-iMNxWFPaaC85oqqZsXiWq0V8fsvMxaQaoU0WTllunIs7rMaD88johMWBkvBDImGk
+      api_key: sk-XizxN0YDFbxyRa3T8tjQUtUsuk4iZos2LDUDfCTKxAH73UsUFHQ6mHquOf1vrUNO
       base_url: https://opencode.ai/zen/go/v1
       models:
         default: deepseek-v4-flash
@@ -107,7 +107,7 @@ up() {
     [ -z "$hpass" ] && { log "⚠️  跳过 $h（OMNIGENT_USERS 无凭据）"; continue; }
 
     # 生成 host 配置目录（provider + 后续 login 态）
-    local cfg_dir="/tmp/omnigent-host-$h-config"
+    local cfg_dir="$REPO_ROOT/deploy/docker/host-configs/$h"
     mkdir -p "$cfg_dir"
     printf '%s\n' "$PROVIDER_CONFIG" > "$cfg_dir/config.yaml"
 

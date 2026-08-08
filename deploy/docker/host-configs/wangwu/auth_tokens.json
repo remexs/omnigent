@@ -1,0 +1,7 @@
+{
+  "http://omnigent-server:8000": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3YW5nd3UiLCJpYXQiOjE3ODYxNjE2NzAsImV4cCI6MTc4NjE5MDQ3MCwicHJvdmlkZXIiOiJhY2NvdW50cyJ9.TQ_kcREfkVfZ8_3jj6bgUevy6geVy_rMpp5mxaH_EDs",
+    "user_id": "wangwu",
+    "expires_at": 1786190470.4206371
+  }
+}

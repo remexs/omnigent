@@ -1,0 +1,2 @@
+INFO  08-08 04:01:05.114 cli_diagnostics                  setup_cli_logging  | CLI start — argv=['host', '--server', 'http://omnigent-server:8000', '--non-interactive'] pid=1
+INFO  08-08 04:01:07.781 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/ea0534006b0e411bbd0d60040600219d/tunnel

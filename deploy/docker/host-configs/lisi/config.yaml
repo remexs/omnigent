@@ -1,0 +1,15 @@
+host:
+  host_id: 299d5387422f448a99553c471f0b5cd0
+  name: a2b77c7e58bd
+providers:
+  opencode-go:
+    default:
+    - openai
+    - pi
+    kind: key
+    openai:
+      api_key: sk-XizxN0YDFbxyRa3T8tjQUtUsuk4iZos2LDUDfCTKxAH73UsUFHQ6mHquOf1vrUNO
+      base_url: https://opencode.ai/zen/go/v1
+      models:
+        default: deepseek-v4-flash
+server: http://omnigent-server:8000

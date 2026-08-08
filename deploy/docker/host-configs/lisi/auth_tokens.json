@@ -1,0 +1,7 @@
+{
+  "http://omnigent-server:8000": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsaXNpIiwiaWF0IjoxNzg2MTYxNzgxLCJleHAiOjE3ODYxOTA1ODEsInByb3ZpZGVyIjoiYWNjb3VudHMifQ.K0L78DnSmP-iUbjWu4XsGluKLYkI2Imp_h3uiUXwSYo",
+    "user_id": "lisi",
+    "expires_at": 1786190581.4729834
+  }
+}

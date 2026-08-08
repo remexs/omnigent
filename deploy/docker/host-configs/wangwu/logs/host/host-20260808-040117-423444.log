@@ -1,0 +1,5 @@
+INFO  08-08 04:01:17.959 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/fce7fc7dc771410a96668f1a5a8c340a/tunnel
+INFO  08-08 04:01:18.388 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
+INFO  08-08 04:02:23.846 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
+INFO  08-08 04:03:23.863 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
+INFO  08-08 04:04:23.861 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
