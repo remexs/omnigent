@@ -273,6 +273,57 @@ async def _maybe_advance_flow(
         _lgr.warning("job flow advance skipped: %s", _exc)
 
 
+async def _notify_task_accepted(job, store: Any, request: Request) -> None:
+    """D3: post an acceptance message into the main task's session.
+
+    Called when the project MAIN task passes final evaluation. Builds a
+    summary of every child phase (state + evaluation verdict) and appends
+    it as an assistant message to the main session, so the collaboration
+    transcript records the whole task chain's acceptance.
+    """
+    import logging
+
+    _lgr = logging.getLogger("omnigent.server.routes.jobs")
+    conversation_store = getattr(request.app.state, "conversation_store", None)
+    if conversation_store is None:
+        return
+    try:
+        tree = store.get_tree(job.root_job_id or job.id)
+        lines = [f"✅ 任务「{job.title}」已验收完成"]
+        children = []
+        for root in tree:
+            children.extend(root.children or [])
+        for c in children:
+            verdict = "通过"
+            for e in (c.evaluations or []):
+                if e.action == "reject":
+                    verdict = "打回"
+                elif e.action == "pass":
+                    verdict = "通过"
+            lines.append(f"  • {c.title}: {verdict}")
+        text = "\n".join(lines)
+        from omnigent.entities.conversation import (
+            MessageData,
+            NewConversationItem,
+        )
+
+        _item = NewConversationItem(
+            type="message",
+            response_id=secrets.token_hex(8),
+            data=MessageData(
+                role="assistant",
+                agent=job.agent_name or "admin-agent",
+                content=[{"type": "output_text", "text": text}],
+            ),
+        )
+        await asyncio.to_thread(
+            conversation_store.append, job.session_id, [_item]
+        )
+        _lgr.info("main session %s notified of acceptance", job.session_id)
+    except Exception:  # noqa: BLE001 — notification is best-effort
+        _lgr.warning("task acceptance notify failed", exc_info=True)
+
+
 async def _maybe_complete_root(
     job, store: Any, request: Request
 ) -> None:
@@ -476,6 +527,43 @@ def create_jobs_router(
             require_approval=bool(body.get("require_approval") or False),
             project_id=project_id,
         )
+
+        # A1: creating the project MAIN task also creates its MAIN SESSION
+        # (the collaboration root the execution sub-sessions hang under).
+        # Child tasks create no session until claimed + launched.
+        if parent_job_id is None and project_id and job_id:
+            try:
+                agent_store = getattr(request.app.state, "agent_store", None)
+                conversation_store = getattr(request.app.state, "conversation_store", None)
+                if conversation_store is not None:
+                    _root_agent_id = None
+                    if agent_store is not None and job.agent_name:
+                        _ra = await asyncio.to_thread(
+                            agent_store.get_by_name, job.agent_name
+                        )
+                        if _ra is not None:
+                            _root_agent_id = _ra.id
+                    _root_conv = await asyncio.to_thread(
+                        conversation_store.create_conversation,
+                        agent_id=_root_agent_id,
+                        title=title,
+                    )
+                    if _root_conv is not None:
+                        await asyncio.to_thread(
+                            conversation_store.set_conversation_project,
+                            _root_conv.id,
+                            project_id,
+                        )
+                    if _root_conv is not None:
+                        await asyncio.to_thread(
+                            store.update, job_id, session_id=_root_conv.id
+                        )
+            except Exception:  # noqa: BLE001 — main session is best-effort
+                import logging as _lm
+
+                _lm.getLogger("omnigent.server.routes.jobs").warning(
+                    "main session creation failed for %s", job_id, exc_info=True
+                )
         return {"job": _serialize_job(job)}
 
     @router.post("/jobs/{job_id}/claim")
@@ -528,6 +616,17 @@ def create_jobs_router(
                     f"该任务分配给了 {job.assignee_user_id} — 只能领取分配给自己的任务",
                     code=ErrorCode.FORBIDDEN,
                 )
+        # C2: claiming a job whose DAG dependencies aren't done keeps it
+        # pending (todo) — the executor is told what blocks it.
+        if job.depends_on:
+            _dep_ids = [d.strip() for d in job.depends_on.split(",") if d.strip()]
+            for _did in _dep_ids:
+                _dep = store.get(_did)
+                if _dep is not None and _dep.state != "completed":
+                    raise OmnigentError(
+                        f"任务依赖「{_dep.title}」尚未完成 — 请先完成依赖任务",
+                        code=ErrorCode.FORBIDDEN,
+                    )
         # Execution gate: jobs that require approval do not go straight to
         # in_progress — they sit in blocked (waiting) until an admin
         # approves execution. Executors can still claim (become assignee).
@@ -683,6 +782,11 @@ def create_jobs_router(
                 job_id, job.root_job_id, job.parent_job_id,
             )
             await _maybe_complete_root(job, store, request)
+            # D3: once the MAIN task (root, no parent) is accepted, notify
+            # its main session with an acceptance summary (the whole task
+            # chain finished). Sub-task passes only advance the flow.
+            if job.parent_job_id is None and job.session_id:
+                await _notify_task_accepted(job, store, request)
         else:
             # Reject → returned, round + 1, back to todo for rework.
             updated = store.update(job_id, state="returned", round=job.round + 1)
@@ -738,6 +842,16 @@ def create_jobs_router(
                 "job has no agent_name — set an agent before launching",
                 code=ErrorCode.INVALID_INPUT,
             )
+        # C2: DAG dependencies must be completed before this job can run.
+        if job.depends_on:
+            _dep_ids = [d.strip() for d in job.depends_on.split(",") if d.strip()]
+            for _did in _dep_ids:
+                _dep = store.get(_did)
+                if _dep is not None and _dep.state != "completed":
+                    raise OmnigentError(
+                        f"任务依赖「{_dep.title}」尚未完成 — 请先完成依赖任务",
+                        code=ErrorCode.FORBIDDEN,
+                    )
         # Gated jobs must be approved before they can be launched.
         if job.require_approval and job.state != "in_progress":
             raise OmnigentError(
@@ -788,9 +902,57 @@ def create_jobs_router(
                 f"agent {job.agent_name!r} not found", code=ErrorCode.NOT_FOUND
             )
 
-        # Create the conversation (the inner session).
+        # Create the conversation (the inner session). Task sessions hang
+        # off the project's ROOT session (the main task's conversation, or
+        # a lazily-created root for it) so the sub-agent execution graph
+        # (SubagentsGraphView) renders the whole project's collaboration
+        # tree: root → each member's task session. Roots themselves become
+        # sub_agent children of that root session.
+        root_conv_id: str | None = None
+        if job.root_job_id or job.parent_job_id:
+            root_id = job.root_job_id or job.id
+            try:
+                root_job = store.get(root_id)
+                if root_job is not None and root_job.session_id:
+                    root_conv_id = root_job.session_id
+            except Exception:  # noqa: BLE001
+                root_conv_id = None
+            if root_conv_id is None:
+                # Lazy-create a root session for the project's main task so
+                # task sessions have a parent to hang under.
+                try:
+                    _root_agent = None
+                    if root_job is not None and root_job.agent_name:
+                        _ra = await asyncio.to_thread(
+                            agent_store.get_by_name, root_job.agent_name
+                        )
+                        if _ra is not None:
+                            _root_agent = _ra.id
+                    _root = await asyncio.to_thread(
+                        conversation_store.create_conversation,
+                        agent_id=_root_agent,
+                        title=root_job.title if root_job else job.title,
+                        host_id=host_id,
+                        workspace=body.get("workspace"),
+                    )
+                    if job.project_id:
+                        await asyncio.to_thread(
+                            conversation_store.set_conversation_project,
+                            _root.id,
+                            job.project_id,
+                        )
+                    if root_job is not None:
+                        await asyncio.to_thread(
+                            store.update, root_job.id, session_id=_root.id
+                        )
+                    root_conv_id = _root.id
+                except Exception:  # noqa: BLE001 — best-effort
+                    root_conv_id = None
         conv = await asyncio.to_thread(
             conversation_store.create_conversation,
+            kind="sub_agent" if root_conv_id else "default",
+            parent_conversation_id=root_conv_id,
+            sub_agent_name=job.agent_name,
             agent_id=agent.id,
             title=job.title,
             host_id=host_id,
