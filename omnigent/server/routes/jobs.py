@@ -566,7 +566,12 @@ def create_jobs_router(
             root_job_id=root_job_id,
             description=body.get("description") or None,
             assignee_user_id=body.get("assignee_user_id") or None,
-            agent_name=body.get("agent_name") or None,
+            # Main tasks (roots) bind the manager's agent by default so the
+            # main session carries an agent (list visibility + graph root).
+            agent_name=(
+                body.get("agent_name")
+                or ("admin-agent" if parent_job_id is None else None)
+            ),
             depends_on=body.get("depends_on") or None,
             state=body.get("state") or "todo",
             require_approval=bool(body.get("require_approval") or False),
@@ -926,18 +931,9 @@ def create_jobs_router(
             # phase job (assigned to the phase's configured executor) so the
             # project advances without manual task creation.
             await _maybe_advance_flow(job, store, request)
-            # Root auto-completion: once every child of a root job is
-            # completed, mark the root itself completed (the root is an
-            # aggregate container — progress bar — with no executor).
-            import logging as _lcr
-            _lcr.getLogger("omnigent.server.routes.jobs").info(
-                "eval pass: calling complete_root for %s (root=%s parent=%s)",
-                job_id, job.root_job_id, job.parent_job_id,
-            )
-            await _maybe_complete_root(job, store, request)
-            # D3: once the MAIN task (root, no parent) is accepted, notify
-            # its main session with an acceptance summary (the whole task
-            # chain finished). Sub-task passes only advance the flow.
+            # Acceptance is the PROJECT MANAGER's manual action (set_job_state
+            # → in_review → evaluate pass); agents/models never mutate state.
+            # Notify the main session once the manager accepts the root task.
             if job.parent_job_id is None and job.session_id:
                 await _notify_task_accepted(job, store, request)
         else:

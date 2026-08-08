@@ -1131,33 +1131,21 @@ def create_app(
             from omnigent.server import session_live_state as _sls
 
             def _job_session_terminal(conversation_id: str, status: str) -> None:
+                # NOTE: a session "idle" does NOT mean the task is done — pi
+                # goes idle between multi-step turns while it keeps working
+                # (writing files, calling tools). Marking the job in_review
+                # here fired too early. Task completion is now driven by the
+                # executor submitting (POST /jobs/{id}/complete) or the
+                # manager's evaluation — not by session liveness. We only
+                # surface a failed terminal state for visibility.
                 try:
-                    from omnigent.db.db_models import workspace_scope
+                    if status != "idle":
+                        from omnigent.db.db_models import workspace_scope
 
-                    with workspace_scope(0):
-                        _jid = job_store.find_by_session(conversation_id)
-                        if _jid:
-                            job_store.update(
-                                _jid,
-                                state=(
-                                    "in_review"
-                                    if status == "idle"
-                                    else "blocked"
-                                ),
-                            )
-                            if status == "idle":
-                                # Register the produced artifact (last assistant
-                                # text) so the reviewer sees the product summary.
-                                _summary = _extract_assistant_summary(
-                                    conversation_store, conversation_id
-                                )
-                                if _summary:
-                                    job_store.add_artifact(
-                                        uuid.uuid4().hex,
-                                        _jid,
-                                        "message",
-                                        summary=_summary[:500],
-                                    )
+                        with workspace_scope(0):
+                            _jid = job_store.find_by_session(conversation_id)
+                            if _jid and status == "failed":
+                                job_store.update(_jid, state="returned")
                 except Exception:  # noqa: BLE001 - best-effort
                     _logger.exception(
                         "job terminal handler failed for session=%s",
