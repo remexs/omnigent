@@ -937,7 +937,7 @@ function TaskTree({
               ? "bg-blue-100 font-semibold text-blue-700"
               : "text-foreground hover:bg-muted"
           }`}
-          style={{ paddingLeft: `${8 + depth * 14}px` }}
+          style={{ paddingLeft: `${6 + depth * 10}px` }}
         >
           <span
             role="button"
@@ -1240,7 +1240,7 @@ export function JobsPage() {
 
       {/* 选中项目：左侧任务树 + 右侧状态看板 */}
       {!isLoading && !error && jobs.length > 0 && (
-        <div className="mt-4 grid gap-4 lg:grid-cols-[280px_1fr]">
+        <div className="mt-4 grid gap-4 lg:grid-cols-[200px_1fr]">
           {/* 左：项目+任务树导航（窄屏横向滚动，宽屏固定宽度） */}
           <div className="min-w-0 lg:sticky lg:top-20 lg:h-fit">
             <div className="overflow-x-auto lg:overflow-visible">
