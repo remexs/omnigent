@@ -652,6 +652,23 @@ def create_jobs_router(
         )
         if action == "pass":
             updated = store.update(job_id, state="completed")
+            # The task is done — stop its live runner so a still-running pi
+            # can't re-submit and flip the state back to pending_review.
+            if job.session_id:
+                try:
+                    runner_router = getattr(request.app.state, "runner_router", None)
+                    if runner_router is not None:
+                        from omnigent.server.routes.sessions import (
+                            _stop_session_via_runner,
+                        )
+
+                        await _stop_session_via_runner(job.session_id, runner_router)
+                except Exception:  # noqa: BLE001 — stop is best-effort
+                    import logging as _lst
+
+                    _lst.getLogger("omnigent.server.routes.jobs").warning(
+                        "job pass: stop runner for %s failed", job.session_id
+                    )
             # Flow template: when this job belongs to a project whose config
             # defines ordered phases, passing a phase auto-creates the next
             # phase job (assigned to the phase's configured executor) so the
