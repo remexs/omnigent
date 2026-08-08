@@ -1,9 +1,0 @@
-INFO  08-08 03:59:25.609 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/d3154ec4301244db8bfd0ed20d51f839/tunnel
-WARN  08-08 03:59:25.615 host.connect                     run                | Host tunnel disconnected: [Errno 111] Connect call failed ('172.21.0.3', 8000). Reconnecting in 0.5s
-INFO  08-08 03:59:26.121 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/d3154ec4301244db8bfd0ed20d51f839/tunnel
-WARN  08-08 03:59:26.124 host.connect                     run                | Host tunnel disconnected: [Errno 111] Connect call failed ('172.21.0.3', 8000). Reconnecting in 1.3s
-INFO  08-08 03:59:27.437 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/d3154ec4301244db8bfd0ed20d51f839/tunnel
-WARN  08-08 03:59:27.439 host.connect                     run                | Host tunnel disconnected: [Errno 111] Connect call failed ('172.21.0.3', 8000). Reconnecting in 2.9s
-INFO  08-08 03:59:30.382 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/d3154ec4301244db8bfd0ed20d51f839/tunnel
-WARN  08-08 03:59:30.386 host.connect                     run                | Host tunnel disconnected: [Errno 111] Connect call failed ('172.21.0.3', 8000). Reconnecting in 6.8s
-INFO  08-08 03:59:37.178 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/d3154ec4301244db8bfd0ed20d51f839/tunnel

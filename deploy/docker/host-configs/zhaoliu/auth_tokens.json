@@ -1,7 +1,0 @@
-{
-  "http://omnigent-server:8000": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ6aGFvbGl1IiwiaWF0IjoxNzg2MTYxNjgxLCJleHAiOjE3ODYxOTA0ODEsInByb3ZpZGVyIjoiYWNjb3VudHMifQ.hNkfIFM4r1JdZ7lrn_vHCBeXuWTqHTZ2QKnP7ZUcg8k",
-    "user_id": "zhaoliu",
-    "expires_at": 1786190481.7776964
-  }
-}

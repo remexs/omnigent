@@ -1,4 +1,0 @@
-INFO  08-08 04:03:10.542 host.connect                     _connect_and_serve | Connecting to ws://omnigent-server:8000/v1/hosts/f4bca1a7a30c47ff899fe7334cc89511/tunnel
-INFO  08-08 04:03:15.394 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
-INFO  08-08 04:03:39.988 host.connect                     _handle_launch     | Launched runner runner_token_ea934ad037913d645a67e951ad540f8f for workspace /workspace (pid=129)
-INFO  08-08 04:04:20.850 codex_native_app_server          ...ve_codex_launch | native-codex routing: provider 'opencode-go' (model=deepseek-v4-flash)
