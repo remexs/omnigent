@@ -238,6 +238,115 @@ function TaskWorkflowEditor({
   );
 }
 
+/** 添加任务：YAML 工作流直接创建主任务（自动生成子任务树） */
+function AddTaskForm({
+  projectId,
+  onDone,
+}: {
+  projectId: string;
+  onDone: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [yaml, setYaml] = useState(
+    "workflow:\n  steps:\n    - id: requirement\n      name: 需求分析\n      agent: zhangsan-agent\n    - id: architecture\n      name: 架构设计\n      agent: wangwu-agent\n      depends_on: [requirement]\n    - id: test\n      name: 测试验证\n      agent: admin-agent\n      depends_on: [architecture]",
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const save = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      // 简单 YAML 解析 steps（id/name/agent/depends_on）
+      const steps: { id: string; name: string; agent?: string; depends_on?: string[] }[] = [];
+      let cur: { id: string; name: string; agent?: string; depends_on?: string[] } | null = null;
+      for (const line of yaml.split("\n")) {
+        const t = line.trim();
+        if (!t || t.startsWith("#")) continue;
+        if (/^- id:/.test(t)) {
+          if (cur) steps.push(cur);
+          cur = { id: t.replace(/^- id:\s*/, "").trim(), name: "" };
+        } else if (cur) {
+          const m = t.match(/^(\w+):\s*(.*)$/);
+          if (m) {
+            const [, key, val] = m;
+            if (key === "name") cur.name = val.trim();
+            else if (key === "agent") cur.agent = val.trim();
+            else if (key === "depends_on") {
+              const deps = val
+                .replace(/[\[\]"]/g, "")
+                .split(",")
+                .map((d) => d.trim())
+                .filter(Boolean);
+              if (deps.length) cur.depends_on = deps;
+            }
+          }
+        }
+      }
+      if (cur) steps.push(cur);
+      if (!steps.length) throw new Error("至少需要一个 step");
+      const payload: Record<string, unknown> = { title: title.trim() };
+      if (description.trim()) payload.description = description.trim();
+      payload.project_id = projectId;
+      payload.config = { workflow: { steps } };
+      const res = await authenticatedFetch("/v1/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      await queryClient.invalidateQueries({ queryKey: ["project-jobs"] });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [title, description, yaml, projectId, onDone, queryClient]);
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">{L("Add task")}</span>
+        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
+          <XIcon className="size-3.5" />
+        </Button>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="space-y-1">
+          <span className="text-sm">{L("Task title")}</span>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="电商平台开发" className="h-8 text-sm" />
+        </label>
+        <label className="space-y-1">
+          <span className="text-sm">{L("Description")}</span>
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="任务描述" className="h-8 text-sm" />
+        </label>
+      </div>
+      <div className="space-y-1">
+        <span className="text-sm">{L("Workflow YAML")}</span>
+        <textarea
+          value={yaml}
+          onChange={(e) => setYaml(e.target.value)}
+          spellCheck={false}
+          className="h-48 w-full resize-y rounded-md border bg-muted/30 p-2 font-mono text-[11px] leading-relaxed"
+        />
+        <p className="text-[11px] text-muted-foreground">
+          steps: id(唯一) + name(显示) + agent(绑定成员) + depends_on(step id 列表)；保存后自动生成任务树
+        </p>
+      </div>
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      <div className="flex justify-end">
+        <Button type="button" size="sm" disabled={saving || !title.trim()} onClick={save}>
+          {saving ? L("Saving…") : L("Create task")}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 /** 流程列表：项目下所有任务 + YAML + 状态 */
 function FlowList({
   projectId,
@@ -256,15 +365,30 @@ function FlowList({
     staleTime: 10_000,
   });
   const [editingJob, setEditingJob] = useState<string | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{L("Flow list")}</span>
-        <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={refetch}>
-          <RefreshCwIcon className="size-3" /> {L("Refresh")}
-        </Button>
+        <div className="flex items-center gap-1.5">
+          <Button type="button" size="sm" className="h-7 px-2 text-xs" onClick={() => setShowAdd((v) => !v)}>
+            <PlusIcon className="size-3" /> {L("Add task")}
+          </Button>
+          <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={refetch}>
+            <RefreshCwIcon className="size-3" /> {L("Refresh")}
+          </Button>
+        </div>
       </div>
+      {showAdd && (
+        <AddTaskForm
+          projectId={projectId}
+          onDone={() => {
+            setShowAdd(false);
+            refetch();
+          }}
+        />
+      )}
       {(() => {
         // Flatten the task tree (main task + children), no "阶段" concept.
         const rows: { job: JobWire; depth: number }[] = [];
@@ -360,8 +484,94 @@ function SessionList({ projectId }: { projectId: string }) {
 }
 
 /** 项目明细页 */
+/** 新建项目：名称 + 成员（host 池）+ 项目级 YAML（备用） */
+function CreateProjectForm({ onDone }: { onDone: () => void }) {
+  const [name, setName] = useState("");
+  const [members, setMembers] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { data: memberOptions = [] } = useQuery({
+    queryKey: ["member-options"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/hosts");
+      if (!res.ok) return [];
+      const hosts = ((await res.json()) as { hosts: { owner?: string }[] }).hosts ?? [];
+      return [...new Set(hosts.map((h) => h.owner).filter(Boolean))] as string[];
+    },
+    staleTime: 30_000,
+  });
+
+  const save = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await authenticatedFetch("/v1/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), kind: "team" }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      const project = (await res.json()) as ProjectWire;
+      for (const m of members) {
+        await authenticatedFetch(`/v1/projects/${project.id}/members`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: m, role: 1 }),
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [name, members, onDone, queryClient]);
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">{L("New project")}</span>
+        <Button type="button" variant="ghost" size="sm" onClick={onDone}>
+          <XIcon className="size-3.5" />
+        </Button>
+      </div>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Project name")}</span>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="电商平台" className="h-8 text-sm" />
+      </label>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Work team")}</span>
+        <div className="flex flex-wrap gap-2">
+          {memberOptions.map((m) => (
+            <label key={m} className="flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs">
+              <input
+                type="checkbox"
+                className="size-3.5 accent-primary"
+                checked={members.includes(m)}
+                onChange={(e) =>
+                  setMembers((prev) => (e.target.checked ? [...prev, m] : prev.filter((x) => x !== m)))
+                }
+              />
+              {m}
+            </label>
+          ))}
+        </div>
+      </label>
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      <div className="flex justify-end">
+        <Button type="button" size="sm" disabled={saving || !name.trim()} onClick={save}>
+          {saving ? L("Saving…") : L("Create")}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 export function ProjectsPage() {
   const [projectId, setProjectId] = useState<string>("");
+  const [showCreateProject, setShowCreateProject] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const queryClient = useQueryClient();
   const { data: projects = [] } = useQuery({
@@ -397,10 +607,20 @@ export function ProjectsPage() {
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <BriefcaseIcon className="size-6" /> {L("Projects")}
         </h1>
-        <Button type="button" variant="outline" size="sm" onClick={refresh}>
-          <RefreshCwIcon className="size-3.5" /> {L("Refresh")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button type="button" size="sm" onClick={() => setShowCreateProject((v) => !v)}>
+            <PlusIcon className="size-3.5" /> {L("New project")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={refresh}>
+            <RefreshCwIcon className="size-3.5" /> {L("Refresh")}
+          </Button>
+        </div>
       </div>
+      {showCreateProject && (
+        <div className="mt-3">
+          <CreateProjectForm onDone={() => { setShowCreateProject(false); refresh(); }} />
+        </div>
+      )}
 
       {teamProjects.length > 0 && (
         <div className="mt-3 overflow-x-auto">
