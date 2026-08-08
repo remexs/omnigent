@@ -1,4 +1,4 @@
-# host 容器运行时文件（登录态/日志/crashes）不入库，仅保留 config.yaml
+# host 容器运行时文件（登录态/日志/crashes/pi 会话）不入库，仅保留 config.yaml
 *
+!/*/
 !config.yaml
-!.gitignore
