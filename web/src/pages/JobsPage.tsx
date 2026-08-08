@@ -1,4 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import {
+  Component,
+  lazy,
+  Suspense,
+  useCallback,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BriefcaseIcon,
@@ -7,6 +15,7 @@ import {
   CircleDotIcon,
   FolderIcon,
   GitBranchIcon,
+  NetworkIcon,
   PlusIcon,
   RefreshCwIcon,
   ServerIcon,
@@ -805,6 +814,28 @@ function JobNode({
  * (spawning a session on their own host); reviewers evaluate the produced
  * artifacts (approve → next stage, reject → redo with round+1).
  */
+const SubagentsPanel = lazy(() =>
+  import("@/shell/SubagentsPanel").then((m) => ({ default: m.SubagentsPanel })),
+);
+
+/** Error boundary so a graph render failure can't blank the whole jobs page. */
+class GraphErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    if (this.state.failed) {
+      return (
+        <p className="p-3 text-xs text-muted-foreground">
+          执行关系图加载失败（查看会话页可看协作树）
+        </p>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 /** Left nav: every task tree under the project (a project can have
  *  several main tasks). Each root shows its progress bar; clicking a
  *  node highlights the matching card in the board. */
@@ -1163,9 +1194,34 @@ export function JobsPage() {
       {/* 选中项目：左侧任务树 + 右侧状态看板 */}
       {!isLoading && !error && jobs.length > 0 && (
         <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
-          {/* 左：任务树（多棵树导航） */}
-          <div className="lg:sticky lg:top-20 lg:h-fit">
+          {/* 左：任务树（多棵树导航）+ 执行关系图 */}
+          <div className="lg:sticky lg:top-20 lg:h-fit space-y-3">
             <TaskTree jobs={jobs} activeJobId={activeJobId} onSelect={setActiveJobId} />
+            {(() => {
+              // B: execution-collaboration graph — the project main task's
+              // session is the root; its execution sub-sessions (children)
+              // render as the collaboration graph.
+              const mainRoot = jobs.find((j) => !j.parent_job_id);
+              if (!mainRoot?.session_id) return null;
+              return (
+                <details className="rounded-xl border bg-background p-2">
+                  <summary className="cursor-pointer px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <NetworkIcon className="mr-1 inline size-3" />
+                    {L("Execution graph")}
+                  </summary>
+                  <div className="mt-1 h-64 overflow-hidden rounded-lg border">
+                    <GraphErrorBoundary>
+                      <Suspense fallback={<p className="p-3 text-xs text-muted-foreground">{L("Loading…")}</p>}>
+                        <SubagentsPanel
+                          conversationId={mainRoot.session_id}
+                          rootSessionId={mainRoot.session_id}
+                        />
+                      </Suspense>
+                    </GraphErrorBoundary>
+                  </div>
+                </details>
+              );
+            })()}
           </div>
           {/* 右：状态看板（只放可执行子任务） */}
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
