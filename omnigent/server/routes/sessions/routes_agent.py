@@ -202,6 +202,45 @@ def register_agent_routes(
             },
         )
 
+    @router.get("/agents/{agent_id}/contents")
+    async def get_agent_contents(
+        request: Request,
+        agent_id: str,
+    ) -> Response:
+        """
+        Compatibility route for out-of-process runners that fetch the
+        agent bundle by agent id (``GET /v1/agents/{id}/contents``)
+        instead of the session-scoped path. Same bundle lookup as
+        :func:`get_session_agent_contents` but keyed by agent directly.
+        """
+        _require_user(request, auth_provider)
+        agent = await asyncio.to_thread(agent_store.get, agent_id)
+        if agent is None:
+            raise OmnigentError(
+                f"Agent not found: {agent_id!r}",
+                code=ErrorCode.NOT_FOUND,
+            )
+        if artifact_store is None:
+            raise OmnigentError(
+                "Artifact store not configured",
+                code=ErrorCode.INTERNAL_ERROR,
+            )
+        bundle_bytes = artifact_store.get(agent.bundle_location)
+        if bundle_bytes is None:
+            raise OmnigentError(
+                "Agent bundle not found in artifact store",
+                code=ErrorCode.INTERNAL_ERROR,
+            )
+        return Response(
+            content=bundle_bytes,
+            media_type="application/gzip",
+            headers={
+                "X-Agent-Version": str(agent.version),
+                "X-Agent-Name": agent.name,
+                "X-Agent-Session-Scoped": "true" if agent.session_id is not None else "false",
+            },
+        )
+
     @router.put(
         "/sessions/{session_id}/agent",
     )

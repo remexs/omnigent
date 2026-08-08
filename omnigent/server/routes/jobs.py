@@ -674,7 +674,7 @@ def create_jobs_router(
                         # F5: project members get READ on the main session so
                         # they can see the collaboration tree (child_sessions).
                         try:
-                            from omnigent.server.auth import LEVEL_READ
+                            from omnigent.server.auth import LEVEL_EDIT
 
                             _perm = getattr(request.app.state, "permission_store", None)
                             _pstore = getattr(request.app.state, "project_store", None)
@@ -691,7 +691,7 @@ def create_jobs_router(
                                             _perm.ensure_user, _mid
                                         )
                                         await asyncio.to_thread(
-                                            _perm.grant, _mid, _root_conv.id, LEVEL_READ
+                                            _perm.grant, _mid, _root_conv.id, LEVEL_EDIT
                                         )
                         except Exception:  # noqa: BLE001 — best-effort
                             pass
@@ -1108,6 +1108,31 @@ def create_jobs_router(
                     root_conv_id = _root.id
                 except Exception:  # noqa: BLE001 — best-effort
                     root_conv_id = None
+        # Ensure the project main session grants project members EDIT so
+        # sub-agent permission delegation (execution sessions parent to the
+        # main session) lets their pi round-trip messages back.
+        if root_conv_id and job.project_id:
+            try:
+                from omnigent.server.auth import LEVEL_EDIT
+
+                _perm = getattr(request.app.state, "permission_store", None)
+                _pstore = getattr(request.app.state, "project_store", None)
+                if _perm is not None and _pstore is not None:
+                    _members = await asyncio.to_thread(
+                        _pstore.list_members, job.project_id
+                    )
+                    for _m in _members:
+                        _mid = getattr(_m, "user_id", None) or (
+                            _m.get("user_id") if isinstance(_m, dict) else None
+                        )
+                        if _mid:
+                            await asyncio.to_thread(_perm.ensure_user, _mid)
+                            await asyncio.to_thread(
+                                _perm.grant, _mid, root_conv_id, LEVEL_EDIT
+                            )
+            except Exception:  # noqa: BLE001 — best-effort
+                pass
+
         # Reuse the job's existing session if it already has one (a prior
         # launch may have created it) — re-creating a sub_agent session with
         # the same name under the same parent raises NameAlreadyExists.
@@ -1120,11 +1145,16 @@ def create_jobs_router(
         else:
             conv = None
         if conv is None:
+            # Execution session: kind=default so session-permission checks
+            # DON'T delegate to the parent (main) session — the executor owns
+            # this session directly (LEVEL_OWNER). parent_conversation_id is
+            # still set for the collaboration graph. sub_agent kind would
+            # delegate access to the parent, where members only hold READ,
+            # breaking the pi message round-trip (needs edit).
             conv = await asyncio.to_thread(
                 conversation_store.create_conversation,
-                kind="sub_agent" if root_conv_id else "default",
+                kind="default",
                 parent_conversation_id=root_conv_id,
-                sub_agent_name=job.agent_name,
                 agent_id=agent.id,
                 title=job.title,
                 host_id=host_id,
