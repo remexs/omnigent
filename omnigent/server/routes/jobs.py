@@ -67,6 +67,109 @@ def _serialize_job(t: Job) -> dict[str, Any]:
     }
 
 
+def _build_job_context(
+    job, store: Any, project_store: Any
+) -> str:
+    """Assemble the handoff context for launching ``job``.
+
+    A task inherits context from its whole ancestor chain — the project
+    (name + members), the main task's requirements, and every completed
+    ancestor's description + evaluations + artifact summaries. Siblings
+    are NOT included (parallel work shouldn't cross-pollute unless
+    explicitly dependent). Returns a markdown block prepended to the
+    agent's first message so downstream phases know what happened
+    upstream.
+    """
+    import logging
+
+    _lgr = logging.getLogger("omnigent.server.routes.jobs")
+    lines: list[str] = []
+    project_name = None
+    if job.project_id and project_store is not None:
+        try:
+            project = project_store.get(
+                job.project_id, owner_user_id=job.created_by_user_id
+            )
+            if project is not None:
+                project_name = project.name
+        except Exception:  # noqa: BLE001 — context is best-effort
+            _lgr.warning("job context: project lookup failed", exc_info=True)
+    if project_name:
+        lines.append(f"【项目】{project_name}")
+
+    # Ancestor chain: root (main task) → ... → parent → this job.
+    chain: list = []
+    seen: set[str] = set()
+    cur = job
+    while cur is not None and cur.id not in seen:
+        seen.add(cur.id)
+        chain.append(cur)
+        if cur.parent_job_id:
+            cur = store.get(cur.parent_job_id)
+        else:
+            break
+    chain.reverse()  # root first
+
+    if len(chain) > 1:
+        lines.append("【任务链】(从主任务到当前任务)")
+        for idx, t in enumerate(chain):
+            if t.id == job.id:
+                lines.append(f"  → 当前任务: {t.title}（你在这里，请完成它）")
+                continue
+            state_note = "已完成" if t.state == "completed" else t.state
+            lines.append(f"  {idx + 1}. {t.title} [{state_note}]")
+            if t.description:
+                lines.append(f"     需求/说明: {t.description}")
+            for a in (t.artifacts or [])[:3]:
+                if a.summary:
+                    lines.append(f"     产出: {a.summary}")
+            for e in (t.evaluations or [])[:3]:
+                if e.comment:
+                    lines.append(f"     评价: {e.comment}")
+
+    # Sequential workflow handoff: completed SIBLINGS that ran before this
+    # job (same parent, same tree, created earlier) are the prior phases of
+    # a workflow — their conclusions must flow into this task too. Parallel
+    # siblings (created later / not started) stay out.
+    if job.parent_job_id:
+        try:
+            # store.get doesn't hydrate children — pull the whole tree
+            # (root → children) and collect completed siblings that ran
+            # before this job (sequential workflow handoff).
+            tree = store.get_tree(job.root_job_id or job.parent_job_id)
+            sibs: list = []
+            for root in tree:
+                for t in (root.children or []):
+                    if (
+                        t.id != job.id
+                        and t.parent_job_id == job.parent_job_id
+                        and t.state == "completed"
+                        and (t.created_at or 0) <= (job.created_at or 0)
+                    ):
+                        sibs.append(t)
+            if sibs:
+                lines.append("【已完成的前序阶段】")
+                for t in sorted(sibs, key=lambda t: t.created_at or 0):
+                    lines.append(f"  • {t.title}")
+                    if t.description:
+                        lines.append(f"     需求/说明: {t.description}")
+                    for a in (t.artifacts or [])[:3]:
+                        if a.summary:
+                            lines.append(f"     产出: {a.summary}")
+                    for e in (t.evaluations or [])[:3]:
+                        if e.comment:
+                            lines.append(f"     评价: {e.comment}")
+        except Exception:  # noqa: BLE001 — best-effort
+            pass
+
+    if job.description and len(chain) > 1:
+        lines.append(f"【当前任务需求】{job.description}")
+    elif not job.description:
+        lines.append(f"【当前任务需求】请完成该任务：{job.title}")
+
+    return "\n".join(lines)
+
+
 def _walk_titles(job, title: str) -> bool:
     """Return True if ``title`` appears anywhere in the job's tree."""
     if job.title == title:
@@ -752,7 +855,11 @@ def create_jobs_router(
                     await _ensure_runner_session_initialized(
                         conv.id, conv_for, runner_client, conversation_store
                     )
-                    prompt = job.description or f"请完成该任务：{job.title}"
+                    # Handoff context: ancestors' requirements, evaluations
+                    # and artifact summaries flow into the agent's first
+                    # message so downstream phases know what happened upstream.
+                    project_store = getattr(request.app.state, "project_store", None)
+                    prompt = _build_job_context(job, store, project_store)
                     msg_body = _SEI(
                         type="message",
                         data={
