@@ -127,10 +127,18 @@ def _build_job_context(
             lines.append(f"  {idx + 1}. {t.title} [{state_note}]")
             if t.description:
                 lines.append(f"     需求/说明: {t.description}")
-            for a in (t.artifacts or [])[:3]:
-                if a.summary:
-                    lines.append(f"     产出: {a.summary}")
-            for e in (t.evaluations or [])[:3]:
+            if t.artifacts:
+                for a in (t.artifacts or [])[:10]:
+                    _desc = a.summary or a.ref
+                    if _desc:
+                        lines.append(f"     产出: {_desc}")
+                if len(t.artifacts or []) > 10:
+                    lines.append(f"     产出共 {len(t.artifacts)} 项（列出前 10）")
+            else:
+                lines.append(
+                    "     产出: 见 workspace 文档（docs/、README 等，由前序 agent 撰写）"
+                )
+            for e in (t.evaluations or []):
                 if e.comment:
                     lines.append(f"     评价: {e.comment}")
 
@@ -160,10 +168,18 @@ def _build_job_context(
                     lines.append(f"  • {t.title}")
                     if t.description:
                         lines.append(f"     需求/说明: {t.description}")
-                    for a in (t.artifacts or [])[:3]:
-                        if a.summary:
-                            lines.append(f"     产出: {a.summary}")
-                    for e in (t.evaluations or [])[:3]:
+                    if t.artifacts:
+                        for a in (t.artifacts or [])[:10]:
+                            _desc = a.summary or a.ref
+                            if _desc:
+                                lines.append(f"     产出: {_desc}")
+                        if len(t.artifacts or []) > 10:
+                            lines.append(f"     产出共 {len(t.artifacts)} 项（列出前 10）")
+                    else:
+                        lines.append(
+                            "     产出: 见 workspace 文档（docs/、README 等，由前序 agent 撰写）"
+                        )
+                    for e in (t.evaluations or []):
                         if e.comment:
                             lines.append(f"     评价: {e.comment}")
         except Exception:  # noqa: BLE001 — best-effort
@@ -909,6 +925,7 @@ def create_jobs_router(
                 ref=artifact.get("ref") or None,
                 summary=artifact.get("summary") or None,
             )
+
         # YAML rule (workflow_executor): if the step declares
         # ``auto_approve: true``, the task completes automatically once the
         # agent finishes — record an auto-approval evaluation for audit.
