@@ -12,6 +12,7 @@ import {
   MessageSquareIcon,
   PlusIcon,
   RefreshCwIcon,
+  SettingsIcon,
   UsersIcon,
   XIcon,
 } from "lucide-react";
@@ -504,6 +505,109 @@ function SessionList({ projectId }: { projectId: string }) {
 }
 
 /** 项目明细页 */
+/** 项目设置（官方功能）：默认工作目录/主机 + 项目记忆 + 项目上下文 */
+function ProjectSettingsCard({
+  project,
+  onSaved,
+}: {
+  project: ProjectWire;
+  onSaved: () => void;
+}) {
+  const config = project.config ?? {};
+  const defaults = (config.defaults ?? {}) as Record<string, string>;
+  const [workspace, setWorkspace] = useState(defaults.workspace ?? "");
+  const [hostId, setHostId] = useState(defaults.host_id ?? "");
+  const [memory, setMemory] = useState((config.memory as string) ?? "");
+  const [context, setContext] = useState((config.context as string) ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { data: hosts = [] } = useQuery({
+    queryKey: ["hosts-options"],
+    queryFn: async () => {
+      const res = await authenticatedFetch("/v1/hosts");
+      if (!res.ok) return [];
+      return ((await res.json()) as { hosts: { host_id: string; owner?: string }[] }).hosts ?? [];
+    },
+    staleTime: 30_000,
+  });
+
+  const save = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const configPayload: Record<string, unknown> = {};
+      if (workspace.trim() || hostId.trim()) {
+        configPayload.defaults = {
+          ...(workspace.trim() ? { workspace: workspace.trim() } : {}),
+          ...(hostId.trim() ? { host_id: hostId.trim() } : {}),
+        };
+      }
+      if (memory.trim()) configPayload.memory = memory.trim();
+      if (context.trim()) configPayload.context = context.trim();
+      const res = await authenticatedFetch(`/v1/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config: configPayload }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      onSaved();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [workspace, hostId, memory, context, project.id, onSaved, queryClient]);
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center gap-2">
+        <SettingsIcon className="size-4" />
+        <span className="text-sm font-semibold">{L("Project settings")}</span>
+        <span className="text-[11px] text-muted-foreground">（官方功能：默认工作目录/主机/记忆/上下文）</span>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="space-y-1">
+          <span className="text-sm">{L("Default working directory")}</span>
+          <Input value={workspace} onChange={(e) => setWorkspace(e.target.value)} placeholder="/workspace/电商平台" className="h-8 text-sm" />
+          <p className="text-[11px] text-muted-foreground">新会话/任务预填此目录（软提示，可覆盖）</p>
+        </label>
+        <label className="space-y-1">
+          <span className="text-sm">{L("Default host")}</span>
+          <select value={hostId} onChange={(e) => setHostId(e.target.value)} className="h-8 w-full rounded-md border bg-background px-2 text-sm">
+            <option value="">不指定（由执行者选）</option>
+            {hosts.map((h) => (
+              <option key={h.host_id} value={h.host_id}>
+                {h.owner ?? h.host_id.slice(0, 8)}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-muted-foreground">新会话预填此主机（host 离线则丢弃）</p>
+        </label>
+      </div>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Project memory")}</span>
+        <textarea value={memory} onChange={(e) => setMemory(e.target.value)} spellCheck={false}
+          placeholder={"项目级记忆（跨会话累积的经验，播种到每个任务会话）"}
+          className="h-24 w-full resize-y rounded-md border bg-muted/30 p-2 text-xs" />
+      </label>
+      <label className="space-y-1">
+        <span className="text-sm">{L("Project context")}</span>
+        <textarea value={context} onChange={(e) => setContext(e.target.value)} spellCheck={false}
+          placeholder={"项目级指令/文档（每个任务会话注入）"}
+          className="h-24 w-full resize-y rounded-md border bg-muted/30 p-2 text-xs" />
+      </label>
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      <div className="flex justify-end">
+        <Button type="button" size="sm" className="h-7 px-3 text-xs" onClick={save} disabled={saving}>
+          {saving ? L("Saving…") : L("Save settings")}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 /** 新建项目：名称 + 成员（host 池）+ 项目级 YAML（备用） */
 function CreateProjectForm({ onDone }: { onDone: () => void }) {
   const [name, setName] = useState("");
@@ -613,6 +717,7 @@ export function ProjectsPage() {
 
   const tabs = useMemo(() => {
     const list: { id: string; label: string }[] = [
+      { id: "settings", label: "项目设置" },
       { id: "info", label: "项目明细" },
       { id: "flows", label: "流程列表" },
       { id: "sessions", label: "会话记录" },
@@ -676,6 +781,7 @@ export function ProjectsPage() {
             ))}
           </div>
           <div className="mt-3">
+            {tab === "settings" && <ProjectSettingsCard project={active} onSaved={refresh} />}
             {tab === "info" && <ProjectInfoCard project={active} onRefresh={refresh} />}
             {tab === "flows" && <FlowList projectId={active.id} onRefresh={refresh} />}
             {tab === "sessions" && <SessionList projectId={active.id} />}

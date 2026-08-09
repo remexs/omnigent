@@ -1039,6 +1039,33 @@ def create_jobs_router(
                 "job has no agent_name — set an agent before launching",
                 code=ErrorCode.INVALID_INPUT,
             )
+        # Project default workspace/host (official 4a): the project's config
+        # carries soft defaults — prefill workspace from them when the caller
+        # didn't supply one (host stays explicit; the executor picks theirs).
+        if not body.get("workspace") and job.project_id:
+            try:
+                project_store = getattr(request.app.state, "project_store", None)
+                if project_store is not None:
+                    _proj = await asyncio.to_thread(
+                        project_store.get, job.project_id, owner_user_id=job.created_by_user_id
+                    )
+                    if _proj is not None and _proj.config:
+                        import json as _pj
+
+                        _cfg = (
+                            _pj.loads(_proj.config)
+                            if isinstance(_proj.config, str)
+                            else (_proj.config or {})
+                        )
+                        _defaults = (_cfg.get("defaults") or {}) if isinstance(_cfg, dict) else {}
+                        if _defaults.get("workspace"):
+                            body["workspace"] = _defaults["workspace"]
+                            import logging as _lw
+                            _lw.getLogger("omnigent.server.routes.jobs").info(
+                                "launch: prefill workspace=%r from project defaults", _defaults["workspace"]
+                            )
+            except Exception:  # noqa: BLE001 — default is best-effort
+                pass
         # C2: DAG dependencies must be completed before this job can run
         # (rule from the YAML workflow via workflow_executor).
         _dep_ok, _dep_title = dependencies_done(job, store)
