@@ -189,6 +189,7 @@ export const zhCN: Record<string, string> = {
   "Create invite": "创建邀请",
   "Create task": "创建任务",
   "Task tree": "任务树",
+  "View project": "查看项目",
   "Save settings": "保存设置",
   "Project context": "项目上下文",
   "Project memory": "项目记忆",

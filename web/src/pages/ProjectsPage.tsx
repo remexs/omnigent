@@ -17,6 +17,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
+import { useSearchParams } from "@/lib/routing";
 import { L } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -709,7 +710,13 @@ export function ProjectsPage() {
     staleTime: 10_000,
   });
   const teamProjects = projects.filter((p) => p.kind === "team");
-  const active = teamProjects.find((p) => p.id === projectId) ?? teamProjects[0] ?? null;
+  const [searchParams] = useSearchParams();
+  const urlProject = searchParams.get("project");
+  const active =
+    teamProjects.find((p) => p.id === projectId) ??
+    (urlProject ? teamProjects.find((p) => p.name === urlProject) : null) ??
+    teamProjects[0] ??
+    null;
   const refresh = useCallback(() => {
     setRefreshKey((k) => k + 1);
     queryClient.invalidateQueries({ queryKey: ["project-jobs"] });
