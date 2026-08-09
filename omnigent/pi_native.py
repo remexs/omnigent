@@ -266,6 +266,17 @@ def _materialize_pi_agent_spec(tmpdir: Path) -> Path:
         "terminals": native_shell_terminal_spec(),
     }
     yaml_path.write_text(yaml.safe_dump(raw, sort_keys=False), encoding="utf-8")
+    # Team-collaboration skills ship inside the bundle: the handoff skill
+    # carries the handoff-doc + project-memory conventions (task handoff is
+    # behaviour configured as a skill, not hardcoded in the server).
+    _skills_dir = tmpdir / "skills" / "handoff"
+    _skills_dir.mkdir(parents=True, exist_ok=True)
+    _skill_src = (
+        Path(__file__).resolve().parent.parent
+        / "deploy/docker/host-configs/skills/handoff/SKILL.md"
+    )
+    if _skill_src.exists():
+        (_skills_dir / "SKILL.md").write_bytes(_skill_src.read_bytes())
     return yaml_path
 
 

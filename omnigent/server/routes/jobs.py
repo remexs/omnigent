@@ -11,7 +11,9 @@ rework (round + 1).
 from __future__ import annotations
 
 import asyncio
+import os
 import secrets
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Request
@@ -190,18 +192,31 @@ def _build_job_context(
     elif not job.description:
         lines.append(f"【当前任务需求】请完成该任务：{job.title}")
 
-    # Handoff convention: prior phases wrote their handoff docs in the
-    # shared workspace (docs/ + README). Read them before starting; when
-    # you finish, write/update your own handoff doc for the next phase.
-    lines.append("")
-    lines.append(
-        "【交接约定】交接文档为 HANDOFF-<阶段名>.md（如 HANDOFF-需求分析.md），"
-        "每个阶段一份、链式传递：上一阶段完成的 HANDOFF-<前序阶段>.md 就是"
-        "你要读取的交接文档（若存在）；开始前请先读取它了解已完成的工作，"
-        "详细产出见 docs/ 目录可按需查阅。"
-        "完成后请将你的产出与总结写入 HANDOFF-<本阶段名>.md，"
-        "作为给下一阶段的交接文档。"
-    )
+    # Team-collaboration conventions (handoff docs + project memory) are
+    # defined as an EDITABLE SKILL file, not hardcoded strings: the server
+    # reads the skill body and prepends it, so behaviour can change without
+    # code edits. (pi harness has no runtime skill injection, so the skill
+    # body is composed into the launch context here.)
+    try:
+        import omnigent
+
+        _skill_path = (
+            Path(omnigent.__file__).resolve().parent.parent
+            / "deploy/docker/host-configs/skills/handoff/SKILL.md"
+        )
+        if _skill_path.exists():
+            from omnigent.spec.parser import _parse_skill
+
+            _skill = _parse_skill(_skill_path)
+            if _skill.content.strip():
+                lines.append("")
+                lines.append(f"【协作约定 · {_skill.description}】")
+                lines.append(_skill.content.strip())
+    except Exception as _skerr:  # noqa: BLE001 — skill is best-effort
+        import logging as _skl
+        _skl.getLogger("omnigent.server.routes.jobs").warning(
+            "handoff skill inject failed: %s", _skerr, exc_info=True
+        )
 
     return "\n".join(lines)
 
