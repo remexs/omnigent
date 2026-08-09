@@ -462,7 +462,13 @@ def create_jobs_router(
             else:
                 jobs = store.list_roots()
         else:
-            jobs = store.list_roots()
+            # Default view (task page, no project selected): every task tree
+            # — each project root PLUS its children nested, so the board
+            # shows the full tree for all projects at once.
+            roots = store.list_roots()
+            jobs = []
+            for r in roots:
+                jobs.extend(store.get_tree(r.root_job_id or r.id))
         return {"jobs": [_serialize_job(t) for t in jobs]}
 
     @router.get("/jobs/stats")
