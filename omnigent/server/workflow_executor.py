@@ -74,7 +74,11 @@ def step_config(job: Any) -> dict[str, Any]:
         for st in steps:
             if st.get("name") == title or st.get("id") == title:
                 return st
-        return steps[0] if steps else {}
+        # No matching step: a root task that merely CARRIES the workflow
+        # (its children are the steps) must not inherit any step's flags —
+        # e.g. auto_approve from steps[0] would auto-complete the root
+        # without the project manager's manual acceptance.
+        return {}
     return {}
 
 
