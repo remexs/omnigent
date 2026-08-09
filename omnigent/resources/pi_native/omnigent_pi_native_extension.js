@@ -1224,6 +1224,130 @@ module.exports = function (pi) {
     }
   }
 
+  // Built-in collaboration tools: handoff + project memory. These are
+  // REQUIRED internal functions (not optional skills) — the agent maintains
+  // HANDOFF-<phase>.md (phase handoff, chain-passed) and memory.md (shared
+  // project experience) in the workspace (the runner cwd). Implemented
+  // locally in the extension so they work without an MCP server.
+  const { readFileSync, writeFileSync, existsSync, readdirSync } = require("node:fs");
+  const { join } = require("node:path");
+  const wsRoot = process.cwd();
+  function readCollabFile(name) {
+    const p = join(wsRoot, name);
+    return existsSync(p) ? readFileSync(p, "utf8") : "";
+  }
+  function writeCollabFile(name, content) {
+    const p = join(wsRoot, name);
+    writeFileSync(p, content, "utf8");
+    return `已写入 ${name}（${content.length} 字符）`;
+  }
+  if (typeof pi.registerTool === "function") {
+    pi.registerTool({
+      name: "handoff",
+      label: "handoff",
+      description:
+        "阶段交接文档工具：读取/写入 HANDOFF-<阶段名>.md（链式传递——" +
+        "上一阶段的 HANDOFF 就是你要读取的交接，完成后写自己的给下一阶段）。" +
+        "operation=read 读上一阶段交接（或列出全部）；operation=write 写本阶段交接" +
+        "（stage=阶段名, content=内容）。",
+      promptSnippet: "维护阶段交接文档（HANDOFF-<阶段>.md）",
+      parameters: {
+        type: "object",
+        properties: {
+          operation: { type: "string", enum: ["read", "write", "list"], description: "read=读上一阶段交接, write=写本阶段交接, list=列出全部 HANDOFF" },
+          stage: { type: "string", description: "本阶段名（write 时必填，如 需求分析）" },
+          content: { type: "string", description: "交接内容（write 时必填）" },
+        },
+        required: ["operation"],
+      },
+      async execute(_tid, params) {
+        let result;
+        try {
+          const op = (params && params.operation) || "read";
+          if (op === "list") {
+            const files = existsSync(wsRoot) ? readdirSync(wsRoot).filter((f) => f.startsWith("HANDOFF-")) : [];
+            result = files.length ? `交接文档：${files.join(", ")}` : "暂无 HANDOFF 交接文档";
+          } else if (op === "write") {
+            const stage = (params && params.stage) || "";
+            const content = (params && params.content) || "";
+            result = !stage ? "错误：write 需要 stage（本阶段名）" : writeCollabFile(`HANDOFF-${stage}.md`, content);
+          } else {
+            const stage = (params && params.stage) || "";
+            if (stage) {
+              const c = readCollabFile(`HANDOFF-${stage}.md`);
+              result = c ? c : `未找到 HANDOFF-${stage}.md`;
+            } else {
+              const files = existsSync(wsRoot) ? readdirSync(wsRoot).filter((f) => f.startsWith("HANDOFF-")) : [];
+              result = files.length
+                ? `可用交接文档：${files.join(", ")}（用 read+stage 读取）`
+                : "暂无 HANDOFF 交接文档（无前序阶段时正常）";
+            }
+          }
+        } catch (e) {
+          result = "handoff 工具错误: " + (e && e.message ? e.message : String(e));
+        }
+        return { content: [{ type: "text", text: String(result) }], isError: false };
+      },
+    });
+    pi.registerTool({
+      name: "memory",
+      label: "memory",
+      description:
+        "项目公用记忆工具：memory.md 存于 workspace，跨所有任务共享、持续累积。" +
+        "operation=read 读取全部项目记忆；operation=append 追加一条经验" +
+        "（topic=主题, note=经验内容——自动去重并归类）；operation=write 覆盖写全部。",
+      promptSnippet: "维护项目公用记忆（memory.md）",
+      parameters: {
+        type: "object",
+        properties: {
+          operation: { type: "string", enum: ["read", "append", "write"], description: "read=读全部记忆, append=追加经验, write=覆盖写" },
+          topic: { type: "string", description: "主题（append 时用于归类，如 架构/数据库/测试）" },
+          note: { type: "string", description: "经验内容（append 时必填）" },
+          content: { type: "string", description: "完整内容（write 时必填）" },
+        },
+        required: ["operation"],
+      },
+      async execute(_tid, params) {
+        let result;
+        try {
+          const op = (params && params.operation) || "read";
+          if (op === "read") {
+            const c = readCollabFile("memory.md");
+            result = c || "memory.md 尚不存在（项目经验将在此累积）";
+          } else if (op === "write") {
+            const content = (params && params.content) || "";
+            result = writeCollabFile("memory.md", content);
+          } else if (op === "append") {
+            const topic = (params && params.topic) || "通用";
+            const note = (params && params.note) || "";
+            if (!note) {
+              result = "错误：append 需要 note（经验内容）";
+            } else {
+              let mem = readCollabFile("memory.md");
+              const line = `- ${note}`;
+              if (mem.includes(line)) {
+                result = `已存在相同经验，未重复添加（${topic}）`;
+              } else {
+                const section = `## ${topic}\n`;
+                if (mem.includes(section)) {
+                  mem = mem.replace(section, section + line + "\n");
+                } else {
+                  mem += (mem ? "\n" : "") + section + line + "\n";
+                }
+                result = writeCollabFile("memory.md", mem);
+              }
+            }
+          } else {
+            result = "未知操作";
+          }
+        } catch (e) {
+          result = "memory 工具错误: " + (e && e.message ? e.message : String(e));
+        }
+        return { content: [{ type: "text", text: String(result) }], isError: false };
+      },
+    });
+  }
+
   // Cumulative session token usage. Pi reports PER-MESSAGE counts (one
   // assistant message per LLM call); session billing is their SUM — each call
   // is billed for the full context it re-sent, so summing per-message inputs is
