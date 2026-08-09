@@ -31,6 +31,10 @@ interface ProjectWire {
   members?: { user_id: string; role: number }[];
 }
 
+const SubagentsPanel = lazy(() =>
+  import("@/shell/SubagentsPanel").then((m) => ({ default: m.SubagentsPanel })),
+);
+
 interface JobWire {
   id: string;
   title: string;
@@ -463,9 +467,6 @@ function CollaborationGraph({ projectId }: { projectId: string }) {
   if (!mainRoot?.session_id) {
     return <p className="text-xs text-muted-foreground">暂无执行会话（任务启动后显示协作树）</p>;
   }
-  const SubagentsPanel = lazy(() =>
-    import("@/shell/SubagentsPanel").then((m) => ({ default: m.SubagentsPanel })),
-  );
   return (
     <div className="rounded-lg border p-2">
       <SubagentsPanel conversationId={mainRoot.session_id} rootSessionId={mainRoot.session_id} />
