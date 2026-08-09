@@ -1288,6 +1288,8 @@ def create_jobs_router(
                         f"主机 {host_id!r} 连接不可用 — 请确认该主机在线后重试（或刷新主机列表）",
                         code=ErrorCode.RUNNER_UNAVAILABLE,
                     )
+
+
                 launch_attempt = await _launch_runner_on_host(
                     conv,
                     conversation_store,
