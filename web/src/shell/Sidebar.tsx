@@ -827,21 +827,6 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
             </Button>
             <Button
               asChild
-              className={cn(
-                "sidebar-compact-text h-7 w-full justify-start gap-2 rounded-[var(--radius-otto-button)] border-0 px-2 font-normal",
-                SIDEBAR_HOVER_HIGHLIGHT,
-                isProjectsPage && SIDEBAR_ACTIVE_HIGHLIGHT,
-              )}
-              variant="ghost"
-              data-testid="projects-nav"
-            >
-              <Link to="/projects" onClick={onNavClick}>
-                <FolderIcon className="size-3.5 text-muted-foreground" />
-                {L("Projects")}
-              </Link>
-            </Button>
-            <Button
-              asChild
               variant="ghost"
               className={cn(
                 "sidebar-compact-text h-7 w-full justify-start gap-2 rounded-[var(--radius-otto-button)] border-0 px-2 font-normal",
@@ -1119,6 +1104,7 @@ function ProjectFolder({
         onProjectAssigned={onProjectAssigned}
         emptyMessage={loadingFirstPage ? undefined : L("No sessions")}
         indentRows
+        headerActionAlwaysVisible
         headerAction={
           <div className="flex items-center">
             {projectId && (
@@ -2317,6 +2303,7 @@ function ConversationSection({
   emptyMessage,
   indentRows,
   headerAction,
+  headerActionAlwaysVisible,
   afterHeader,
   footer,
   onProjectAssigned,
@@ -2343,6 +2330,8 @@ function ConversationSection({
   /** Optional control overlaid at the header's right edge (e.g. a project's
       kebab). Hover/focus-revealed on desktop, always shown on mobile. */
   headerAction?: ReactNode;
+  /** When true the header action is always visible (not hover-revealed). */
+  headerActionAlwaysVisible?: boolean;
   /** Optional content rendered directly under the header, above the rows (and
       shown even when collapsed) — e.g. the bulk-selection action bar. */
   afterHeader?: ReactNode;
@@ -2371,7 +2360,11 @@ function ConversationSection({
             onToggleCollapsed={onToggleCollapsed}
           />
           {headerAction && (
-            <div className="-translate-y-1/2 absolute top-1/2 right-1 flex items-center transition-opacity md:opacity-0 md:group-focus-within/header:opacity-100 md:group-hover/header:opacity-100 md:group-has-[[data-state=open]]/header:opacity-100">
+            <div className={`-translate-y-1/2 absolute top-1/2 right-1 flex items-center transition-opacity ${
+              headerActionAlwaysVisible
+                ? ""
+                : "md:opacity-0 md:group-focus-within/header:opacity-100 md:group-hover/header:opacity-100 md:group-has-[[data-state=open]]/header:opacity-100"
+            }`}>
               {headerAction}
             </div>
           )}
@@ -3829,13 +3822,6 @@ function ProjectFolderMenu({
           >
             <PencilIcon className="size-3.5" />
             {L("Rename project")}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            data-testid="project-settings"
-            onSelect={() => navigate(`/projects?project=${encodeURIComponent(projectName)}`)}
-          >
-            <ExternalLinkIcon className="size-3.5" />
-            {L("View project")}
           </DropdownMenuItem>
           <DropdownMenuItem
             data-testid="delete-project"
