@@ -51,6 +51,7 @@ import {
   SquarePenIcon,
   Trash2Icon,
   XIcon,
+  ExternalLinkIcon,
 } from "lucide-react";
 import {
   DndContext,
@@ -3807,6 +3808,13 @@ function ProjectFolderMenu({
           >
             <PencilIcon className="size-3.5" />
             {L("Rename project")}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            data-testid="project-settings"
+            onSelect={() => navigate(`/projects?project=${encodeURIComponent(projectName)}`)}
+          >
+            <ExternalLinkIcon className="size-3.5" />
+            {L("View project")}
           </DropdownMenuItem>
           <DropdownMenuItem
             data-testid="delete-project"
