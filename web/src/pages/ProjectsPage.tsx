@@ -718,7 +718,7 @@ export function ProjectsPage() {
   const tabs = useMemo(() => {
     const list: { id: string; label: string }[] = [
       { id: "settings", label: "项目设置" },
-      { id: "info", label: "项目明细" },
+      { id: "info", label: "项目成员" },
       { id: "flows", label: "流程列表" },
       { id: "sessions", label: "会话记录" },
     ];
