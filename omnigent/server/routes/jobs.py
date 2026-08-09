@@ -76,6 +76,46 @@ def _serialize_job(t: Job) -> dict[str, Any]:
     }
 
 
+async def _verify_handoff_gate(
+    request: Request, workspace: str, host_id: str | None, phase: str
+) -> list[str]:
+    """Check the collaboration files exist in the shared workspace.
+
+    Required before completing a phase job: HANDOFF-<phase>.md (this
+    phase's handoff) and MEMORY.md (shared project memory). Returns the
+    list of missing files (empty = pass). Best-effort — if the host is
+    unreachable or the workspace can't be enumerated, the gate passes
+    (missing checks are advisory, not blocking).
+    """
+    missing: list[str] = []
+    try:
+        from omnigent.server.routes.hosts import _proxy_list_dir
+
+        host_registry = getattr(request.app.state, "host_registry", None)
+        if host_id is None or host_registry is None:
+            return missing
+        host_conn = host_registry.get(host_id)
+        if host_conn is None:
+            return missing
+        resp = await _proxy_list_dir(
+            host_registry=host_registry,
+            host_conn=host_conn,
+            path=workspace,
+            limit=500,
+            after=None,
+            before=None,
+        )
+        entries = resp.get("entries") or []
+        names = {e.get("name") or "" for e in entries}
+        if f"HANDOFF-{phase}.md" not in names:
+            missing.append(f"HANDOFF-{phase}.md")
+        if "MEMORY.md" not in names:
+            missing.append("MEMORY.md")
+    except Exception:  # noqa: BLE001 — gate is advisory
+        pass
+    return missing
+
+
 def _build_job_context(
     job, store: Any, project_store: Any
 ) -> str:
@@ -948,6 +988,34 @@ def create_jobs_router(
             except OmnigentError:
                 raise
             except Exception:  # noqa: BLE001 — gate is best-effort
+                pass
+        # Collaboration gate: a phase job must have produced its handoff
+        # doc (HANDOFF-<phase>.md) and the shared project memory
+        # (MEMORY.md) before it can be submitted — otherwise the chain
+        # breaks for the next phase. Advisory: unreachable hosts skip.
+        if job.parent_job_id:
+            try:
+                conversation_store = getattr(request.app.state, "conversation_store", None)
+                if conversation_store is not None:
+                    _meta = await asyncio.to_thread(
+                        conversation_store.get_conversation, job.session_id
+                    ) if job.session_id else None
+                    _ws = getattr(_meta, "workspace", None) if _meta else None
+                    _host = getattr(_meta, "host_id", None) if _meta else None
+                    if _ws:
+                        _missing = await _verify_handoff_gate(
+                            request, _ws, _host, job.title
+                        )
+                        if _missing:
+                            raise OmnigentError(
+                                "交接文件缺失，无法提交：请先完成交接工作（"
+                                + "、".join(_missing)
+                                + "）——用 handoff/memory 工具写入后重试",
+                                code=ErrorCode.FORBIDDEN,
+                            )
+            except OmnigentError:
+                raise
+            except Exception:  # noqa: BLE001 — gate is advisory
                 pass
         artifact = body.get("artifact") or {}
         a_type = artifact.get("artifact_type") or "none"
