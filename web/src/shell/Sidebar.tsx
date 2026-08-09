@@ -130,7 +130,6 @@ import { isSingleUserMode, sandboxOptionLabel } from "@/lib/capabilities";
 import { relativeTime } from "@/lib/relativeTime";
 import { showToast } from "@/components/ui/toast";
 import { PermissionsModal } from "@/components/PermissionsModal";
-import { ProjectSettingsDialog } from "./ProjectSettingsDialog";
 import { SessionStateBadge } from "@/components/SessionStateBadge";
 import { useSessionRunnerOnline } from "@/hooks/RunnerHealthProvider";
 import { useActiveRootSessionId } from "@/hooks/useSession";
@@ -3782,10 +3781,10 @@ function ProjectFolderMenu({
       hover-revealed pencil). Closes the sidebar overlay on mobile. */
   onNavigate: (e: MouseEvent<HTMLAnchorElement>) => void;
 }) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [renameValue, setRenameValue] = useState(projectName);
   const deleteProject = useDeleteProject();
   const renameProject = useRenameProject();
@@ -3831,9 +3830,12 @@ function ProjectFolderMenu({
             <PencilIcon className="size-3.5" />
             {L("Rename project")}
           </DropdownMenuItem>
-          <DropdownMenuItem data-testid="project-settings" onSelect={() => setSettingsOpen(true)}>
-            <Settings2Icon className="size-3.5" />
-            {L("Project settings")}
+          <DropdownMenuItem
+            data-testid="project-settings"
+            onSelect={() => navigate(`/projects?project=${encodeURIComponent(projectName)}`)}
+          >
+            <ExternalLinkIcon className="size-3.5" />
+            {L("View project")}
           </DropdownMenuItem>
           <DropdownMenuItem
             data-testid="delete-project"
@@ -3904,15 +3906,6 @@ function ProjectFolderMenu({
           </form>
         </DialogContent>
       </Dialog>
-      <ProjectSettingsDialog
-        open={settingsOpen}
-        onOpenChange={(o) => {
-          setSettingsOpen(o);
-          if (!o) setMenuOpen(false);
-        }}
-        projectId={projectId}
-        projectName={projectName}
-      />
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
