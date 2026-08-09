@@ -364,6 +364,7 @@ JOB_ARTIFACT_TYPE: dict[str, int] = {
 JOB_EVALUATION_ACTION: dict[str, int] = {
     "pass": 1,
     "reject": 2,
+    "auto_approve": 3,
 }
 
 

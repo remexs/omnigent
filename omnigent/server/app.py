@@ -1131,26 +1131,13 @@ def create_app(
             from omnigent.server import session_live_state as _sls
 
             def _job_session_terminal(conversation_id: str, status: str) -> None:
-                # NOTE: a session "idle" does NOT mean the task is done — pi
-                # goes idle between multi-step turns while it keeps working
-                # (writing files, calling tools). Marking the job in_review
-                # here fired too early. Task completion is now driven by the
-                # executor submitting (POST /jobs/{id}/complete) or the
-                # manager's evaluation — not by session liveness. We only
-                # surface a failed terminal state for visibility.
-                try:
-                    if status != "idle":
-                        from omnigent.db.db_models import workspace_scope
-
-                        with workspace_scope(0):
-                            _jid = job_store.find_by_session(conversation_id)
-                            if _jid and status == "failed":
-                                job_store.update(_jid, state="returned")
-                except Exception:  # noqa: BLE001 - best-effort
-                    _logger.exception(
-                        "job terminal handler failed for session=%s",
-                        conversation_id,
-                    )
+                # NOTE: a session terminal event (idle/failed) does NOT
+                # reflect task outcome — pi reports idle between multi-step
+                # turns and "failed" when the runner/tmux tears down after
+                # finishing. Task state is driven ONLY by user actions
+                # (claim/complete/evaluate); never by session liveness.
+                # Kept as a no-op so the callback hook stays registered.
+                return
 
             def _extract_assistant_summary(
                 cstore: object, sid: str

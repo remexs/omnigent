@@ -22,6 +22,11 @@ from omnigent.errors import ErrorCode, OmnigentError
 from omnigent.server.auth import AuthProvider
 from omnigent.server.routes._auth_helpers import require_user as _require_user
 from omnigent.stores.job_store import JobStore
+from omnigent.server.workflow_executor import (
+    dependencies_done,
+    wants_auto_accept,
+    wants_auto_approve,
+)
 
 
 def _serialize_job(t: Job) -> dict[str, Any]:
@@ -763,16 +768,14 @@ def create_jobs_router(
                     code=ErrorCode.FORBIDDEN,
                 )
         # C2: claiming a job whose DAG dependencies aren't done keeps it
-        # pending (todo) — the executor is told what blocks it.
-        if job.depends_on:
-            _dep_ids = [d.strip() for d in job.depends_on.split(",") if d.strip()]
-            for _did in _dep_ids:
-                _dep = store.get(_did)
-                if _dep is not None and _dep.state != "completed":
-                    raise OmnigentError(
-                        f"任务依赖「{_dep.title}」尚未完成 — 请先完成依赖任务",
-                        code=ErrorCode.FORBIDDEN,
-                    )
+        # pending (todo) — the executor is told what blocks it. Rules from
+        # the YAML workflow (workflow_executor).
+        _dep_ok, _dep_title = dependencies_done(job, store)
+        if not _dep_ok:
+            raise OmnigentError(
+                f"任务依赖「{_dep_title}」尚未完成 — 请先完成依赖任务",
+                code=ErrorCode.FORBIDDEN,
+            )
         # Execution gate: jobs that require approval are claimed into
         # in_progress but stay PAUSED (🛡 marker) until an admin approves
         # execution — blocked is a marker, not a state.
@@ -858,7 +861,7 @@ def create_jobs_router(
     @router.post("/jobs/{job_id}/complete")
     async def complete_job(job_id: str, request: Request) -> dict:
         """Mark a job complete with an optional artifact, moving to in_review."""
-        _require_user(request, auth_provider)
+        user = _require_user(request, auth_provider)
         body = await request.json()
         store = _store(request)
         job = store.get(job_id)
@@ -906,10 +909,28 @@ def create_jobs_router(
                 ref=artifact.get("ref") or None,
                 summary=artifact.get("summary") or None,
             )
-        # Mark this job in_review. If it has no parent and no
-        # dependents, it may be done — keep in_review so the user
-        # evaluates the artifact (quality gate).
-        updated = store.update(job_id, state="in_review")
+        # YAML rule (workflow_executor): if the step declares
+        # ``auto_approve: true``, the task completes automatically once the
+        # agent finishes — record an auto-approval evaluation for audit.
+        # Otherwise it lands in_review for the manager's manual review.
+        if wants_auto_approve(job):
+            store.add_evaluation(
+                secrets.token_hex(16),
+                job_id,
+                "auto_approve",
+                str(user) if user else None,
+                "自动审批（YAML auto_approve: true）",
+            )
+            updated = store.update(job_id, state="completed")
+            import logging as _la
+
+            _la.getLogger("omnigent.server.routes.jobs").info(
+                "job %s auto-approved by workflow rule", job_id
+            )
+        else:
+            # Mark this job in_review so the manager evaluates the artifact
+            # (quality gate).
+            updated = store.update(job_id, state="in_review")
         # Unblock dependents: for now, dependents stay blocked until an
         # evaluation passes; evaluation handles unblocking.
         return {"job": _serialize_job(updated) if updated else {}}
@@ -1018,16 +1039,14 @@ def create_jobs_router(
                 "job has no agent_name — set an agent before launching",
                 code=ErrorCode.INVALID_INPUT,
             )
-        # C2: DAG dependencies must be completed before this job can run.
-        if job.depends_on:
-            _dep_ids = [d.strip() for d in job.depends_on.split(",") if d.strip()]
-            for _did in _dep_ids:
-                _dep = store.get(_did)
-                if _dep is not None and _dep.state != "completed":
-                    raise OmnigentError(
-                        f"任务依赖「{_dep.title}」尚未完成 — 请先完成依赖任务",
-                        code=ErrorCode.FORBIDDEN,
-                    )
+        # C2: DAG dependencies must be completed before this job can run
+        # (rule from the YAML workflow via workflow_executor).
+        _dep_ok, _dep_title = dependencies_done(job, store)
+        if not _dep_ok:
+            raise OmnigentError(
+                f"任务依赖「{_dep_title}」尚未完成 — 请先完成依赖任务",
+                code=ErrorCode.FORBIDDEN,
+            )
         # Gated jobs must be approved before they can be launched. The
         # claim keeps the job in_progress with a 🛡 marker; launch is the
         # gate — only an APPROVED gated job may launch (approval is
