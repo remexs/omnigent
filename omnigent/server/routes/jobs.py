@@ -195,12 +195,12 @@ def _build_job_context(
     # you finish, write/update your own handoff doc for the next phase.
     lines.append("")
     lines.append(
-        "【交接约定】每个阶段完成后都会在共享工作目录写一份交接文档"
-        "（docs/handoff/<阶段名>.md，多个阶段 = 多份文档），"
-        "README.md 汇总任务链与进度。开始前请先列出 docs/ 与 docs/handoff/ "
-        "目录，阅读全部交接文档了解已完成的工作；"
-        "完成后请将你的产出与总结写入 docs/handoff/<本阶段名>.md，"
-        "并更新 README.md 的任务链与进度，供下一阶段读取。"
+        "【交接约定】交接文档为 HANDOFF-<阶段名>.md（如 HANDOFF-需求分析.md），"
+        "每个阶段一份、链式传递：上一阶段完成的 HANDOFF-<前序阶段>.md 就是"
+        "你要读取的交接文档（若存在）；开始前请先读取它了解已完成的工作，"
+        "详细产出见 docs/ 目录可按需查阅。"
+        "完成后请将你的产出与总结写入 HANDOFF-<本阶段名>.md，"
+        "作为给下一阶段的交接文档。"
     )
 
     return "\n".join(lines)
