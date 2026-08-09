@@ -176,9 +176,17 @@ function TaskWorkflowEditor({
     setSaving(true);
     setError(null);
     try {
-      // 简单 YAML 解析（steps 的 id/name/agent/depends_on 缩进块）
-      const steps: { id: string; name: string; agent?: string; depends_on?: string[] }[] = [];
-      let current: { id: string; name: string; agent?: string; depends_on?: string[] } | null = null;
+      // 简单 YAML 解析（steps 的 id/name/agent/depends_on/auto_* 缩进块）
+      type StepRec = {
+        id: string;
+        name: string;
+        agent?: string;
+        depends_on?: string[];
+        auto_accept?: boolean;
+        auto_approve?: boolean;
+      };
+      const steps: StepRec[] = [];
+      let current: StepRec | null = null;
       for (const line of yaml.split("\n")) {
         const trimmed = line.trim();
         if (!trimmed || trimmed.startsWith("#")) continue;
@@ -189,16 +197,18 @@ function TaskWorkflowEditor({
           const m = trimmed.match(/^(\w+):\s*(.*)$/);
           if (m) {
             const [, key, val] = m;
-            if (key === "name") current.name = val.trim();
-            else if (key === "agent") current.agent = val.trim();
+            const v = val.trim();
+            if (key === "name") current.name = v;
+            else if (key === "agent") current.agent = v;
             else if (key === "depends_on") {
-              const deps = val
+              const deps = v
                 .replace(/[\[\]"]/g, "")
                 .split(",")
                 .map((d) => d.trim())
                 .filter(Boolean);
               if (deps.length) current.depends_on = deps;
-            }
+            } else if (key === "auto_accept") current.auto_accept = /^true$/i.test(v);
+            else if (key === "auto_approve") current.auto_approve = /^true$/i.test(v);
           }
         }
       }
@@ -260,8 +270,16 @@ function AddTaskForm({
     setError(null);
     try {
       // 简单 YAML 解析 steps（id/name/agent/depends_on）
-      const steps: { id: string; name: string; agent?: string; depends_on?: string[] }[] = [];
-      let cur: { id: string; name: string; agent?: string; depends_on?: string[] } | null = null;
+      type StepRec = {
+        id: string;
+        name: string;
+        agent?: string;
+        depends_on?: string[];
+        auto_accept?: boolean;
+        auto_approve?: boolean;
+      };
+      const steps: StepRec[] = [];
+      let cur: StepRec | null = null;
       for (const line of yaml.split("\n")) {
         const t = line.trim();
         if (!t || t.startsWith("#")) continue;
@@ -272,16 +290,18 @@ function AddTaskForm({
           const m = t.match(/^(\w+):\s*(.*)$/);
           if (m) {
             const [, key, val] = m;
-            if (key === "name") cur.name = val.trim();
-            else if (key === "agent") cur.agent = val.trim();
+            const v = val.trim();
+            if (key === "name") cur.name = v;
+            else if (key === "agent") cur.agent = v;
             else if (key === "depends_on") {
-              const deps = val
+              const deps = v
                 .replace(/[\[\]"]/g, "")
                 .split(",")
                 .map((d) => d.trim())
                 .filter(Boolean);
               if (deps.length) cur.depends_on = deps;
-            }
+            } else if (key === "auto_accept") cur.auto_accept = /^true$/i.test(v);
+            else if (key === "auto_approve") cur.auto_approve = /^true$/i.test(v);
           }
         }
       }
