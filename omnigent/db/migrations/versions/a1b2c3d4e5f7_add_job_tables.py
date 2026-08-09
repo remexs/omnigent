@@ -104,7 +104,7 @@ def upgrade() -> None:
         sa.Column("action", sa.SmallInteger(), nullable=False),
         sa.Column("comment", sa.LargeBinary(), nullable=True),
         sa.Column("created_at", sa.Integer(), nullable=False),
-        sa.CheckConstraint("action IN (1, 2)", name="ck_job_evaluations_action"),
+        sa.CheckConstraint("action IN (1, 2, 3)", name="ck_job_evaluations_action"),
         sa.PrimaryKeyConstraint("workspace_id", "id"),
     )
     op.create_index("ix_job_evaluations_job_id", "job_evaluations", ["job_id"], unique=False)
