@@ -51,7 +51,6 @@ import {
   SquarePenIcon,
   Trash2Icon,
   XIcon,
-  ExternalLinkIcon,
 } from "lucide-react";
 import {
   DndContext,
@@ -1106,21 +1105,7 @@ function ProjectFolder({
         indentRows
         headerActionAlwaysVisible
         headerAction={
-          <div className="flex items-center">
-            {projectId && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 px-1.5 text-[11px] text-muted-foreground hover:text-foreground"
-                title="查看项目"
-                onClick={() => navigate(`/projects?project=${encodeURIComponent(name)}`)}
-              >
-                <ExternalLinkIcon className="size-3" />
-                {L("View project")}
-              </Button>
-            )}
-            <ProjectFolderActions projectName={name} projectId={projectId} onNavigate={onRowClick} />
-          </div>
+          <ProjectFolderActions projectName={name} projectId={projectId} onNavigate={onRowClick} />
         }
         footer={
           loadingFirstPage ? (
