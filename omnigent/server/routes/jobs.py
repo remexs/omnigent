@@ -190,6 +190,19 @@ def _build_job_context(
     elif not job.description:
         lines.append(f"【当前任务需求】请完成该任务：{job.title}")
 
+    # Handoff convention: prior phases wrote their handoff docs in the
+    # shared workspace (docs/ + README). Read them before starting; when
+    # you finish, write/update your own handoff doc for the next phase.
+    lines.append("")
+    lines.append(
+        "【交接约定】每个阶段完成后都会在共享工作目录写一份交接文档"
+        "（docs/handoff/<阶段名>.md，多个阶段 = 多份文档），"
+        "README.md 汇总任务链与进度。开始前请先列出 docs/ 与 docs/handoff/ "
+        "目录，阅读全部交接文档了解已完成的工作；"
+        "完成后请将你的产出与总结写入 docs/handoff/<本阶段名>.md，"
+        "并更新 README.md 的任务链与进度，供下一阶段读取。"
+    )
+
     return "\n".join(lines)
 
 
