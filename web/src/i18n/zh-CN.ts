@@ -189,6 +189,8 @@ export const zhCN: Record<string, string> = {
   "Create invite": "创建邀请",
   "Create task": "创建任务",
   "Task tree": "任务树",
+  "Delete all offline hosts?": "删除全部离线主机？",
+  "Clean offline hosts": "清理离线主机",
   "View project": "查看项目",
   "Save settings": "保存设置",
   "Project context": "项目上下文",

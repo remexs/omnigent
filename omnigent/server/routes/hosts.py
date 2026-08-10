@@ -619,6 +619,59 @@ def create_hosts_router(
             )
         return {"hosts": result}
 
+    @router.delete("/hosts/offline")
+    async def cleanup_offline_hosts(request: Request) -> dict[str, Any]:
+        """Delete all OFFLINE host rows owned by the caller (or all rows
+        for admin), freeing the picker of stale machine registrations.
+
+        Online hosts are never touched — a live connection is the host's
+        truth. Deleting an offline row is safe: a host that reconnects
+        re-registers a fresh row (its host_id changes across container
+        restarts anyway), and any sessions bound to the removed host have
+        their host binding nulled by ``HostStore.delete_host``.
+
+        :param request: FastAPI request (for auth).
+        :returns: ``{"deleted": [host_id...], "kept_online": [...]}``.
+        """
+        user_id = require_user(request, auth_provider)
+        is_admin = False
+        if user_id is not None and account_store is not None:
+            try:
+                is_admin = await asyncio.to_thread(account_store.is_admin, user_id)
+            except Exception:  # noqa: BLE001 — non-accounts stores
+                is_admin = False
+        hosts = await asyncio.to_thread(host_store.list_all_hosts)
+        now = now_epoch()
+        deleted: list[str] = []
+        kept: list[str] = []
+        for h in hosts:
+            if host_is_live(h, now=now):
+                kept.append(h.host_id)
+                continue
+            if user_id is None or is_admin or h.user_id == user_id:
+                await asyncio.to_thread(host_store.delete_host, h.host_id)
+                deleted.append(h.host_id)
+        return {"deleted": deleted, "kept_online": kept}
+
+    @router.delete("/hosts/{host_id}")
+    async def delete_host(request: Request, host_id: str) -> dict[str, Any]:
+        """Delete a single host row (owner or admin only)."""
+        user_id = require_user(request, auth_provider)
+        host = await asyncio.to_thread(host_store.get_host, host_id)
+        if host is None:
+            raise HTTPException(status_code=404, detail="host not found")
+        if user_id is not None and host.user_id != user_id:
+            is_admin = False
+            if account_store is not None:
+                try:
+                    is_admin = await asyncio.to_thread(account_store.is_admin, user_id)
+                except Exception:  # noqa: BLE001
+                    is_admin = False
+            if not is_admin:
+                raise HTTPException(status_code=403, detail="not your host")
+        await asyncio.to_thread(host_store.delete_host, host_id)
+        return {"deleted": host_id}
+
     @router.get("/hosts/{host_id}")
     async def get_host(request: Request, host_id: str) -> dict[str, Any]:
         """Get details for a single host.

@@ -222,6 +222,27 @@ export function HostsPage() {
           <RefreshCwIcon className="size-3.5" />
           {L("Refresh")}
         </Button>
+        {stats.offline > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={async () => {
+              const ok = window.confirm(
+                L("Delete all offline hosts?") + `（${stats.offline}）`,
+              );
+              if (!ok) return;
+              const res = await authenticatedFetch("/v1/hosts/offline", {
+                method: "DELETE",
+              });
+              if (res.ok) setRefreshKey((k) => k + 1);
+            }}
+          >
+            <Trash2Icon className="size-3.5" />
+            {L("Clean offline hosts")}
+          </Button>
+        )}
       </div>
 
       {isLoading && <p className="mt-4 text-sm text-muted-foreground">{L("Loading…")}</p>}
