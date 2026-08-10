@@ -1479,3 +1479,172 @@ def create_jobs_router(
 
 
     return router
+
+async def _relaunch_job_core(job_id: str, host_id: str, app_inst: Any) -> None:
+    """Relaunch a job's session (auto-retry after a failed terminal).
+
+    Mirrors the launch endpoint's core dispatch (session creation + runner
+    scheduling + job-context injection) without the request-scoped auth —
+    this is an internal retry for a job whose session died to a model /
+    provider error. Best-effort: any failure logs and is swallowed so a
+    retry storm can't take the server down.
+    """
+    import logging as _lr
+    import secrets as _sec
+
+    _lgr = _lr.getLogger("omnigent.server.routes.jobs")
+    try:
+        jstore = getattr(app_inst.state, "job_store", None)
+        agent_store = getattr(app_inst.state, "agent_store", None)
+        conversation_store = getattr(app_inst.state, "conversation_store", None)
+        permission_store = getattr(app_inst.state, "permission_store", None)
+        runner_router = getattr(app_inst.state, "runner_router", None)
+        tunnel_registry = getattr(app_inst.state, "tunnel_registry", None)
+        host_registry = getattr(app_inst.state, "host_registry", None)
+        project_store = getattr(app_inst.state, "project_store", None)
+        if not (jstore and agent_store and conversation_store):
+            _lgr.warning("relaunch %s: stores missing", job_id)
+            return
+        job = jstore.get(job_id)
+        if job is None or not job.agent_name:
+            return
+        agent = await asyncio.to_thread(agent_store.get_by_name, job.agent_name)
+        if agent is None:
+            _lgr.warning("relaunch %s: agent %r missing", job_id, job.agent_name)
+            return
+
+        # Root session (parent) for task chains.
+        root_conv_id = None
+        if job.root_job_id or job.parent_job_id:
+            root_id = job.root_job_id or job.id
+            root_job = jstore.get(root_id)
+            if root_job is not None and root_job.session_id:
+                root_conv_id = root_job.session_id
+            if root_conv_id is None:
+                try:
+                    _root_agent = None
+                    if root_job is not None and root_job.agent_name:
+                        _ra = await asyncio.to_thread(agent_store.get_by_name, root_job.agent_name)
+                        if _ra is not None:
+                            _root_agent = _ra.id
+                    _root = await asyncio.to_thread(
+                        conversation_store.create_conversation,
+                        agent_id=_root_agent,
+                        title=root_job.title if root_job else job.title,
+                        host_id=host_id,
+                        workspace=_ws or f"/workspace/{root_job.title if root_job else job.title}",
+                    )
+                    if job.project_id:
+                        await asyncio.to_thread(
+                            conversation_store.set_conversation_project, _root.id, job.project_id
+                        )
+                    if root_job is not None:
+                        await asyncio.to_thread(jstore.update, root_job.id, session_id=_root.id)
+                    root_conv_id = _root.id
+                except Exception:  # noqa: BLE001
+                    root_conv_id = None
+
+        # Remove any stale session rows for this job first — a prior failed
+        # session with the same (parent, title) would collide on create.
+        _ws = None
+        try:
+            _old = jstore.get(job_id)
+            if _old is not None and _old.session_id:
+                _old_meta = await asyncio.to_thread(
+                    conversation_store.get_conversation, _old.session_id
+                )
+                _ws = getattr(_old_meta, "workspace", None)
+                await conversation_store.delete_conversation(_old.session_id)
+        except Exception:  # noqa: BLE001 — best-effort
+            pass
+        # Workspace is required whenever host_id is set (DB constraint);
+        # fall back to the project default when the stale session had none.
+        if not _ws and job.project_id and project_store is not None:
+            try:
+                _proj = await asyncio.to_thread(
+                    project_store.get, job.project_id, owner_user_id=job.created_by_user_id
+                )
+                if _proj is not None and _proj.config:
+                    import json as _pj
+
+                    _cfg = (
+                        _pj.loads(_proj.config)
+                        if isinstance(_proj.config, str)
+                        else (_proj.config or {})
+                    )
+                    _ws = ((_cfg.get("defaults") or {}).get("workspace")) if isinstance(_cfg, dict) else None
+            except Exception:  # noqa: BLE001 — best-effort
+                pass
+        if not _ws:
+            _ws = f"/workspace/{job.title}"
+
+        # Create the execution session (default kind so the executor owns it).
+        conv = await asyncio.to_thread(
+            conversation_store.create_conversation,
+            kind="default",
+            parent_conversation_id=root_conv_id,
+            agent_id=agent.id,
+            title=job.title,
+            host_id=host_id,
+            workspace=_ws,
+        )
+        if job.project_id:
+            try:
+                await asyncio.to_thread(
+                    conversation_store.set_conversation_project, conv.id, job.project_id
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        assignee = job.assignee_user_id or "admin"
+        if permission_store is not None:
+            from omnigent.server.auth import LEVEL_OWNER
+
+            await asyncio.to_thread(permission_store.ensure_user, assignee)
+            await asyncio.to_thread(permission_store.grant, assignee, conv.id, LEVEL_OWNER)
+
+        jstore.update(job_id, session_id=conv.id, state="in_progress", host_id=host_id)
+
+        # Dispatch: launch runner + inject job context.
+        from omnigent.server.routes.sessions import (
+            _dispatch_session_event_to_runner,
+            _ensure_runner_session_initialized,
+            _launch_runner_on_host,
+            _wait_for_runner_client,
+        )
+        from omnigent.server.schemas import SessionEventInput as _SEI
+
+        if host_registry is not None and runner_router is not None:
+            host_conn = host_registry.get(host_id)
+            if host_conn is None:
+                _lgr.warning("relaunch %s: host %s not connected", job_id, host_id)
+                return
+            launch_attempt = await _launch_runner_on_host(
+                conv, conversation_store, host_registry, host_conn
+            )
+            runner_client = None
+            if launch_attempt.error_code is None:
+                runner_client = await _wait_for_runner_client(
+                    conv.id, runner_router, tunnel_registry,
+                    runner_id=launch_attempt.runner_id, timeout_s=30.0,
+                )
+            if runner_client is not None:
+                fresh = await asyncio.to_thread(conversation_store.get_conversation, conv.id)
+                conv_for = fresh or conv
+                await _ensure_runner_session_initialized(
+                    conv.id, conv_for, runner_client, conversation_store
+                )
+                prompt = _build_job_context(job, jstore, project_store)
+                msg_body = _SEI(
+                    type="message",
+                    data={"role": "user", "content": [{"type": "input_text", "text": prompt}]},
+                )
+                await _dispatch_session_event_to_runner(
+                    conv.id, conv_for, msg_body, conversation_store, runner_client,
+                    agent_name=None, file_store=None, artifact_store=None,
+                    created_by=assignee, runner_router=runner_router,
+                )
+                _lgr.info("relaunch %s: session %s running", job_id, conv.id)
+            else:
+                _lgr.warning("relaunch %s: runner did not connect", job_id)
+    except Exception:  # noqa: BLE001 — best-effort
+        _lgr.warning("relaunch %s failed", job_id, exc_info=True)

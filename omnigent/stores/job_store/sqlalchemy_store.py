@@ -223,6 +223,7 @@ class SqlAlchemyJobStore(JobStore):
         depends_on: str | None = None,
         host_id: str | None = None,
         require_approval: bool | None = None,
+        config: str | None = None,
     ) -> Job | None:
         with self._session() as session:
             row = session.get(SqlJob, (current_workspace_id(), job_id))
@@ -244,6 +245,8 @@ class SqlAlchemyJobStore(JobStore):
                 row.require_approval = require_approval
             if depends_on is not None:
                 row.depends_on = depends_on
+            if config is not None:
+                row.config = config
             row.updated_at = now_epoch()
             session.flush()
             return _job_to_entity(row)

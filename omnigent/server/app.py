@@ -1131,13 +1131,106 @@ def create_app(
             from omnigent.server import session_live_state as _sls
 
             def _job_session_terminal(conversation_id: str, status: str) -> None:
-                # NOTE: a session terminal event (idle/failed) does NOT
-                # reflect task outcome — pi reports idle between multi-step
-                # turns and "failed" when the runner/tmux tears down after
-                # finishing. Task state is driven ONLY by user actions
-                # (claim/complete/evaluate); never by session liveness.
-                # Kept as a no-op so the callback hook stays registered.
-                return
+                # Task state stays USER-DRIVEN (claim/complete/evaluate) —
+                # session liveness never flips job state. But a "failed"
+                # terminal (e.g. the model provider dropping the stream
+                # mid-turn) leaves an in_progress job with a dead session
+                # and no output; auto-retry it so the execution actually
+                # completes, bounded to avoid retry storms.
+                try:
+                    if status != "failed":
+                        return
+                    jstore = app_inst.state.job_store if app_inst else None
+                    if jstore is None:
+                        return
+                    job_id = jstore.find_by_session(conversation_id)
+                    if not job_id:
+                        return
+                    job = jstore.get(job_id)
+                    if job is None or job.state != "in_progress":
+                        return
+                    # Bounded retries: track attempts on the job config.
+                    import json as _j
+
+                    _cfg = {}
+                    if job.config:
+                        try:
+                            _cfg = _j.loads(job.config) if isinstance(job.config, str) else (job.config or {})
+                        except Exception:  # noqa: BLE001
+                            _cfg = {}
+                    _attempts = int(_cfg.get("_retry_count") or 0)
+                    if _attempts >= 2:
+                        return
+                    _cfg["_retry_count"] = _attempts + 1
+                    jstore.update(job_id, config=_j.dumps(_cfg, ensure_ascii=False))
+                    import logging as _lr
+
+                    _lr.getLogger("omnigent.server.app").warning(
+                        "job %s session %s failed (attempt %d) — auto-retrying",
+                        job_id, conversation_id, _attempts + 1,
+                    )
+                    # Reset the session binding so a fresh launch creates a
+                    # new session, then schedule the relaunch.
+                    jstore.update(job_id, session_id=None)
+                    asyncio.get_event_loop().call_later(
+                        3.0,
+                        lambda: _retry_launch_job(job_id, conversation_id),
+                    )
+                except Exception:  # noqa: BLE001 — retry is best-effort
+                    pass
+
+            def _retry_launch_job(job_id: str, old_session_id: str) -> None:
+                """Relaunch a job whose session failed (model/provider error).
+
+                Best-effort: reuses the job's last known host, re-claims if
+                needed, and resets state to in_progress so a fresh launch
+                creates a new session. Called on a delay after the failed
+                terminal so the runner has fully torn down.
+                """
+                import asyncio as _aio
+
+                async def _do() -> None:
+                    try:
+                        jstore = app_inst.state.job_store if app_inst else None
+                        if jstore is None:
+                            return
+                        job = jstore.get(job_id)
+                        if job is None:
+                            return
+                        # Keep assignee + agent; ensure state is claimable.
+                        if job.state not in ("in_progress", "todo"):
+                            return
+                        assignee = job.assignee_user_id
+                        host_id = job.host_id
+                        if not host_id:
+                            # Fall back to the assignee's first online host.
+                            hreg = app_inst.state.host_registry if app_inst else None
+                            if hreg is not None and assignee:
+                                for hid in hreg.online_host_ids():
+                                    rec = hreg.get(hid)
+                                    if rec is not None and getattr(rec, "owner", None) == assignee:
+                                        host_id = hid
+                                        break
+                        if not host_id:
+                            return
+                        import logging as _lr
+
+                        _lr.getLogger("omnigent.server.app").warning(
+                            "auto-retry: relaunching job %s on host %s", job_id, host_id
+                        )
+                        # Reset session so a fresh launch creates a new one,
+                        # then reuse the launch endpoint's core dispatch.
+                        jstore.update(job_id, session_id=None, state="in_progress", host_id=host_id)
+                        from omnigent.server.routes.jobs import _relaunch_job_core
+
+                        await _relaunch_job_core(job_id, host_id, app_inst)
+                    except Exception:  # noqa: BLE001 — best-effort
+                        pass
+
+                try:
+                    _aio.get_event_loop().create_task(_do())
+                except RuntimeError:
+                    pass
 
             def _extract_assistant_summary(
                 cstore: object, sid: str
