@@ -137,7 +137,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   // Task workflow YAML (industry-standard steps; users edit directly).
   const [workflowYaml, setWorkflowYaml] = useState(
-    "workflow:\n  steps:\n    - id: requirement\n      name: 需求分析\n      agent: zhangsan-agent\n    - id: architecture\n      name: 架构设计\n      agent: wangwu-agent\n    - id: backend\n      name: 后端开发\n      agent: zhaoliu-agent\n    - id: frontend\n      name: 前端开发\n      agent: lisi-agent\n    - id: test\n      name: 测试验证\n      agent: admin-agent",
+    "workflow:\n  steps:\n    - id: requirement\n      name: 需求分析\n      auto_approve: true\n    - id: develop\n      name: 开发\n      agent: pi-native-ui\n      depends_on: requirement\n    - id: testing\n      name: 测试\n      agent: pi-native-ui\n      depends_on: develop",
   );
   const {
     data: memberOptions = [],

@@ -172,7 +172,7 @@ function TaskWorkflowEditor({
         return job.config;
       }
     }
-    return "workflow:\n  steps:\n    - id: requirement\n      name: 需求分析\n      agent: zhangsan-agent";
+    return "workflow:\n  steps:\n    - id: requirement\n      name: 需求分析\n      auto_approve: true\n    - id: develop\n      name: 开发\n      agent: pi-native-ui\n      depends_on: requirement\n    - id: testing\n      name: 测试\n      agent: pi-native-ui\n      depends_on: develop";
   });
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
