@@ -827,6 +827,21 @@ export function Sidebar({ open, onClose, dragProgress = null, onOpenSearch }: Si
             </Button>
             <Button
               asChild
+              className={cn(
+                "sidebar-compact-text h-7 w-full justify-start gap-2 rounded-[var(--radius-otto-button)] border-0 px-2 font-normal",
+                SIDEBAR_HOVER_HIGHLIGHT,
+                isProjectsPage && SIDEBAR_ACTIVE_HIGHLIGHT,
+              )}
+              variant="ghost"
+              data-testid="projects-nav"
+            >
+              <Link to="/projects" onClick={onNavClick}>
+                <FolderIcon className="size-3.5 text-muted-foreground" />
+                {L("Projects")}
+              </Link>
+            </Button>
+            <Button
+              asChild
               variant="ghost"
               className={cn(
                 "sidebar-compact-text h-7 w-full justify-start gap-2 rounded-[var(--radius-otto-button)] border-0 px-2 font-normal",
