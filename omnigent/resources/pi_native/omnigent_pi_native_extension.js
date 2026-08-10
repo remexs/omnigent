@@ -1226,22 +1226,32 @@ module.exports = function (pi) {
 
   // Built-in collaboration tools: handoff + project memory. These are
   // REQUIRED internal functions (not optional skills) — the agent maintains
-  // HANDOFF-<phase>.md (phase handoff, chain-passed), MEMORY.md (shared
-  // project experience) and DAILY-<date>.md (per-day progress log) in the
+  // HANDOFF-<phase>.md (phase handoff, chain-passed) and MEMORY-xxx.md
+  // (project memory: long-term by topic, daily by date) in the
   // workspace (the runner cwd). Implemented locally in the extension so
   // they work without an MCP server.
   const { readFileSync, writeFileSync, existsSync, readdirSync } = require("node:fs");
-  const { join } = require("node:path");
+  const { join, dirname } = require("node:path");
   const wsRoot = process.cwd();
-  function readCollabFile(name) {
-    const p = join(wsRoot, name);
+  // Global shared root: MEMORY.md (project-wide memory, shared across ALL
+  // projects) lives one level above the project workspace (the shared
+  // volume root), while HANDOFF/ and memory/ stay inside the project workspace.
+  const globalRoot = dirname(wsRoot);
+  function ensureDir(d) { if (!existsSync(d)) mkdirSync(d, { recursive: true }); }
+  function readCollabFile(name, base) {
+    const p = join(base || wsRoot, name);
     return existsSync(p) ? readFileSync(p, "utf8") : "";
   }
-  function writeCollabFile(name, content) {
-    const p = join(wsRoot, name);
+  function writeCollabFile(name, content, base) {
+    const p = join(base || wsRoot, name);
+    ensureDir(dirname(p));
     writeFileSync(p, content, "utf8");
-    return `已写入 ${name}（${content.length} 字符）`;
+    return `已写入 ${p}（${content.length} 字符）`;
   }
+  // Memory lives in the project's memory/ folder (MEMORY.md long-term +
+  // MEMORY-<topic>.md / MEMORY-<date>.md); handoff lives in handoff/ folder.
+  const memoryDir = join(wsRoot, "memory");
+  const handoffDir = join(wsRoot, "handoff");
   if (typeof pi.registerTool === "function") {
     pi.registerTool({
       name: "handoff",
@@ -1266,19 +1276,19 @@ module.exports = function (pi) {
         try {
           const op = (params && params.operation) || "read";
           if (op === "list") {
-            const files = existsSync(wsRoot) ? readdirSync(wsRoot).filter((f) => f.startsWith("HANDOFF-")) : [];
+            const files = existsSync(wsRoot) ? readdirSync(handoffDir).filter((f) => f.startsWith("HANDOFF-")) : [];
             result = files.length ? `交接文档：${files.join(", ")}` : "暂无 HANDOFF 交接文档";
           } else if (op === "write") {
             const stage = (params && params.stage) || "";
             const content = (params && params.content) || "";
-            result = !stage ? "错误：write 需要 stage（本阶段名）" : writeCollabFile(`HANDOFF-${stage}.md`, content);
+            result = !stage ? "错误：write 需要 stage（本阶段名）" : writeCollabFile(`HANDOFF-${stage}.md`, content, handoffDir);
           } else {
             const stage = (params && params.stage) || "";
             if (stage) {
-              const c = readCollabFile(`HANDOFF-${stage}.md`);
+              const c = readCollabFile(`HANDOFF-${stage}.md`, handoffDir);
               result = c ? c : `未找到 HANDOFF-${stage}.md`;
             } else {
-              const files = existsSync(wsRoot) ? readdirSync(wsRoot).filter((f) => f.startsWith("HANDOFF-")) : [];
+              const files = existsSync(wsRoot) ? readdirSync(handoffDir).filter((f) => f.startsWith("HANDOFF-")) : [];
               result = files.length
                 ? `可用交接文档：${files.join(", ")}（用 read+stage 读取）`
                 : "暂无 HANDOFF 交接文档（无前序阶段时正常）";
@@ -1291,20 +1301,24 @@ module.exports = function (pi) {
       },
     });
     pi.registerTool({
-      name: "daily",
-      label: "daily",
+      name: "memory",
+      label: "memory",
       description:
-        "项目每日记忆工具：DAILY-<日期>.md 记录当天工作进展（日期格式 YYYY-MM-DD），" +
-        "跨任务共享、按天累积，作为项目的每日日志。" +
-        "operation=read 读取当日记录（或指定 date）；operation=append 追加当日进展" +
-        "（note=内容，date=日期可选默认今天）；operation=read_all 列出全部每日记录。",
-      promptSnippet: "维护项目每日记忆（DAILY-<日期>.md）",
+        "项目记忆工具（记忆统一存于 memory/ 文件夹，统一 MEMORY-xxx.md 格式，无 DAILY）：" +
+        "写入时由你判断内容归属——" +
+        "kind=long-term 长期记忆（经验/决策/坑/规则 → memory/MEMORY-<主题>.md，如 MEMORY-架构.md）；" +
+        "kind=daily 每日记忆（当天进展 → memory/MEMORY-<日期>.md，如 MEMORY-2026-08-10.md）。" +
+        "operation=read 读记忆（kind+topic/date 定位）；operation=append 追加（必填 kind+note）；" +
+        "operation=read_all 列出全部记忆文件。",
+      promptSnippet: "维护项目记忆（MEMORY-xxx.md：经验→MEMORY-<主题>.md；当日→MEMORY-<日期>.md）",
       parameters: {
         type: "object",
         properties: {
-          operation: { type: "string", enum: ["read", "append", "read_all"], description: "read=读当日/指定日期, append=追加当日进展, read_all=列出全部" },
-          date: { type: "string", description: "日期 YYYY-MM-DD（默认今天）" },
-          note: { type: "string", description: "当日进展内容（append 时必填）" },
+          operation: { type: "string", enum: ["read", "append", "read_all"], description: "read=读记忆, append=追加（判断 kind）, read_all=列出全部记忆文件" },
+          kind: { type: "string", enum: ["long-term", "daily"], description: "long-term=长期记忆→MEMORY-<主题>.md，daily=每日记忆→MEMORY-<日期>.md" },
+          topic: { type: "string", description: "主题（long-term 时用于归类，如 架构/数据库/测试）" },
+          note: { type: "string", description: "内容（append 时必填）" },
+          date: { type: "string", description: "日期 YYYY-MM-DD（daily 时可选，默认今天）" },
         },
         required: ["operation"],
       },
@@ -1313,79 +1327,45 @@ module.exports = function (pi) {
         try {
           const op = (params && params.operation) || "read";
           const today = new Date().toISOString().slice(0, 10);
-          const date = (params && params.date) || today;
-          const fname = `DAILY-${date}.md`;
           if (op === "read_all") {
-            const files = existsSync(wsRoot) ? readdirSync(wsRoot).filter((f) => f.startsWith("DAILY-")) : [];
-            result = files.length ? `每日记录：${files.sort().join(", ")}` : "暂无每日记忆";
+            const pfiles = existsSync(memoryDir) ? readdirSync(memoryDir).filter((f) => f.startsWith("MEMORY-")) : [];
+            result = `记忆文件：${pfiles.sort().join(", ") || "暂无"}`;
+          } else if (op === "read") {
+            const kind = (params && params.kind) || "long-term";
+            if (kind === "daily") {
+              const date = (params && params.date) || today;
+              const c = readCollabFile(`MEMORY-${date}.md`, memoryDir);
+              result = c || `MEMORY-${date}.md 尚不存在（当日无记录）`;
+            } else {
+              const topic = (params && params.topic) || "通用";
+              const c = readCollabFile(`MEMORY-${topic}.md`, memoryDir);
+              result = c || `MEMORY-${topic}.md 尚不存在（长期记忆将在此累积）`;
+            }
           } else if (op === "append") {
+            const kind = (params && params.kind) || "long-term";
             const note = (params && params.note) || "";
-            if (!note) { result = "错误：append 需要 note（进展内容）"; }
-            else {
-              let d = readCollabFile(fname);
+            if (!note) { result = "错误：append 需要 note（内容）"; }
+            else if (kind === "daily") {
+              const date = (params && params.date) || today;
+              const fname = `MEMORY-${date}.md`;
+              let d = readCollabFile(fname, memoryDir);
               const entry = `- ${new Date().toISOString().slice(0, 16)} ${note}`;
               if (d.includes(note)) { result = `当日已有相同记录，未重复添加`; }
               else {
-                d = d ? d + "\n" + entry : `# 每日记录 ${date}\n\n${entry}`;
-                result = writeCollabFile(fname, d + "\n");
+                d = d ? d + "\n" + entry : `# 每日记忆 ${date}\n\n${entry}`;
+                result = writeCollabFile(fname, d + "\n", memoryDir);
               }
-            }
-          } else {
-            const c = readCollabFile(fname);
-            result = c || `DAILY-${date}.md 尚不存在（当日无记录）`;
-          }
-        } catch (e) {
-          result = "daily 工具错误: " + (e && e.message ? e.message : String(e));
-        }
-        return { content: [{ type: "text", text: String(result) }], isError: false };
-      },
-    });
-    pi.registerTool({
-      name: "memory",
-      label: "memory",
-      description:
-        "项目公用记忆工具：MEMORY.md 存于 workspace（大写），跨所有任务共享、持续累积。" +
-        "operation=read 读取全部项目记忆；operation=append 追加一条经验" +
-        "（topic=主题, note=经验内容——自动去重并归类）；operation=write 覆盖写全部。",
-      promptSnippet: "维护项目公用记忆（MEMORY.md）",
-      parameters: {
-        type: "object",
-        properties: {
-          operation: { type: "string", enum: ["read", "append", "write"], description: "read=读全部记忆, append=追加经验, write=覆盖写" },
-          topic: { type: "string", description: "主题（append 时用于归类，如 架构/数据库/测试）" },
-          note: { type: "string", description: "经验内容（append 时必填）" },
-          content: { type: "string", description: "完整内容（write 时必填）" },
-        },
-        required: ["operation"],
-      },
-      async execute(_tid, params) {
-        let result;
-        try {
-          const op = (params && params.operation) || "read";
-          if (op === "read") {
-            const c = readCollabFile("MEMORY.md");
-            result = c || "MEMORY.md 尚不存在（项目经验将在此累积）";
-          } else if (op === "write") {
-            const content = (params && params.content) || "";
-            result = writeCollabFile("MEMORY.md", content);
-          } else if (op === "append") {
-            const topic = (params && params.topic) || "通用";
-            const note = (params && params.note) || "";
-            if (!note) {
-              result = "错误：append 需要 note（经验内容）";
             } else {
-              let mem = readCollabFile("MEMORY.md");
+              const topic = (params && params.topic) || "通用";
+              const fname = `MEMORY-${topic}.md`;
+              let mem = readCollabFile(fname, memoryDir);
               const line = `- ${note}`;
-              if (mem.includes(line)) {
-                result = `已存在相同经验，未重复添加（${topic}）`;
-              } else {
+              if (mem.includes(line)) { result = `已存在相同经验，未重复添加（${topic}）`; }
+              else {
                 const section = `## ${topic}\n`;
-                if (mem.includes(section)) {
-                  mem = mem.replace(section, section + line + "\n");
-                } else {
-                  mem += (mem ? "\n" : "") + section + line + "\n";
-                }
-                result = writeCollabFile("MEMORY.md", mem);
+                if (mem.includes(section)) { mem = mem.replace(section, section + line + "\n"); }
+                else { mem += (mem ? "\n" : "") + section + line + "\n"; }
+                result = writeCollabFile(fname, mem, memoryDir);
               }
             }
           } else {

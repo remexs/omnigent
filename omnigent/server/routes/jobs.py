@@ -97,20 +97,27 @@ async def _verify_handoff_gate(
         host_conn = host_registry.get(host_id)
         if host_conn is None:
             return missing
-        resp = await _proxy_list_dir(
-            host_registry=host_registry,
-            host_conn=host_conn,
-            path=workspace,
-            limit=500,
-            after=None,
-            before=None,
-        )
-        entries = resp.get("entries") or []
-        names = {e.get("name") or "" for e in entries}
-        if f"HANDOFF-{phase}.md" not in names:
-            missing.append(f"HANDOFF-{phase}.md")
-        if "MEMORY.md" not in names:
-            missing.append("MEMORY.md")
+        # Handoff lives in handoff/ folder, memory in memory/ folder.
+        handoff_names: set[str] = set()
+        memory_names: set[str] = set()
+        for sub, out in (("handoff", handoff_names), ("memory", memory_names)):
+            try:
+                resp = await _proxy_list_dir(
+                    host_registry=host_registry,
+                    host_conn=host_conn,
+                    path=f"{workspace}/{sub}",
+                    limit=500,
+                    after=None,
+                    before=None,
+                )
+                for e in (resp.get("entries") or []):
+                    out.add(e.get("name") or "")
+            except Exception:  # noqa: BLE001 — folder may not exist yet
+                pass
+        if f"HANDOFF-{phase}.md" not in handoff_names:
+            missing.append(f"handoff/HANDOFF-{phase}.md")
+        if not any(n.startswith("MEMORY-") for n in memory_names):
+            missing.append("memory/MEMORY-<主题>.md（至少一条记忆）")
     except Exception:  # noqa: BLE001 — gate is advisory
         pass
     return missing
