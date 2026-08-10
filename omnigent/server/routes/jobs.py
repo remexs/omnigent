@@ -1544,17 +1544,21 @@ async def _relaunch_job_core(job_id: str, host_id: str, app_inst: Any) -> None:
                 except Exception:  # noqa: BLE001
                     root_conv_id = None
 
-        # Remove any stale session rows for this job first — a prior failed
-        # session with the same (parent, title) would collide on create.
+        # KEEP the old (failed) session for history/audit — do NOT delete
+        # it. The new session gets a retry-suffixed title so it doesn't
+        # collide on the same-parent name-uniqueness rule.
         _ws = None
+        _retry_suffix = ""
+        _old_session_id = None
         try:
             _old = jstore.get(job_id)
             if _old is not None and _old.session_id:
+                _old_session_id = _old.session_id
                 _old_meta = await asyncio.to_thread(
                     conversation_store.get_conversation, _old.session_id
                 )
                 _ws = getattr(_old_meta, "workspace", None)
-                await conversation_store.delete_conversation(_old.session_id)
+                _retry_suffix = "（重试）"
         except Exception:  # noqa: BLE001 — best-effort
             pass
         # Workspace is required whenever host_id is set (DB constraint);
@@ -1578,16 +1582,34 @@ async def _relaunch_job_core(job_id: str, host_id: str, app_inst: Any) -> None:
         if not _ws:
             _ws = f"/workspace/{job.title}"
 
-        # Create the execution session (default kind so the executor owns it).
-        conv = await asyncio.to_thread(
-            conversation_store.create_conversation,
-            kind="default",
-            parent_conversation_id=root_conv_id,
-            agent_id=agent.id,
-            title=job.title,
-            host_id=host_id,
-            workspace=_ws,
-        )
+        # RESUME the existing (failed) session instead of creating a new
+        # one: re-launch a runner onto the SAME conversation id — the
+        # runner's init performs crash recovery (Step 8.5), continuing the
+        # interrupted turn from the persisted history. This keeps the full
+        # conversation history intact (single session, resumed).
+        if _old_session_id:
+            _existing = await asyncio.to_thread(
+                conversation_store.get_conversation, _old_session_id
+            )
+        else:
+            _existing = None
+        if _existing is not None:
+            conv = _existing
+            # Runner re-bind: clear the stale runner binding so the host
+            # spawns a fresh runner for this session.
+            await asyncio.to_thread(
+                conversation_store.replace_runner_id, conv.id, None
+            )
+        else:
+            conv = await asyncio.to_thread(
+                conversation_store.create_conversation,
+                kind="default",
+                parent_conversation_id=root_conv_id,
+                agent_id=agent.id,
+                title=f"{job.title}{_retry_suffix}",
+                host_id=host_id,
+                workspace=_ws,
+            )
         if job.project_id:
             try:
                 await asyncio.to_thread(
@@ -1634,6 +1656,57 @@ async def _relaunch_job_core(job_id: str, host_id: str, app_inst: Any) -> None:
                     conv.id, conv_for, runner_client, conversation_store
                 )
                 prompt = _build_job_context(job, jstore, project_store)
+                # Resume context: a RETRY must carry the failed session's
+                # recent activity so the new agent continues from where the
+                # model error cut it off — not restart from scratch.
+                if _retry_suffix and _old_session_id:
+                    try:
+                        _tail = await asyncio.to_thread(
+                            conversation_store.list_items,
+                            _old_session_id,
+                            limit=15,
+                            order="desc",
+                        )
+                        _lines = ["", "【上次会话中断，请续接以下内容】"]
+                        _iid = 0
+                        for _it in reversed((getattr(_tail, "data", None) or [])):
+                            if _iid >= 12:
+                                break
+                            _txt = ""
+                            _data = getattr(_it, "data", None)
+                            _itype = getattr(_it, "type", None)
+                            if isinstance(_data, str):
+                                import json as _j2
+
+                                try:
+                                    _obj = _j2.loads(_data)
+                                except Exception:
+                                    _obj = None
+                                if isinstance(_obj, dict):
+                                    _role = _obj.get("role")
+                                    if _role == "user":
+                                        _blk = _obj.get("content") or []
+                                        _txt = "[USER] " + " ".join(
+                                            str(b.get("text", ""))[:200]
+                                            for b in _blk if isinstance(b, dict) and b.get("type") == "input_text"
+                                        )
+                                    elif _role == "assistant" and not _obj.get("name"):
+                                        _blk = _obj.get("content") or []
+                                        _txt = "[AI] " + " ".join(
+                                            str(b.get("text", ""))[:200]
+                                            for b in _blk if isinstance(b, dict) and b.get("type") == "output_text"
+                                        )
+                                    elif _obj.get("name"):
+                                        _txt = f"[工具] {_obj.get('name','')}: {str(_obj.get('arguments',''))[:150]}"
+                                    elif _itype == "tool_result" or _obj.get("output") is not None:
+                                        _txt = "[结果] " + str(_obj.get("output", ""))[:200]
+                            if _txt and _txt not in ("[工具] : ", "[结果] "):
+                                _lines.append(_txt[:300])
+                                _iid += 1
+                        if len(_lines) > 1:
+                            prompt += "\n".join(_lines)
+                    except Exception:  # noqa: BLE001 — resume is best-effort
+                        pass
                 msg_body = _SEI(
                     type="message",
                     data={"role": "user", "content": [{"type": "input_text", "text": prompt}]},
