@@ -76,11 +76,11 @@ interface HostWire {
 }
 
 const STATE_LABELS: Record<string, string> = {
-  todo: "待办",
-  in_progress: "进行中",
-  in_review: "待验收",
-  completed: "已完成",
-  returned: "返工",
+  todo: L("Todo"),
+  in_progress: L("In progress"),
+  in_review: L("In review"),
+  completed: L("Completed"),
+  returned: L("Returned"),
   
 };
 
@@ -236,7 +236,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
       </div>
       <label className="space-y-1">
         <span className="text-sm">{L("Project name")}</span>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="电商平台" />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={L("e.g. E-commerce platform")} />
       </label>
 
       {/* 项目成员（参与者池，从 host 查询勾选） */}
@@ -396,7 +396,7 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
       <div className="grid gap-2 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm">{L("Title")}</span>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="需求分析" />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={L("e.g. Requirements analysis")} />
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Agent")}</span>
@@ -412,7 +412,7 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
         </label>
         <label className="space-y-1 sm:col-span-2">
           <span className="text-sm">{L("Description")}</span>
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="任务描述" />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={L("Task description")} />
         </label>
         <label className="flex items-center gap-2 sm:col-span-2">
           <input
@@ -471,7 +471,7 @@ function CreateJobForm({ projectId, onDone }: { projectId?: string; onDone: () =
         {steps.map((st, i) => (
           <div key={i} className="grid grid-cols-[1fr_1.2fr_1.2fr_1.4fr_auto] items-center gap-1.5">
             <Input value={st.id} onChange={(e) => updateStep(i, "id", e.target.value)} placeholder="id" className="h-7 text-xs" />
-            <Input value={st.name} onChange={(e) => updateStep(i, "name", e.target.value)} placeholder="名称" className="h-7 text-xs" />
+            <Input value={st.name} onChange={(e) => updateStep(i, "name", e.target.value)} placeholder={L("Name")} className="h-7 text-xs" />
             <select
               value={st.agent}
               onChange={(e) => updateStep(i, "agent", e.target.value)}
@@ -547,7 +547,7 @@ function EvaluateForm({ job, onDone }: { job: JobWire; onDone: () => void }) {
       </div>
       <label className="space-y-1">
         <span className="text-sm">{L("Comment")}</span>
-        <Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="质量意见（可选）" />
+        <Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder={L("Quality feedback (optional)")} />
       </label>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex justify-end gap-2">

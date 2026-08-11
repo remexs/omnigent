@@ -58,8 +58,9 @@ async function fetchSkills(): Promise<InstalledSkillWire[]> {
   return body.skills;
 }
 
-async function fetchRegistrySkills(q: string): Promise<RegistrySkillWire[]> {
+async function fetchRegistrySkills(q: string, registry?: string): Promise<RegistrySkillWire[]> {
   const params = new URLSearchParams({ q });
+  if (registry?.trim()) params.set("registry", registry.trim());
   const res = await authenticatedFetch(`/v1/skills/registry?${params.toString()}`);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const body = (await res.json()) as { skills: RegistrySkillWire[] };
@@ -295,6 +296,7 @@ function InstallDialog({
     initialSlug ? { slug: initialSlug } : null,
   );
   const [agent, setAgent] = useState("");
+  const [registry, setRegistry] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -304,8 +306,8 @@ function InstallDialog({
     isLoading: browsing,
     error: browseError,
   } = useQuery({
-    queryKey: ["skills-registry", query],
-    queryFn: () => fetchRegistrySkills(query),
+    queryKey: ["skills-registry", query, registry],
+    queryFn: () => fetchRegistrySkills(query, registry),
     staleTime: 30_000,
   });
 
@@ -316,6 +318,7 @@ function InstallDialog({
     try {
       const payload: Record<string, unknown> = { slug: selected.slug };
       if (agent.trim()) payload.agent = agent.trim();
+      if (registry.trim()) payload.registry = registry.trim();
       const res = await authenticatedFetch("/v1/skills/install", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -341,6 +344,16 @@ function InstallDialog({
         <Button type="button" variant="ghost" size="sm" onClick={onDone}>
           <XIcon className="size-3.5" />
         </Button>
+      </div>
+
+      {/* Step 0: registry URL (default from server, overridable) */}
+      <div className="space-y-1">
+        <span className="text-sm">{L("SkillHub registry URL")}</span>
+        <Input
+          value={registry}
+          onChange={(e) => setRegistry(e.target.value)}
+          placeholder={L("e.g. http://192.168.10.86:4011 (default)")}
+        />
       </div>
 
       {/* Step 1: pick a skill from the registry */}

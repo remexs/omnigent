@@ -18,6 +18,7 @@ file-driven like providers, no DB migration needed.
 
 from __future__ import annotations
 
+import os
 import logging
 import shutil
 import zipfile
@@ -34,8 +35,12 @@ from omnigent.server.routes._auth_helpers import require_user as _require_user
 
 _logger = logging.getLogger(__name__)
 
-# Registry prefix used when no --registry is given.
-DEFAULT_SKILL_REGISTRY = "http://192.168.10.86:4011"
+# Registry prefix used when no --registry is given. Overridable via the
+# OMNIGENT_SKILL_REGISTRY env var; the Web UI can also pass ?registry= per
+# request (see InstallDialog — the field is editable there).
+DEFAULT_SKILL_REGISTRY = os.environ.get(
+    "OMNIGENT_SKILL_REGISTRY", "http://192.168.10.86:4011"
+).strip()
 
 # Where installed-skill records live (file-driven, like providers).
 SKILLS_FILE_NAME = "skills.yaml"

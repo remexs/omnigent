@@ -50,11 +50,11 @@ interface JobWire {
 }
 
 const STATE_LABELS: Record<string, string> = {
-  todo: "待办",
-  in_progress: "进行中",
-  in_review: "待验收",
-  completed: "已完成",
-  returned: "返工",
+  todo: L("Todo"),
+  in_progress: L("In progress"),
+  in_review: L("In review"),
+  completed: L("Completed"),
+  returned: L("Returned"),
 };
 
 /** 项目信息 + 团队池 tab */
@@ -99,7 +99,7 @@ function ProjectInfoCard({
         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px]">{project.kind}</span>
         {project.owner_user_id && (
           <span className="text-[11px] text-muted-foreground">
-            项目经理: {project.owner_user_id}
+            {L("Project manager:")} {project.owner_user_id}
           </span>
         )}
       </div>
@@ -115,7 +115,7 @@ function ProjectInfoCard({
                 type="button"
                 className="text-muted-foreground hover:text-destructive"
                 onClick={() => removeMember(m.user_id)}
-                title="移除"
+                title={L("Remove")}
               >
                 <XIcon className="size-3" />
               </button>
@@ -126,7 +126,7 @@ function ProjectInfoCard({
           <Input
             value={addingMember}
             onChange={(e) => setAddingMember(e.target.value)}
-            placeholder="添加成员 user_id"
+            placeholder={L("Add member user_id")}
             className="h-7 w-48 text-xs"
           />
           <Button type="button" size="sm" className="h-7 px-2 text-xs" onClick={addMember}>
@@ -344,11 +344,11 @@ function AddTaskForm({
       <div className="grid gap-2 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm">{L("Task title")}</span>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="电商平台开发" className="h-8 text-sm" />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={L("e.g. E-commerce platform development")} className="h-8 text-sm" />
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Description")}</span>
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="任务描述" className="h-8 text-sm" />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={L("Task description")} className="h-8 text-sm" />
         </label>
       </div>
       <div className="space-y-1">
@@ -431,13 +431,13 @@ function FlowList({
               {depth > 0 && <span className="text-muted-foreground">└</span>}
               <span className="text-sm font-semibold">{j.title}</span>
               <span className={`rounded px-1.5 py-0.5 text-[10px] ${depth === 0 ? "bg-blue-100 text-blue-700" : "bg-muted"}`}>
-                {depth === 0 ? "主任务" : "任务"}
+                {depth === 0 ? L("Main task") : L("Subtask")}
               </span>
               <span className="rounded bg-muted px-1.5 py-0.5 text-[10px]">{STATE_LABELS[j.state] ?? j.state}</span>
               {j.assignee_user_id && <span className="text-[11px] text-muted-foreground">→ {j.assignee_user_id}</span>}
               {depth === 0 && (
                 <Button type="button" variant="ghost" size="sm" className="ml-auto h-6 px-2 text-xs" onClick={() => setEditingJob(editingJob === j.id ? null : j.id)}>
-                  {editingJob === j.id ? "关闭" : "编辑 YAML"}
+                  {editingJob === j.id ? L("Close") : L("Edit YAML")}
                 </Button>
               )}
             </div>
@@ -466,7 +466,7 @@ function CollaborationGraph({ projectId }: { projectId: string }) {
   });
   const mainRoot = jobs.find((j) => !j.parent_job_id);
   if (!mainRoot?.session_id) {
-    return <p className="text-xs text-muted-foreground">暂无执行会话（任务启动后显示协作树）</p>;
+    return <p className="text-xs text-muted-foreground">{L("No execution session yet (collab tree appears after launch)")}</p>;
   }
   return (
     <div className="rounded-lg border p-2">
@@ -494,7 +494,7 @@ function SessionList({ projectId }: { projectId: string }) {
       </div>
       <div className="space-y-1.5 border-t pt-2">
         <span className="text-sm font-medium">{L("Session records")}</span>
-        {sessions.length === 0 && <p className="text-xs text-muted-foreground">暂无会话</p>}
+        {sessions.length === 0 && <p className="text-xs text-muted-foreground">{L("No sessions yet")}</p>}
         {sessions.map((s) => (
           <a key={s.id} href={`/c/${s.id}`} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs hover:bg-muted">
             <MessageSquareIcon className="size-3" />
@@ -567,37 +567,37 @@ function ProjectSettingsCard({
       <div className="flex items-center gap-2">
         <SettingsIcon className="size-4" />
         <span className="text-sm font-semibold">{L("Project settings")}</span>
-        <span className="text-[11px] text-muted-foreground">（官方功能：默认工作目录/主机/记忆/上下文）</span>
+        <span className="text-[11px] text-muted-foreground">{L("(Official: default workspace/host/memory/context)")}</span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm">{L("Default working directory")}</span>
-          <Input value={workspace} onChange={(e) => setWorkspace(e.target.value)} placeholder="/workspace/电商平台" className="h-8 text-sm" />
-          <p className="text-[11px] text-muted-foreground">新会话/任务预填此目录（软提示，可覆盖）</p>
+          <Input value={workspace} onChange={(e) => setWorkspace(e.target.value)} placeholder={L("/workspace/e-commerce-platform")} className="h-8 text-sm" />
+          <p className="text-[11px] text-muted-foreground">{L("New sessions/tasks prefill this dir (soft hint, overridable)")}</p>
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Default host")}</span>
           <select value={hostId} onChange={(e) => setHostId(e.target.value)} className="h-8 w-full rounded-md border bg-background px-2 text-sm">
-            <option value="">不指定（由执行者选）</option>
+            <option value="">{L("Unspecified (executor chooses)")}</option>
             {hosts.map((h) => (
               <option key={h.host_id} value={h.host_id}>
                 {h.owner ?? h.host_id.slice(0, 8)}
               </option>
             ))}
           </select>
-          <p className="text-[11px] text-muted-foreground">新会话预填此主机（host 离线则丢弃）</p>
+          <p className="text-[11px] text-muted-foreground">{L("New sessions prefill this host (dropped if offline)")}</p>
         </label>
       </div>
       <label className="space-y-1">
         <span className="text-sm">{L("Project memory")}</span>
         <textarea value={memory} onChange={(e) => setMemory(e.target.value)} spellCheck={false}
-          placeholder={"项目级记忆（跨会话累积的经验，播种到每个任务会话）"}
+          placeholder={L("Project memory (cross-session experience, seeded into every task session)")}
           className="h-24 w-full resize-y rounded-md border bg-muted/30 p-2 text-xs" />
       </label>
       <label className="space-y-1">
         <span className="text-sm">{L("Project context")}</span>
         <textarea value={context} onChange={(e) => setContext(e.target.value)} spellCheck={false}
-          placeholder={"项目级指令/文档（每个任务会话注入）"}
+          placeholder={L("Project instructions/docs (injected into every task session)")}
           className="h-24 w-full resize-y rounded-md border bg-muted/30 p-2 text-xs" />
       </label>
       {error && <p className="text-xs text-destructive">{error}</p>}
@@ -665,7 +665,7 @@ function CreateProjectForm({ onDone }: { onDone: () => void }) {
       </div>
       <label className="space-y-1">
         <span className="text-sm">{L("Project name")}</span>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="电商平台" className="h-8 text-sm" />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={L("e.g. E-commerce platform")} className="h-8 text-sm" />
       </label>
       <label className="space-y-1">
         <span className="text-sm">{L("Work team")}</span>
@@ -725,10 +725,10 @@ export function ProjectsPage() {
 
   const tabs = useMemo(() => {
     const list: { id: string; label: string }[] = [
-      { id: "settings", label: "项目设置" },
-      { id: "info", label: "项目成员" },
-      { id: "flows", label: "流程列表" },
-      { id: "sessions", label: "会话记录" },
+      { id: "settings", label: L("Project settings") },
+      { id: "info", label: L("Project members") },
+      { id: "flows", label: L("Flow list") },
+      { id: "sessions", label: L("Session records") },
     ];
     return list;
   }, []);
@@ -797,7 +797,7 @@ export function ProjectsPage() {
         </div>
       ) : (
         <p className="mt-6 text-sm text-muted-foreground">
-          暂无项目 — 在任务页「新建团队项目」创建。
+          {L("No projects yet — create one via 「New team project」 on the Tasks page.")}
         </p>
       )}
     </section>

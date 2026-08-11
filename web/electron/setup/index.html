@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Omnigents — Connect</title>
+    <title data-i18n="pageTitle">Omnigents — Connect</title>
     <style>
       /* Design tokens lifted from web/src/index.css (:root and .dark) so
          this bundled page matches the web UI it hands off to. */
@@ -349,15 +349,15 @@
         />
         <img class="logo" src="../../platform-assets/logos/omnigents-logo.svg" alt="Omnigents" />
       </picture>
-      <p class="sub">Run an Omnigents server on this machine, or connect to an existing one.</p>
+      <p class="sub" data-i18n="sub">Run an Omnigents server on this machine, or connect to an existing one.</p>
       <div id="local-section">
         <!-- Always enabled: when the CLI is missing this opens the settings
              modal (install / set path) instead of failing to start. -->
-        <button id="start-local">Start locally</button>
-        <div class="divider">or connect to a server</div>
+        <button id="start-local" data-i18n="startLocal">Start locally</button>
+        <div class="divider" data-i18n="divider">or connect to a server</div>
       </div>
 
-      <label for="url">Server URL</label>
+      <label for="url" data-i18n="serverUrlLabel">Server URL</label>
       <input
         id="url"
         type="text"
@@ -365,11 +365,11 @@
         autocomplete="off"
         spellcheck="false"
       />
-      <button id="connect">Connect</button>
+      <button id="connect" data-i18n="connect">Connect</button>
       <div class="err" id="err"></div>
 
       <div class="recents" id="recents" hidden>
-        <p class="recents-title">Recent servers</p>
+        <p class="recents-title" data-i18n="recentServers">Recent servers</p>
         <div id="recents-list"></div>
       </div>
     </div>
@@ -388,10 +388,10 @@
               >Install the Omnigent CLI ↗</a
             >
           </p>
-          <p>Already installed it? Re-detect, or set the path below.</p>
-          <button type="button" id="cli-redetect">Re-detect</button>
+          <p data-i18n="cliAlreadyInstalled">Already installed it? Re-detect, or set the path below.</p>
+          <button type="button" id="cli-redetect" data-i18n="cliRedetect">Re-detect</button>
         </div>
-        <p id="cli-path-label">Path to the Omnigent CLI</p>
+        <p id="cli-path-label" data-i18n="cliPathLabel">Path to the Omnigent CLI</p>
         <div class="path-row">
           <input
             id="cli-path"
@@ -400,13 +400,69 @@
             autocomplete="off"
             spellcheck="false"
           />
-          <button type="button" id="cli-browse">Browse…</button>
+          <button type="button" id="cli-browse" data-i18n="cliBrowse">Browse…</button>
         </div>
         <p class="cli-note" id="cli-path-note"></p>
-        <button type="button" id="cli-modal-close" class="modal-close">Done</button>
+        <button type="button" id="cli-modal-close" class="modal-close" data-i18n="cliDone">Done</button>
       </div>
     </div>
     <script src="../src/url.js"></script>
+    <script>
+      // Minimal inline i18n for this standalone page (no bundler / React —
+      // the real UI ships from the server once connected). Mirrors the web
+      // UI's design: the translation key IS the English source string, so a
+      // missing entry falls back to the English text (never a broken UI).
+      // Language selection mirrors web/src/i18n: ?lang= query overrides,
+      // then the system language, then English.
+      const I18N = {
+        "zh-CN": {
+          pageTitle: "Omnigent — 连接服务器",
+          sub: "在本机运行 Omnigent 服务器，或连接到已有的服务器。",
+          startLocal: "本地启动",
+          divider: "或连接到服务器",
+          serverUrlLabel: "服务器地址",
+          connect: "连接",
+          recentServers: "最近连接的服务器",
+          cliAlreadyInstalled: "已经安装了？重新检测，或在下面设置路径。",
+          cliRedetect: "重新检测",
+          cliPathLabel: "Omnigent CLI 路径",
+          cliBrowse: "浏览…",
+          cliDone: "完成",
+          cliStatusFound: (v) => `已找到：${v}`,
+          cliStatusInstalled: "已找到 Omnigent CLI。",
+          cliStatusMissing: "未找到 Omnigent CLI。",
+          cliChecking: "正在检查…",
+          cliPathBad: "该路径不是可运行的 Omnigent CLI。",
+          starting: "正在启动…",
+          startFailed: "无法启动本地服务器。",
+          loadError: (url, err) => `无法加载 ${url}：${err}`,
+          ephemeralNote:
+            "将该窗口连接到其他服务器。此地址仅对该窗口生效，不会被保存。",
+          httpWarning:
+            "警告：使用未加密的 http:// 连接远程主机——网络路径上的任何人都可以伪装成该服务器。请再次点击连接以继续。",
+        },
+      };
+      function setupLang() {
+        const q = new URLSearchParams(location.search).get("lang");
+        if (q === "zh-CN" || q === "en") return q;
+        try {
+          if (navigator.language?.toLowerCase().startsWith("zh")) return "zh-CN";
+        } catch {}
+        return "en";
+      }
+      const lang = setupLang();
+      const dict = I18N[lang] || {};
+      function t(key) {
+        const v = dict[key];
+        return v === undefined ? key : v;
+      }
+      // Apply to static [data-i18n] elements.
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (key && dict[key] !== undefined) el.textContent = dict[key];
+      });
+      if (lang === "zh-CN") document.documentElement.lang = "zh-CN";
+    </script>
     <script>
       // Shared URL helpers (electron/src/url.js), exposed as window.omnigentUrl
       // — the same module the main process uses, so the two never drift.
@@ -429,12 +485,10 @@
       if (loadError) {
         // textContent, never innerHTML: both values come from the query
         // string and must be rendered as inert text.
-        err.textContent = failedUrl ? `Could not load ${failedUrl}: ${loadError}` : loadError;
+        err.textContent = failedUrl ? t("loadError")(failedUrl, loadError) : loadError;
       }
       if (isEphemeral) {
-        document.querySelector("p.sub").textContent =
-          "Connect this window to a different server. The URL applies to " +
-          "this window only and is not saved.";
+        document.querySelector("p.sub").textContent = t("ephemeralNote");
       }
 
       // Pre-fill with the URL that just failed (retry is the common next
@@ -491,9 +545,7 @@
         const value = input.value;
         if (isPlainHttpRemote(value) && warnedFor !== value) {
           warnedFor = value;
-          err.textContent =
-            "Warning: unencrypted http:// to a remote host — anyone on the " +
-            "network path can act as this server. Click Connect again to proceed.";
+          err.textContent = t("httpWarning");
           return;
         }
         button.disabled = true;
@@ -550,9 +602,9 @@
         cliInstall.hidden = installed;
         cliStatus.textContent = installed
           ? status.version
-            ? `Found: ${status.version}`
-            : "Omnigent CLI found."
-          : "Omnigent CLI not found.";
+            ? t("cliStatusFound")(status.version)
+            : t("cliStatusInstalled")
+          : t("cliStatusMissing");
         cliPathInput.placeholder = status.path || "/path/to/omni";
         // Draw the eye to the (otherwise quiet) gear when the CLI is missing.
         cliGear.classList.toggle("attention", !installed);
@@ -566,7 +618,7 @@
         const p = (value || "").trim();
         if (p === "") return true;
         cliPathNote.className = "cli-note";
-        cliPathNote.textContent = "Checking…";
+        cliPathNote.textContent = t("cliChecking");
         let result;
         try {
           result = await setup.setCliPath(p);
@@ -575,8 +627,8 @@
         }
         if (result && result.accepted) {
           cliPathNote.textContent = result.version
-            ? `Found: ${result.version}`
-            : "Found the Omnigent CLI.";
+            ? t("cliStatusFound")(result.version)
+            : t("cliStatusInstalled");
           // Clear the value so the field reverts to showing the (now-updated)
           // resolved path as its placeholder.
           cliPathInput.value = "";
@@ -584,7 +636,7 @@
           return true;
         }
         cliPathNote.className = "cli-note bad";
-        cliPathNote.textContent = "That path is not a runnable Omnigent CLI.";
+        cliPathNote.textContent = t("cliPathBad");
         return false;
       }
 
@@ -625,7 +677,7 @@
         // Re-run auto-detection (getCliStatus re-resolves every call) — the
         // post-install path: install via the link, then click to pick it up.
         cliRedetect.addEventListener("click", async () => {
-          cliStatus.textContent = "Checking…";
+          cliStatus.textContent = t("cliChecking");
           await refreshCliStatus();
         });
         startLocalBtn.addEventListener("click", async () => {
@@ -637,7 +689,7 @@
           err.textContent = "";
           const prev = startLocalBtn.textContent;
           startLocalBtn.disabled = true;
-          startLocalBtn.textContent = "Starting…";
+          startLocalBtn.textContent = t("starting");
           try {
             const result = await setup.startLocalServer();
             if (result && result.ok && result.url) {
@@ -648,7 +700,7 @@
               await setup.setServerUrl(result.url);
               return;
             }
-            err.textContent = (result && result.error) || "Could not start the local server.";
+            err.textContent = (result && result.error) || t("startFailed");
           } catch (e) {
             err.textContent = String(e && e.message ? e.message : e);
           }
