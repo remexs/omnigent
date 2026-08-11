@@ -266,17 +266,26 @@ def _materialize_pi_agent_spec(tmpdir: Path) -> Path:
         "terminals": native_shell_terminal_spec(),
     }
     yaml_path.write_text(yaml.safe_dump(raw, sort_keys=False), encoding="utf-8")
-    # Team-collaboration skills ship inside the bundle: the handoff skill
-    # carries the handoff-doc + project-memory conventions (task handoff is
-    # behaviour configured as a skill, not hardcoded in the server).
-    _skills_dir = tmpdir / "skills" / "handoff"
-    _skills_dir.mkdir(parents=True, exist_ok=True)
-    _skill_src = (
+    # Team-collaboration skills ship inside the bundle: EVERY skill under
+    # deploy/docker/host-configs/skills/<name>/SKILL.md is copied into the
+    # bundle's skills/<name>/ so Pi loads them via its native --skill /
+    # runtime discovery (task handoff + project memory are behaviour
+    # configured as skills, not hardcoded in the server). Adding a new
+    # folder there ships it to every pi session automatically.
+    _skills_src_root = (
         Path(__file__).resolve().parent.parent
-        / "deploy/docker/host-configs/skills/handoff/SKILL.md"
+        / "deploy/docker/host-configs/skills"
     )
-    if _skill_src.exists():
-        (_skills_dir / "SKILL.md").write_bytes(_skill_src.read_bytes())
+    if _skills_src_root.is_dir():
+        for _sk_dir in sorted(_skills_src_root.iterdir()):
+            if not _sk_dir.is_dir():
+                continue
+            _md = _sk_dir / "SKILL.md"
+            if not _md.exists():
+                continue
+            _dst = tmpdir / "skills" / _sk_dir.name
+            _dst.mkdir(parents=True, exist_ok=True)
+            (_dst / "SKILL.md").write_bytes(_md.read_bytes())
     return yaml_path
 
 

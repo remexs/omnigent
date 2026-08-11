@@ -247,22 +247,31 @@ def _build_job_context(
     try:
         import omnigent
 
-        _skill_path = (
-            Path(omnigent.__file__).resolve().parent.parent
-            / "deploy/docker/host-configs/skills/handoff/SKILL.md"
-        )
-        if _skill_path.exists():
-            from omnigent.spec.parser import _parse_skill
+        from omnigent.spec.parser import _parse_skill
 
-            _skill = _parse_skill(_skill_path)
-            if _skill.content.strip():
-                lines.append("")
-                lines.append(f"【协作约定 · {_skill.description}】")
-                lines.append(_skill.content.strip())
+        _skills_root = (
+            Path(omnigent.__file__).resolve().parent.parent
+            / "deploy/docker/host-configs/skills"
+        )
+        if _skills_root.is_dir():
+            for _sk_dir in sorted(_skills_root.iterdir()):
+                if not _sk_dir.is_dir():
+                    continue
+                _md = _sk_dir / "SKILL.md"
+                if not _md.exists():
+                    continue
+                try:
+                    _skill = _parse_skill(_md)
+                    if _skill.content.strip():
+                        lines.append("")
+                        lines.append(f"【协作约定 · {_skill.description}】")
+                        lines.append(_skill.content.strip())
+                except Exception:  # noqa: BLE001 — one bad skill must not block the rest
+                    continue
     except Exception as _skerr:  # noqa: BLE001 — skill is best-effort
         import logging as _skl
         _skl.getLogger("omnigent.server.routes.jobs").warning(
-            "handoff skill inject failed: %s", _skerr, exc_info=True
+            "skill inject failed: %s", _skerr, exc_info=True
         )
 
     return "\n".join(lines)
