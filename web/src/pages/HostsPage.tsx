@@ -9,6 +9,7 @@ import {
   ActivityIcon,
   WifiIcon,
   WifiOffIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
 import { L } from "@/i18n";
