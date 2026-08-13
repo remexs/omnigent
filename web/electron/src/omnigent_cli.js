@@ -157,6 +157,42 @@ function localHostId() {
 }
 
 /**
+ * Read the LOCAL machine's providers from ``~/.omnigent/config.yaml``.
+ * Returns an array of provider records tagged ``{scope: "local"}`` so the
+ * UI can show this machine's own providers alongside the server's shared
+ * ones. Returns ``[]`` when the config is missing/unreadable.
+ *
+ * @returns {Array<{name: string, kind: string, families: object, scope: "local"}>}
+ */
+function readLocalProviders() {
+  try {
+    const cfgPath = path.join(localConfigDir(), "config.yaml");
+    if (!fs.existsSync(cfgPath)) return [];
+    const parsed = yaml.load(fs.readFileSync(cfgPath, "utf8"));
+    const providers = parsed && typeof parsed === "object" ? parsed.providers : null;
+    if (!providers || typeof providers !== "object") return [];
+    return Object.entries(providers).map(([name, block]) => {
+      const b = block && typeof block === "object" ? block : {};
+      const kind = typeof b.kind === "string" ? b.kind : "key";
+      const families = {};
+      for (const [fam, famBlock] of Object.entries(b)) {
+        if (fam === "kind" || fam === "default" || fam === "cli") continue;
+        const fb = famBlock && typeof famBlock === "object" ? famBlock : {};
+        families[fam] = {
+          base_url: typeof fb.base_url === "string" ? fb.base_url : null,
+          api_key_ref: typeof fb.api_key === "string" ? fb.api_key : null,
+          models: fb.models && typeof fb.models === "object" ? { ...fb.models } : {},
+          wire_api: typeof fb.wire_api === "string" ? fb.wire_api : null,
+        };
+      }
+      return { name, kind, families, scope: "local" };
+    });
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Write (or remove) a provider entry in the LOCAL machine's
  * ``~/.omnigent/config.yaml`` ``providers:`` block. Local providers are
  * consumed by this machine's own runner (the host executes agents with
@@ -921,6 +957,7 @@ module.exports = {
   isLoopbackServer,
   sameLoopbackServer,
   localHostId,
+  readLocalProviders,
   writeLocalProvider,
   parseLocalServerPidfile,
   isPidAlive,

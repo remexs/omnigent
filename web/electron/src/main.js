@@ -2405,6 +2405,13 @@ function registerIpc() {
   // CLI-path surface: a connected server page may ask the local shell to
   // configure this machine's model providers — it stays on the host, not the
   // coordinating server (the "server schedules, host executes" model).
+  ipcMain.handle("omnigent:provider-read-local", async (event) => {
+    if (!isPinnedOriginSender(event)) {
+      return [];
+    }
+    return omnigentCli.readLocalProviders();
+  });
+
   ipcMain.handle("omnigent:provider-write-local", async (event, name, provider) => {
     if (!isPinnedOriginSender(event)) {
       return { ok: false, error: "provider-write-local is only available to a connected server page" };

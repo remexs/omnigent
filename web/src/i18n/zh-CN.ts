@@ -1471,6 +1471,8 @@ export const zhCN: Record<string, string> = {
 "Sync to this machine": "同步到本机",
   "Copy this shared provider to this machine's host config": "将此公用供应商复制到本机执行配置",
   "This provider has no family block to sync.": "此供应商没有可同步的家族配置。",
+  "Local": "本机",
+  "Shared": "公用",
 "Storage": "存储位置",
   "This machine (local execution)": "本机（本地执行）",
   "Server (shared model)": "服务器（公用模型）",

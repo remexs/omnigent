@@ -175,6 +175,8 @@ interface ElectronDesktopApi extends NativeShellApi {
   /** Write a LOCAL provider into this machine's ~/.omnigent/config.yaml
       (consumed by THIS host's runner, not the coordinating server). */
   writeLocalProvider?: (name: string, provider: LocalProviderInput | null) => Promise<{ ok: boolean; error?: string }>;
+  /** Read THIS machine's providers from ~/.omnigent/config.yaml. */
+  readLocalProviders?: () => Promise<Array<Record<string, unknown>>>;
   /**
    * Open/navigate a conversation's embedded browser view. Present only on
    * desktop shells new enough to ship the embedded browser feature — its
@@ -723,6 +725,16 @@ export async function getCliStatus(): Promise<CliStatus | null> {
  * Clear the saved CLI-path override so the shell reverts to auto-detection,
  * then resolve the freshly-detected status. Resolves `null` outside the shell.
  */
+export async function readLocalProviders(): Promise<Array<Record<string, unknown>>> {
+  const electron = electronApi();
+  if (!electron?.readLocalProviders) return [];
+  try {
+    return await electron.readLocalProviders();
+  } catch {
+    return [];
+  }
+}
+
 export async function writeLocalProvider(
   name: string,
   provider: LocalProviderInput | null,

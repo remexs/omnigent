@@ -24,6 +24,8 @@ interface ProviderWire {
   profile?: string | null;
   model_provider?: string | null;
   default_families?: string[];
+  /** "server" = shared on the coordinating server; "local" = this machine. */
+  scope?: "server" | "local";
 }
 
 const FAMILY_LABELS: Record<string, string> = {
@@ -36,7 +38,16 @@ async function fetchProviders(): Promise<ProviderWire[]> {
   const res = await authenticatedFetch("/v1/providers");
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const body = (await res.json()) as { providers: ProviderWire[] };
-  return body.providers;
+  const server = (body.providers ?? []).map((p) => ({ ...p, scope: "server" as const }));
+  // Under the desktop shell, ALSO load this machine's own providers from
+  // ~/.omnigent/config.yaml so local + shared show side by side (the
+  // "server schedules, host executes" model — both belong to the page).
+  if (isElectronShell()) {
+    const local = await readLocalProviders();
+    const localNames = new Set(local.map((p) => String(p.name)));
+    return [...local.map((p) => ({ ...p, scope: "local" as const })), ...server.filter((p) => !localNames.has(p.name))];
+  }
+  return server;
 }
 
 function familySummary(p: ProviderWire): string {
@@ -256,9 +267,19 @@ export function ProvidersPage() {
   );
 
   const remove = useCallback(
-    async (name: string) => {
-      if (!window.confirm(`${L("Delete")} ${name}?`)) return;
-      const res = await authenticatedFetch(`/v1/providers/${encodeURIComponent(name)}`, {
+    async (p: ProviderWire) => {
+      if (!window.confirm(`${L("Delete")} ${p.name}?`)) return;
+      if (p.scope === "local") {
+        // Local provider: remove from this machine's config.yaml via IPC.
+        const res = await writeLocalProvider(p.name, null);
+        if (!res.ok) {
+          alert(res.error ?? "failed to delete local provider");
+          return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ["providers"] });
+        return;
+      }
+      const res = await authenticatedFetch(`/v1/providers/${encodeURIComponent(p.name)}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -371,12 +392,17 @@ export function ProvidersPage() {
             <div className="flex min-w-0 items-center gap-2">
               <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
               <span className="truncate font-medium">{p.name}</span>
+              {p.scope === "local" ? (
+                <Badge variant="secondary">{L("Local")}</Badge>
+              ) : (
+                <Badge variant="outline">{L("Shared")}</Badge>
+              )}
               <Badge variant="outline">{p.kind}</Badge>
               {(p.default_families?.length ?? 0) > 0 && <Badge>{L("Default")}</Badge>}
               <span className="truncate text-xs text-muted-foreground">{familySummary(p)}</span>
             </div>
             <div className="flex shrink-0 items-center gap-1">
-              {isElectronShell() && (
+              {isElectronShell() && p.scope === "server" && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -399,7 +425,7 @@ export function ProvidersPage() {
               >
                 {L("Edit")}
               </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={() => remove(p.name)}>
+              <Button type="button" variant="ghost" size="sm" onClick={() => remove(p)}>
                 <Trash2Icon className="size-3.5" />
               </Button>
             </div>
