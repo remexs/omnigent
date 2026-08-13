@@ -2502,12 +2502,25 @@ class HostProcess:
         # success line after the noisy ``databricks.sdk`` warnings —
         # otherwise the terminal goes silent after auth and there's no
         # signal the WS handshake actually completed.
-        print(
-            f"✓ Connected as {self._identity.name!r} "
-            f"({self._identity.host_id}), {len(hello.runners)} live runner(s). "
-            "Listening for sessions — Ctrl-C to disconnect.",
-            flush=True,
-        )
+        # The success line must survive a pipe to a Windows-GBK consumer
+        # (the desktop shell captures host stdout): printing U+2713 directly
+        # raises UnicodeEncodeError there and kills the tunnel mid-connect.
+        # Encode defensively and fall back to ASCII when the stream can't
+        # represent the check mark.
+        try:
+            print(
+                f"✓ Connected as {self._identity.name!r} "
+                f"({self._identity.host_id}), {len(hello.runners)} live runner(s). "
+                "Listening for sessions — Ctrl-C to disconnect.",
+                flush=True,
+            )
+        except UnicodeEncodeError:
+            print(
+                f"[ok] Connected as {self._identity.name!r} "
+                f"({self._identity.host_id}), {len(hello.runners)} live runner(s). "
+                "Listening for sessions - Ctrl-C to disconnect.",
+                flush=True,
+            )
 
         # Readiness refresh runs in its own task, never on this receive loop:
         # a harness probe that blocks (a hung CLI ``--version`` / ``auth
@@ -2688,6 +2701,17 @@ def run_host_process(
         actionable cause is printed to stderr first.
     """
     host_log_path = configure_process_logging("host")
+    # The host may be spawned by the desktop shell with a pipe for stdout
+    # (stdio=pipe). On Windows that stream defaults to the ANSI code page
+    # (GBK/cp936), and any Unicode the daemon prints (e.g. the U+2713
+    # "Connected" marker) raises UnicodeEncodeError, killing the tunnel
+    # mid-connect in a silent reconnect loop. Reconfigure the streams to
+    # UTF-8 so all output survives regardless of consumer.
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, OSError, ValueError):
+            pass  # not a text stream / already configured — leave as-is
     # Initialize tracing so the host daemon exports its own spans
     # (e.g. handling launch_runner / stat / list_dir frames) into the
     # same distributed trace as the server that requested them. The
