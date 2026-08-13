@@ -436,6 +436,7 @@ class GooseExecutor(Executor):
                 line = raw_line.decode("utf-8", errors="replace").strip()
                 if not line:
                     continue
+                logger.warning("goose stdout: %s", line[:160])
                 try:
                     msg: _AcpJsonObject = json.loads(line)
                 except json.JSONDecodeError:
