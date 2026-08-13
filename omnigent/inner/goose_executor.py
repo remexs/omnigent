@@ -409,7 +409,7 @@ class GooseExecutor(Executor):
                     break
                 line = raw_line.decode("utf-8", errors="replace").rstrip()
                 if line:
-                    logger.debug("goose stderr: %s", line)
+                    logger.warning("goose stderr: %s", line)
         except asyncio.CancelledError:
             pass
         except Exception as exc:  # noqa: BLE001
