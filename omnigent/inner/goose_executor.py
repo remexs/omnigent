@@ -322,11 +322,12 @@ class GooseExecutor(Executor):
         env.update(self._provider_env())
         import logging as _lg
         _lg.getLogger("omnigent.inner.goose_executor").warning(
-            "goose spawn env: OPENAI_BASE_URL=%s OPENAI_API_KEY=%s GOOSE_PROVIDER=%s GOOSE_MODEL=%s",
+            "goose spawn env: OPENAI_BASE_URL=%s OPENAI_API_KEY=%s GOOSE_PROVIDER=%s GOOSE_MODEL=%s proxy=%s",
             env.get("OPENAI_BASE_URL"),
             bool(env.get("OPENAI_API_KEY")),
             env.get("GOOSE_PROVIDER"),
             env.get("GOOSE_MODEL"),
+            {k: v for k, v in env.items() if k in ("HTTP_PROXY","HTTPS_PROXY","ALL_PROXY","NO_PROXY")},
         )
         return env
 
