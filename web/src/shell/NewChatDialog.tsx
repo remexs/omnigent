@@ -431,7 +431,10 @@ export function ConnectHostInstructions({
  * @returns true when ``workspace.trim()`` starts with ``/``.
  */
 export function isValidWorkspace(workspace: string): boolean {
-  return workspace.trim().startsWith("/");
+  const trimmed = workspace.trim();
+  // Absolute POSIX paths, Windows drive paths, and tilde paths (the host
+  // expands "~" itself) are all valid.
+  return trimmed.startsWith("/") || /^[A-Za-z]:[\/]/.test(trimmed) || trimmed === "~" || trimmed.startsWith("~/");
 }
 
 /**
