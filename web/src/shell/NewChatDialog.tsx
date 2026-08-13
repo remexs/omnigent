@@ -1747,9 +1747,11 @@ export function NewChatLandingScreen() {
   // readiness badge even if the live push was missed while the tab was hidden.
   const { data: hosts, isLoading: hostsLoading } = useHosts({ refetchOnFocus: true });
 
-  const agentList = useMemo(
-    () =>
-      sortAgentsForDisplay((agents ?? []).filter((a) => !NEW_SESSION_HIDDEN_AGENTS.has(a.name))),
+  // agentList (sorted, hidden-set filtered) — computed AFTER allHosts below so
+  // it can filter by the selected host's readiness (a Windows host without
+  // tmux can't run native agents; only SDK agents surface there).
+  const agentListUnfiltered = useMemo(
+    () => sortAgentsForDisplay((agents ?? []).filter((a) => !NEW_SESSION_HIDDEN_AGENTS.has(a.name))),
     [agents],
   );
 
@@ -2067,6 +2069,26 @@ export function NewChatLandingScreen() {
   const { recent, addRecent } = useRecentWorkspaces(selectedHostId);
 
   const allHosts = hosts ?? [];
+  const selectedHost = allHosts.find((h) => h.host_id === selectedHostId);
+  // Filter the agent list to what the SELECTED host can actually run: when a
+  // host is chosen and a harness is reported unavailable (e.g. native TUI
+  // without tmux on Windows), drop those agents so the picker only offers
+  // runnable options — and the default (agentList[0]) is always usable.
+  const agentList = useMemo(() => {
+    if (!selectedHost?.configured_harnesses) return agentListUnfiltered;
+    const unavailable = new Set(
+      Object.entries(selectedHost.configured_harnesses)
+        .filter(([, v]) => v === false || (typeof v === "string" && v !== ""))
+        .map(([h]) => h),
+    );
+    // Only drop NATIVE harnesses reported unavailable; SDK agents stay (their
+    // harness appears as available, or the host simply didn't report it).
+    return agentListUnfiltered.filter((a) => {
+      if (!a.harness) return true;
+      if (!unavailable.has(a.harness)) return true;
+      return !isNativeCodingAgent(a);
+    });
+  }, [agentListUnfiltered, selectedHost]);
   const onlineHosts = allHosts.filter((h) => h.status === "online");
   const offlineHosts = allHosts.filter((h) => h.status === "offline");
 
@@ -2468,7 +2490,6 @@ export function NewChatLandingScreen() {
   // (the runner injects the text verbatim), so the landing composer must
   // not intercept them — no skills menu, no slash_command routing.
   const isNativeTerminalAgent = isNativeCodingAgent(selectedAgent);
-  const selectedHost = allHosts.find((h) => h.host_id === selectedHostId);
   // Warn-only readiness signal for the agent picker: only meaningful when
   // a connected host is selected (a sandbox provisions its own tooling).
   // Selection stays allowed — the host re-checks at launch and the create
