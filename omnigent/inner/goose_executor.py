@@ -529,6 +529,11 @@ class GooseExecutor(Executor):
             tool_executor=getattr(self, "_tool_executor", None),
             loop=asyncio.get_event_loop(),
         )
+        # Goose's ACP expects mcpServers to be a SEQUENCE (array); a dict
+        # (e.g. a stale relay config) makes goose reject session/new with
+        # "invalid type: map, expected a sequence". Normalize defensively.
+        if not isinstance(mcp_servers, list):
+            mcp_servers = list(mcp_servers.values()) if isinstance(mcp_servers, dict) else []
         resp = await self._rpc(
             _AGENT_METHOD_SESSION_NEW,
             {"cwd": self._cwd, "mcpServers": mcp_servers},
