@@ -53,8 +53,14 @@ export function parentOf(absolutePath: string): string | null {
     return null;
   }
   const stripped = absolutePath.endsWith("/") ? absolutePath.slice(0, -1) : absolutePath;
+  // Windows drive root (D:\, D:/) has no parent — stop at the drive.
+  const driveMatch = stripped.match(/^[A-Za-z]:$/);
+  if (driveMatch) {
+    return null;
+  }
   const idx = stripped.lastIndexOf("/");
   if (idx <= 0) {
+    // Windows drive root already handled above; POSIX root stays "/".
     return "/";
   }
   return stripped.slice(0, idx);
@@ -100,6 +106,10 @@ export function normalizeTypedPath(input: string, home: string | null = null): s
     absolute = `${home}/${trimmed.slice(2)}`;
   } else if (trimmed.startsWith("/")) {
     absolute = trimmed;
+  } else if (/^[A-Za-z]:[\/]/.test(trimmed)) {
+    // Windows drive path (D:\foo or D:/foo). Normalize the separator
+    // to forward slashes so the host endpoint round-trips cleanly.
+    absolute = trimmed.replace(/\\/g, "/");
   } else {
     // Relative paths and ~user forms are not supported — the host
     // endpoint requires absolute paths.
@@ -146,7 +156,12 @@ export function basename(absolutePath: string): string {
  */
 export function isNavigablePath(path: string): boolean {
   const trimmed = path.trim();
-  return trimmed.startsWith("/") || trimmed === "~" || trimmed.startsWith("~/");
+  return (
+    trimmed.startsWith("/") ||
+    /^[A-Za-z]:[\/]/.test(trimmed) ||
+    trimmed === "~" ||
+    trimmed.startsWith("~/")
+  );
 }
 
 /**

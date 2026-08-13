@@ -522,6 +522,11 @@ async def _resolve_agent_harness(
     return canonicalize_harness(loaded.spec.executor.harness_kind)
 
 
+
+def _is_windows_drive_path(path: str) -> bool:
+    """True for a Windows drive path (``D:\\x`` / ``D:/x`` / ``D:``)."""
+    return len(path) >= 2 and path[0].isalpha() and path[1] == ":"
+
 def create_hosts_router(
     host_registry: HostRegistry,
     host_store: HostStore,
@@ -1096,8 +1101,9 @@ def create_hosts_router(
         """
         # FastAPI's :path converter strips the leading slash from
         # the URL match. Re-add it unless the path is tilde-prefixed
-        # (~/foo stays tilde-prefixed; /Users/x becomes Users/x → /Users/x).
-        if not path.startswith("~"):
+        # (~/foo stays tilde-prefixed; /Users/x becomes Users/x → /Users/x)
+        # or a Windows drive path (D:/x would wrongly become /D:/x).
+        if not path.startswith("~") and not _is_windows_drive_path(path):
             path = "/" + path
         return await _list_host_filesystem(
             request=request,
