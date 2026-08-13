@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CpuIcon, PlusIcon, RefreshCwIcon, Trash2Icon, XIcon } from "lucide-react";
+import { CpuIcon, DownloadIcon, PlusIcon, RefreshCwIcon, Trash2Icon, XIcon } from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
 import { isElectronShell, writeLocalProvider } from "@/lib/nativeBridge";
 import { L } from "@/i18n";
@@ -271,6 +271,31 @@ export function ProvidersPage() {
     [queryClient],
   );
 
+  // Pull a SERVER (shared) provider down into this machine's
+  // ~/.omnigent/config.yaml so the local host runner can execute with it.
+  // Manual, user-initiated sync — no automatic push (server schedules,
+  // host executes; each host owns its model providers).
+  const syncToLocal = useCallback(
+    async (p: ProviderWire) => {
+      const fam = Object.keys(p.families)[0];
+      const f = fam ? p.families[fam] : undefined;
+      if (!fam || !f) {
+        alert(L("This provider has no family block to sync."));
+        return;
+      }
+      const res = await writeLocalProvider(p.name, {
+        kind: p.kind,
+        family: fam,
+        base_url: f.base_url ?? undefined,
+        api_key: f.api_key_ref ?? undefined,
+        model: f.models?.default ?? undefined,
+        wire_api: f.wire_api ?? undefined,
+      });
+      if (!res.ok) alert(res.error ?? "failed to sync provider to this machine");
+    },
+    [],
+  );
+
   return (
     <section>
       <h1 className="text-2xl font-semibold">{L("Model providers")}</h1>
@@ -338,6 +363,18 @@ export function ProvidersPage() {
               <span className="truncate text-xs text-muted-foreground">{familySummary(p)}</span>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              {isElectronShell() && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => void syncToLocal(p)}
+                  title={L("Copy this shared provider to this machine's host config")}
+                >
+                  <DownloadIcon className="size-3.5" />
+                  {L("Sync to this machine")}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"
