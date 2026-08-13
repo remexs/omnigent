@@ -2360,7 +2360,7 @@ function registerIpc() {
   // come from local config (no `omnigent host status` subprocess), so this is
   // instant — it lets the new-session picker tag/connect "this machine" without
   // waiting on the slow runner-status check.
-  ipcMain.handle("omnigent:host-get-identity", (event) => {
+  ipcMain.handle("omnigent:host-get-identity", async (event) => {
     if (!isPinnedOriginSender(event)) {
       console.warn("[omnigent] host-get-identity from untrusted sender dropped");
       return null;
@@ -2368,8 +2368,19 @@ function registerIpc() {
     const win = BrowserWindow.fromWebContents(event.sender);
     const state = win ? windows.get(win) : undefined;
     const serverUrl = state?.serverUrl;
-    const connected =
-      Boolean(serverUrl) && serverManager.ownsLiveHost(serverUrl);
+    // "Connected" means this machine's host daemon is live for this server —
+    // whether spawned by the desktop shell OR by an external `omnigent host`
+    // / scheduled task. ownsLiveHost only knows shell-spawned children;
+    // getHostConnectionFast reads the daemon records (pid + tunnel probe).
+    let connected = Boolean(serverUrl) && serverManager.ownsLiveHost(serverUrl);
+    if (!connected && serverUrl) {
+      try {
+        const conn = await omnigentCli.getHostConnectionFast(serverUrl);
+        connected = Boolean(conn.connected);
+      } catch {
+        connected = false;
+      }
+    }
     return {
       cliInstalled: Boolean(resolvedCliPath()),
       hostId: omnigentCli.localHostId(),
