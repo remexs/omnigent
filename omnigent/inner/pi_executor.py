@@ -573,8 +573,21 @@ module.exports = function(pi) {{
 
 
 def _find_pi_cli() -> str | None:
-    """Find the ``pi`` CLI on PATH."""
-    return shutil.which("pi")
+    """Find the ``pi`` CLI on PATH.
+
+    On Windows an ``npm install -g`` shim resolves to ``pi.cmd`` (a batch
+    file) — :func:`asyncio.create_subprocess_exec` cannot exec a ``.cmd``
+    directly (WinError 2), so prefer a real ``.exe`` when present, else
+    fall back to the resolved shim and let the spawn path use a shell.
+    """
+    found = shutil.which("pi")
+    if found is None:
+        return None
+    if os.name == "nt" and found.lower().endswith((".cmd", ".bat", ".ps1")):
+        exe = shutil.which("pi.exe")
+        if exe is not None:
+            return exe
+    return found
 
 
 # ---------------------------------------------------------------------------
@@ -1109,6 +1122,11 @@ class _PiRpcSession:
             args.extend(extra_args)
 
         logger.debug("PiExecutor: spawning %s", " ".join(_redact_argv_for_log(args)))
+        # Windows npm shims are .cmd batch files — create_subprocess_exec can't
+        # exec them directly (WinError 2). Route through a shell for those.
+        use_shell = os.name == "nt" and args and str(args[0]).lower().endswith(
+            (".cmd", ".bat", ".ps1")
+        )
         self.process = await _create_subprocess_exec(
             *args,
             stdin=asyncio.subprocess.PIPE,
@@ -1116,6 +1134,7 @@ class _PiRpcSession:
             stderr=asyncio.subprocess.PIPE,
             cwd=cwd,
             env=env,
+            shell=use_shell,
         )
         self._read_task = asyncio.create_task(self._reader())
         self._stderr_task = asyncio.create_task(self._stderr_reader())
