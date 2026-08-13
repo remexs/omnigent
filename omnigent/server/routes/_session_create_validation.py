@@ -93,6 +93,16 @@ async def validate_session_agent(
     return agent
 
 
+def _is_valid_workspace_path(workspace: str) -> bool:
+    """Accept POSIX absolute, tilde-prefixed, and Windows drive paths."""
+    return (
+        workspace.startswith("/")
+        or workspace.startswith("~/")
+        or workspace == "~"
+        or (len(workspace) >= 3 and workspace[0].isalpha() and workspace[1] == ":")
+    )
+
+
 async def validate_existing_host_workspace(
     *,
     user_id: str | None,
@@ -114,9 +124,9 @@ async def validate_existing_host_workspace(
             "workspace required when host_id is set",
             code=ErrorCode.INVALID_INPUT,
         )
-    if not workspace.startswith("/"):
+    if not (_is_valid_workspace_path(workspace)):
         raise OmnigentError(
-            "workspace must be an absolute path starting with /",
+            "workspace must be an absolute path (/, ~/, or a Windows drive path)",
             code=ErrorCode.INVALID_INPUT,
         )
     if agent_cache is None:
