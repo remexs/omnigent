@@ -261,8 +261,12 @@ export function ProvidersPage() {
   });
   const queryClient = useQueryClient();
 
-  const sorted = useMemo(
-    () => [...providers].sort((a, b) => a.name.localeCompare(b.name)),
+  const localProviders = useMemo(
+    () => providers.filter((p) => p.scope === "local").sort((a, b) => a.name.localeCompare(b.name)),
+    [providers],
+  );
+  const sharedProviders = useMemo(
+    () => providers.filter((p) => p.scope !== "local").sort((a, b) => a.name.localeCompare(b.name)),
     [providers],
   );
 
@@ -379,58 +383,105 @@ export function ProvidersPage() {
         </p>
       )}
 
-      {!isLoading && !error && sorted.length === 0 && (
+      {!isLoading && !error && providers.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">{L("No providers configured")}</p>
       )}
 
-      <div className="mt-4 space-y-2">
-        {sorted.map((p) => (
-          <div
-            key={p.name}
-            className="flex items-center justify-between gap-2 rounded-xl bg-card p-3 text-sm text-card-foreground ring-1 ring-foreground/10 shadow-sm"
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
-              <span className="truncate font-medium">{p.name}</span>
-              {p.scope === "local" ? (
+      {/* This machine's own providers (host executes with these). */}
+      <div className="mt-6">
+        <h2 className="text-sm font-semibold">{L("This machine (local execution)")}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {L("Providers stored in this machine's host config — used when this machine executes agents.")}
+        </p>
+        <div className="mt-2 space-y-2">
+          {localProviders.length === 0 && (
+            <p className="text-sm text-muted-foreground">{L("No local providers yet")}</p>
+          )}
+          {localProviders.map((p) => (
+            <div
+              key={p.name}
+              className="flex items-center justify-between gap-2 rounded-xl bg-card p-3 text-sm text-card-foreground ring-1 ring-foreground/10 shadow-sm"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
+                <span className="truncate font-medium">{p.name}</span>
                 <Badge variant="secondary">{L("Local")}</Badge>
-              ) : (
-                <Badge variant="outline">{L("Shared")}</Badge>
-              )}
-              <Badge variant="outline">{p.kind}</Badge>
-              {(p.default_families?.length ?? 0) > 0 && <Badge>{L("Default")}</Badge>}
-              <span className="truncate text-xs text-muted-foreground">{familySummary(p)}</span>
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              {isElectronShell() && p.scope === "server" && (
+                <Badge variant="outline">{p.kind}</Badge>
+                <span className="truncate text-xs text-muted-foreground">{familySummary(p)}</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => void syncToLocal(p)}
-                  title={L("Copy this shared provider to this machine's host config")}
+                  onClick={() => {
+                    setEditing(p);
+                    setShowForm(true);
+                  }}
                 >
-                  <DownloadIcon className="size-3.5" />
-                  {L("Sync to this machine")}
+                  {L("Edit")}
                 </Button>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setEditing(p);
-                  setShowForm(true);
-                }}
-              >
-                {L("Edit")}
-              </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={() => remove(p)}>
-                <Trash2Icon className="size-3.5" />
-              </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => remove(p)}>
+                  <Trash2Icon className="size-3.5" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      </div>
+
+      {/* Shared providers on the server — one-click install to this machine. */}
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold">{L("Shared providers (server)")}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {L("Shared providers maintained on the server. Install one to this machine to use it for local execution.")}
+        </p>
+        <div className="mt-2 space-y-2">
+          {sharedProviders.length === 0 && (
+            <p className="text-sm text-muted-foreground">{L("No shared providers on the server")}</p>
+          )}
+          {sharedProviders.map((p) => (
+            <div
+              key={p.name}
+              className="flex items-center justify-between gap-2 rounded-xl bg-card p-3 text-sm text-card-foreground ring-1 ring-foreground/10 shadow-sm"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
+                <span className="truncate font-medium">{p.name}</span>
+                <Badge variant="outline">{L("Shared")}</Badge>
+                <Badge variant="outline">{p.kind}</Badge>
+                <span className="truncate text-xs text-muted-foreground">{familySummary(p)}</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                {isElectronShell() && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => void syncToLocal(p)}
+                    title={L("Install this shared provider to this machine")}
+                  >
+                    <DownloadIcon className="size-3.5" />
+                    {L("Install to this machine")}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEditing(p);
+                    setShowForm(true);
+                  }}
+                >
+                  {L("Edit")}
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => remove(p)}>
+                  <Trash2Icon className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
