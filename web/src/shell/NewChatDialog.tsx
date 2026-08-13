@@ -987,11 +987,18 @@ export function AgentHarnessPicker({
   // fold into a "More" submenu (kept discoverable, out of the primary list).
   // The currently-selected harness always stays inline even when unconfigured,
   // so the active pick is never buried. With the hide-unconfigured preference
-  // on, unconfigured harnesses are dropped entirely (no "More").
+  // on, unconfigured harnesses are dropped entirely (no "More"). Native
+  // harnesses that the SELECTED host can't run (e.g. no tmux on Windows) are
+  // always dropped — the picker only offers runnable agents.
   const { readyHarnessEntries, moreHarnessEntries } = useMemo(() => {
     const ready: AvailableAgent[] = [];
     const more: AvailableAgent[] = [];
     for (const a of harnessEntries) {
+      const reason = harnessUnavailableReasonOnHost(a.harness, host);
+      // A native harness the host reports unavailable (binary missing on this
+      // machine, or tmux absent on Windows) is not runnable — hide it
+      // entirely rather than folding into "More".
+      if (reason !== null && !(a.id === effectiveAgentId)) continue;
       const unconfigured = harnessUnconfiguredOnHost(a.harness, host);
       if (!unconfigured || a.id === effectiveAgentId) ready.push(a);
       else if (!hideUnconfigured) more.push(a);
