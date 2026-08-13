@@ -157,6 +157,51 @@ function localHostId() {
 }
 
 /**
+ * Write (or remove) a provider entry in the LOCAL machine's
+ * ``~/.omnigent/config.yaml`` ``providers:`` block. Local providers are
+ * consumed by this machine's own runner (the host executes agents with
+ * them) — they deliberately live on the host, not on the coordinating
+ * server, per the "server schedules, host executes" model. Returns the
+ * updated provider name on success; throws on I/O or YAML errors.
+ *
+ * @param {string} name Provider name.
+ * @param {{kind: string, family: string, base_url?: string, api_key?: string, model?: string, wire_api?: string} | null} provider
+ *   Provider block to upsert, or ``null`` to remove ``name``.
+ * @returns {Promise<{ok: boolean, error?: string}>}
+ */
+async function writeLocalProvider(name, provider) {
+  const cfgPath = path.join(localConfigDir(), "config.yaml");
+  let cfg = {};
+  try {
+    if (fs.existsSync(cfgPath)) {
+      const raw = fs.readFileSync(cfgPath, "utf8");
+      const parsed = yaml.load(raw);
+      if (parsed && typeof parsed === "object") cfg = parsed;
+    }
+  } catch (e) {
+    return { ok: false, error: `failed to read ${cfgPath}: ${e.message}` };
+  }
+  const providers = (cfg.providers = cfg.providers && typeof cfg.providers === "object" ? cfg.providers : {});
+  if (provider === null) {
+    delete providers[name];
+  } else {
+    const famBlock = {};
+    if (provider.base_url) famBlock.base_url = provider.base_url;
+    if (provider.api_key) famBlock.api_key = provider.api_key;
+    if (provider.model) famBlock.models = { default: provider.model };
+    if (provider.wire_api) famBlock.wire_api = provider.wire_api;
+    providers[name] = { kind: provider.kind, [provider.family]: famBlock };
+  }
+  try {
+    fs.mkdirSync(localConfigDir(), { recursive: true });
+    fs.writeFileSync(cfgPath, yaml.dump(cfg), "utf8");
+  } catch (e) {
+    return { ok: false, error: `failed to write ${cfgPath}: ${e.message}` };
+  }
+  return { ok: true };
+}
+
+/**
  * Parse the local-server pidfile contents: two lines, PID then port. Returns
  * null when malformed. Mirrors `_read_local_server_pid_file()` in
  * omnigent/host/local_server.py.
@@ -876,6 +921,7 @@ module.exports = {
   isLoopbackServer,
   sameLoopbackServer,
   localHostId,
+  writeLocalProvider,
   parseLocalServerPidfile,
   isPidAlive,
   readLocalServerPidfile,

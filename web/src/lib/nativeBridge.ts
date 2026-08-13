@@ -172,6 +172,9 @@ interface ElectronDesktopApi extends NativeShellApi {
   getCliStatus?: () => Promise<CliStatus | null>;
   /** Clear the CLI-path override (revert to auto-detection); resolves status. */
   resetCliPath?: () => Promise<CliStatus | null>;
+  /** Write a LOCAL provider into this machine's ~/.omnigent/config.yaml
+      (consumed by THIS host's runner, not the coordinating server). */
+  writeLocalProvider?: (name: string, provider: LocalProviderInput | null) => Promise<{ ok: boolean; error?: string }>;
   /**
    * Open/navigate a conversation's embedded browser view. Present only on
    * desktop shells new enough to ship the embedded browser feature — its
@@ -218,6 +221,16 @@ export interface HostIdentity {
 export interface HostActionResult {
   ok: boolean;
   error?: string;
+}
+
+/** Payload for a LOCAL (host-machine) provider write via the desktop shell. */
+export interface LocalProviderInput {
+  kind: string;
+  family: string;
+  base_url?: string;
+  api_key?: string;
+  model?: string;
+  wire_api?: string;
 }
 
 export type UpdateMode = "none" | "manual" | "start" | "default";
@@ -710,6 +723,20 @@ export async function getCliStatus(): Promise<CliStatus | null> {
  * Clear the saved CLI-path override so the shell reverts to auto-detection,
  * then resolve the freshly-detected status. Resolves `null` outside the shell.
  */
+export async function writeLocalProvider(
+  name: string,
+  provider: LocalProviderInput | null,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!electron?.writeLocalProvider) {
+    return { ok: false, error: "not running under the desktop shell" };
+  }
+  try {
+    return await electron.writeLocalProvider(name, provider);
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 export async function resetCliPath(): Promise<CliStatus | null> {
   const electron = electronApi();
   if (!electron?.resetCliPath) return null;

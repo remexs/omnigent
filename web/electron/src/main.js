@@ -2400,6 +2400,24 @@ function registerIpc() {
     return clearCliPath();
   });
 
+  // Write a LOCAL provider entry into this machine's ~/.omnigent/config.yaml
+  // (providers consumed by THIS host's runner). Pinned-origin gated like the
+  // CLI-path surface: a connected server page may ask the local shell to
+  // configure this machine's model providers — it stays on the host, not the
+  // coordinating server (the "server schedules, host executes" model).
+  ipcMain.handle("omnigent:provider-write-local", async (event, name, provider) => {
+    if (!isPinnedOriginSender(event)) {
+      return { ok: false, error: "provider-write-local is only available to a connected server page" };
+    }
+    if (typeof name !== "string" || !name.trim()) {
+      return { ok: false, error: "provider name required" };
+    }
+    if (provider !== null && (typeof provider !== "object" || typeof provider.kind !== "string")) {
+      return { ok: false, error: "invalid provider payload" };
+    }
+    return omnigentCli.writeLocalProvider(name.trim(), provider);
+  });
+
   // Updater IPC surface (get/set config, get status, check/download/install).
   // The module owns the handlers and their trusted-sender + consent gates.
   updater.registerIpc();

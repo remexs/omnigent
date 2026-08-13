@@ -140,6 +140,8 @@ contextBridge.exposeInMainWorld("omnigentDesktop", {
    * setup page, so a connected server can't repoint the CLI at an arbitrary one.
    */
   resetCliPath: () => ipcRenderer.invoke("omnigent:cli-reset-path"),
+  writeLocalProvider: (name, provider) =>
+    ipcRenderer.invoke("omnigent:provider-write-local", name, provider),
   // Update bridge for the server page — CONFIG ONLY, by design. Desktop update
   // NOTIFICATIONS are owned by the shell now (a native corner overlay with its
   // own preload + the Server menu). This bridge stays so Settings can still

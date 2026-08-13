@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CpuIcon, PlusIcon, RefreshCwIcon, Trash2Icon, XIcon } from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
+import { isElectronShell, writeLocalProvider } from "@/lib/nativeBridge";
 import { L } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +59,9 @@ function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDo
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState(initial?.families[family]?.models?.default ?? "");
   const [isDefault, setIsDefault] = useState((initial?.default_families?.length ?? 0) > 0);
+  // Where the provider lives: "server" = shared on the coordinating server;
+  // "local" = this machine's own ~/.omnigent/config.yaml (host executes with it).
+  const [scope, setScope] = useState<"server" | "local">("local");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -77,6 +81,21 @@ function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDo
         default: isDefault,
       };
       if (apiKey.trim()) payload.api_key = apiKey.trim();
+      if (scope === "local") {
+        // Local provider: write THIS machine's ~/.omnigent/config.yaml via the
+        // desktop shell (host executes agents with it — server only schedules).
+        const nameStr = name.trim();
+        const localRes = await writeLocalProvider(nameStr, {
+          kind,
+          family,
+          base_url: baseUrl.trim() || undefined,
+          api_key: apiKey.trim() || undefined,
+          model: model.trim() || undefined,
+        });
+        if (!localRes.ok) throw new Error(localRes.error ?? "failed to write local provider");
+        onDone();
+        return;
+      }
       const method = isEdit ? "PUT" : "POST";
       const url = isEdit ? `/v1/providers/${encodeURIComponent(initial!.name)}` : "/v1/providers";
       const res = await authenticatedFetch(url, {
@@ -99,7 +118,7 @@ function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDo
     } finally {
       setSaving(false);
     }
-  }, [kind, family, baseUrl, model, isDefault, apiKey, isEdit, initial, onDone, queryClient]);
+  }, [kind, family, baseUrl, model, isDefault, apiKey, scope, isEdit, initial, onDone, queryClient]);
 
   return (
     <Card className="space-y-3 p-4">
@@ -145,6 +164,21 @@ function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDo
             <option value="anthropic">Anthropic</option>
             <option value="gemini">Gemini</option>
           </select>
+        </label>
+        <label className="space-y-1">
+          <span className="text-sm">{L("Storage")}</span>
+          <select
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+            value={scope}
+            onChange={(e) => setScope(e.target.value as "server" | "local")}
+            data-testid="provider-scope-select"
+          >
+            <option value="local">{L("This machine (local execution)")}</option>
+            <option value="server">{L("Server (shared model)")}</option>
+          </select>
+          <p className="text-xs text-muted-foreground">
+            {L("Local providers are stored on this machine's host config; server providers are shared by the coordinating server.")}
+          </p>
         </label>
         <label className="space-y-1">
           <span className="text-sm">{L("Base URL")}</span>

@@ -1467,7 +1467,11 @@ export const zhCN: Record<string, string> = {
   "Model providers": "模型提供商",
   "Configure OpenAI-compatible endpoints used by pi, goose, codex, and claude-sdk.":
     "配置 pi、goose、codex 和 claude-sdk 使用的 OpenAI 兼容端点。",
-  "New provider": "新建提供商",
+    "Storage": "存储位置",
+  "This machine (local execution)": "本机（本地执行）",
+  "Server (shared model)": "服务器（公用模型）",
+  "Local providers are stored on this machine's host config; server providers are shared by the coordinating server.": "本地供应商存于本机执行配置；服务器供应商由协调服务器共享。",
+"New provider": "新建提供商",
   "Edit provider": "编辑提供商",
   "Base URL": "基础 URL",
   "API key": "API 密钥",
