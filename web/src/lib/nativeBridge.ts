@@ -727,6 +727,7 @@ export async function writeLocalProvider(
   name: string,
   provider: LocalProviderInput | null,
 ): Promise<{ ok: boolean; error?: string }> {
+  const electron = electronApi();
   if (!electron?.writeLocalProvider) {
     return { ok: false, error: "not running under the desktop shell" };
   }
