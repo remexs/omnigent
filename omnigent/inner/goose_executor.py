@@ -330,7 +330,7 @@ class GooseExecutor(Executor):
             bool(env.get("OPENAI_API_KEY")),
             env.get("GOOSE_PROVIDER"),
             env.get("GOOSE_MODEL"),
-            {k: v for k, v in env.items() if k in ("HTTP_PROXY","HTTPS_PROXY","ALL_PROXY","NO_PROXY","HOME","USERPROFILE")},
+            {k: v for k, v in env.items() if k in ("HTTP_PROXY","HTTPS_PROXY","ALL_PROXY","NO_PROXY","HOME","USERPROFILE","TMP","TEMP")},
         )
         return env
 
