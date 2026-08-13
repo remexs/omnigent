@@ -313,7 +313,10 @@ class GooseExecutor(Executor):
         rather than a hand-copied prefix list.
         """
         env = clean_agent_env(
-            allow_prefixes=("GOOSE_",),
+            # Goose natively reads OPENAI_BASE_URL / OPENAI_API_KEY / OPENAI_MODEL
+            # for OpenAI-compatible providers — allow them through (they come
+            # from the resolved omnigent provider via HARNESS_GOOSE_* wiring).
+            allow_prefixes=("GOOSE_", "OPENAI_"),
             extra_allowed=declared_passthrough(self._os_env),
         )
         env.update(self._provider_env())
