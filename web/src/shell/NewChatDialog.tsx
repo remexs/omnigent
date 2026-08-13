@@ -1761,10 +1761,13 @@ export function NewChatLandingScreen() {
   // builtins/customs split: Polly & Debby are built-ins but belong under
   // "Agents", not "Harnesses".
   const harnessEntries = useMemo(
-    () => agentList.filter((a) => isNativeCodingAgent(a)),
-    [agentList],
+    () => agentListUnfiltered.filter((a) => isNativeCodingAgent(a)),
+    [agentListUnfiltered],
   );
-  const agentEntries = useMemo(() => agentList.filter((a) => !isNativeCodingAgent(a)), [agentList]);
+  const agentEntries = useMemo(
+    () => agentListUnfiltered.filter((a) => !isNativeCodingAgent(a)),
+    [agentListUnfiltered],
+  );
 
   // "Create custom agent" dialog state and pending bundle. When the user
   // creates a custom agent via the dialog, the bundle input is stored
