@@ -309,6 +309,22 @@ _AUTH_AWARE_NATIVE_HARNESSES: dict[str, str] = {
 }
 
 
+def _tmux_available() -> bool:
+    """Whether a native terminal harness can actually run on this host.
+
+    Native (TUI) harnesses embed a live terminal via tmux. Windows has no
+    tmux, so a host there reports the CLI as installed but any native agent
+    fails at launch with "Native terminal harnesses (tmux/PTY) are not
+    supported on Windows". Gate native readiness on tmux presence so the
+    picker only offers native agents when they can really start.
+    """
+    if os.name == "nt":
+        return False
+    import shutil
+
+    return shutil.which("tmux") is not None
+
+
 def _pi_native_configured() -> bool:
     """Whether pi itself carries a usable credential in its own config dir.
 
@@ -419,6 +435,11 @@ def _cli_family_availability(canonical: str, install_key: str) -> HarnessAvailab
         ``"needs-auth"`` when installed but neither a configured provider
         credential nor a CLI login is present, else ``True``.
     """
+    # Native CLI harnesses embed a live TUI via tmux — a host without tmux
+    # (Windows) cannot start them even with the CLI installed. Gate here so
+    # native agents only surface where they can actually run.
+    if not _tmux_available():
+        return False
     binary_state = _binary_availability_reason(install_key)
     if binary_state is not True:
         return binary_state
@@ -457,6 +478,12 @@ def _harness_availability(canonical: str) -> HarnessAvailability:
         # warning copy uniform across every CLI-backed native harness.
         return _cli_family_availability(canonical, install_key)
     if canonical in _PI_HARNESSES:
+        # Native pi (pi-native) embeds the live TUI via tmux — without tmux
+        # (Windows) it cannot start even though the CLI is installed. The bare
+        # ``pi`` surface (ACP/SDK) needs no tmux. Gate native here so the
+        # picker only shows pi-native on hosts that can actually run it.
+        if canonical != PI_SURFACE and not _tmux_available():
+            return False
         # pi has no CLI login — its only credential is an omnigent-managed
         # provider (an API key / gateway, incl. one set from the UI). So the
         # two-step signal is binary + provider: installed-but-no-provider is
