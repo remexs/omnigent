@@ -145,6 +145,14 @@
           "url": "https://omnigent.ai/_desktop/updates/"
         }
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Omnigent"
     }
   },
   "dependencies": {
