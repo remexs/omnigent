@@ -162,8 +162,11 @@ import {
 import { useIsEmbedded } from "@/lib/embedded";
 import {
   type CliStatus,
+  controlHost,
   getCliStatus,
+  getHostIdentity,
   isElectronShell,
+  onHostStatusChanged,
   resetCliPath,
   type UpdateConfig,
   type UpdateMode,
@@ -1439,10 +1442,25 @@ function ShortcutsSection() {
 function LocalCliSection() {
   const [status, setStatus] = useState<CliStatus | null | "loading">("loading");
   const [busy, setBusy] = useState(false);
+  // Host (this machine as a runner) state — only meaningful under the
+  // desktop shell. ``null`` = not running / unknown; ``true`` = connected.
+  const [hostConnected, setHostConnected] = useState<boolean | null>(null);
+  const [hostBusy, setHostBusy] = useState(false);
+  const [hostError, setHostError] = useState<string | null>(null);
+
+  const refreshHostState = useCallback(() => {
+    void getHostIdentity().then((identity) => {
+      setHostConnected(identity?.connected ?? false);
+    });
+  }, []);
 
   useEffect(() => {
     void getCliStatus().then(setStatus);
-  }, []);
+    if (!isElectronShell()) return;
+    refreshHostState();
+    const unsubscribe = onHostStatusChanged(refreshHostState);
+    return unsubscribe;
+  }, [refreshHostState]);
 
   const onReset = useCallback(async () => {
     setBusy(true);
@@ -1450,6 +1468,23 @@ function LocalCliSection() {
     setBusy(false);
     if (next) setStatus(next); // null only when the bridge is missing (old shell)
   }, []);
+
+  const onToggleHost = useCallback(
+    async (action: "start" | "stop" | "restart") => {
+      setHostBusy(true);
+      setHostError(null);
+      try {
+        const res = await controlHost(action);
+        if (!res.ok) setHostError(res.error ?? "Unknown host error");
+        refreshHostState();
+      } catch (e) {
+        setHostError(e instanceof Error ? e.message : String(e));
+      } finally {
+        setHostBusy(false);
+      }
+    },
+    [refreshHostState],
+  );
 
   if (status === "loading") {
     return (
@@ -1520,6 +1555,58 @@ function LocalCliSection() {
               <Button variant="ghost" size="sm" disabled={busy} onClick={() => void onReset()}>
                 {L("Reset to auto-detected")}
               </Button>
+            </div>
+          )}
+
+          {/* Register this machine as a runner (desktop shell only). The
+              CLI must be installed; the button starts/stops the host daemon
+              the desktop shell manages. */}
+          {status.installed && isElectronShell() && (
+            <div className="space-y-2 border-t border-border pt-3">
+              <div className="flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className={cn(
+                    "size-2 rounded-full",
+                    hostConnected ? "bg-success" : "bg-muted-foreground/40",
+                  )}
+                />
+                <span className="text-sm">
+                  {hostConnected
+                    ? L("This machine is connected as a runner")
+                    : L("This machine is not connected as a runner")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  disabled={hostBusy}
+                  onClick={() => void onToggleHost(hostConnected ? "stop" : "start")}
+                  data-testid="local-cli-toggle-host"
+                >
+                  {hostBusy
+                    ? L("Working…")
+                    : hostConnected
+                      ? L("Disconnect this machine")
+                      : L("Connect this machine as a runner")}
+                </Button>
+                {hostConnected && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={hostBusy}
+                    onClick={() => void onToggleHost("restart")}
+                  >
+                    {L("Restart")}
+                  </Button>
+                )}
+              </div>
+              {hostError && <p className="text-xs text-destructive">{hostError}</p>}
+              <p className="text-xs text-muted-foreground">
+                {L(
+                  "Keeps this machine connected to the server as an execution host while the desktop app is open.",
+                )}
+              </p>
             </div>
           )}
         </div>

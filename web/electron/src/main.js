@@ -2365,7 +2365,16 @@ function registerIpc() {
       console.warn("[omnigent] host-get-identity from untrusted sender dropped");
       return null;
     }
-    return { cliInstalled: Boolean(resolvedCliPath()), hostId: omnigentCli.localHostId() };
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const state = win ? windows.get(win) : undefined;
+    const serverUrl = state?.serverUrl;
+    const connected =
+      Boolean(serverUrl) && serverManager.ownsLiveHost(serverUrl);
+    return {
+      cliInstalled: Boolean(resolvedCliPath()),
+      hostId: omnigentCli.localHostId(),
+      connected,
+    };
   });
 
   // SPA (in-app Settings → Local CLI) → is the CLI installed and runnable,

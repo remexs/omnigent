@@ -210,6 +210,8 @@ export interface HostIdentity {
   cliInstalled: boolean;
   /** This machine's host id, or null if it has none yet. */
   hostId: string | null;
+  /** Whether the desktop shell currently runs a live host for this window's server. */
+  connected?: boolean;
 }
 
 /** Result of a host control action from the desktop shell. */
