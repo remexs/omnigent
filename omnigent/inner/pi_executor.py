@@ -637,6 +637,17 @@ _PI_ENV_ALLOW_EXACT: frozenset[str] = frozenset(
         "LOGNAME",
         "SHELL",
         "TZ",
+        # Windows system vars Node.js needs at runtime — without SystemRoot the
+        # node process aborts at startup (exit 134) which surfaces as
+        # WinError 2 on the session.
+        "SystemRoot",
+        "SystemDrive",
+        "ComSpec",
+        "PATHEXT",
+        "PROCESSOR_ARCHITECTURE",
+        "PROCESSOR_ARCHITEW6432",
+        "NUMBER_OF_PROCESSORS",
+        "OS",
         OMNIGENT_SESSION_ENV_VAR,  # "inside Omnigent" marker (CLAUDE_CODE/CODEX analog)
     }
 )
