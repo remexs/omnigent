@@ -42,6 +42,7 @@ import argparse
 import importlib
 import os
 import signal
+import asyncio
 import sys
 import threading
 import time
@@ -385,6 +386,15 @@ def main(argv: list[str] | None = None) -> None:
         the live process arguments. Tests pass an explicit list.
     """
     args = _parse_args(argv if argv is not None else sys.argv[1:])
+
+    # Windows: force the Proactor event loop (uv-tool Python may otherwise
+    # pick the Selector loop, whose subprocess pipe handling breaks child
+    # CLI spawns — goose/pi ACP fail with "I/O operation on closed pipe").
+    if os.name == "nt":
+        try:
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        except (AttributeError, ImportError):
+            pass
 
     # Initialize OTel tracing in the harness subprocess so ExecutorAdapter
     # can emit spans for agent turns, tool calls, and LLM interactions.

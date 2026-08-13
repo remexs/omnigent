@@ -1550,6 +1550,15 @@ def main() -> None:
 
     configure_process_logging("runner", force=True)
     _install_crash_logging()
+    # Windows: the uv-tool Python can default to the Selector event loop,
+    # whose subprocess pipe handling breaks child CLI spawns (goose/pi ACP
+    # fail with "I/O operation on closed pipe" — WinError 2 on the session).
+    # Force the Proactor loop (Windows' native subprocess transport).
+    if os.name == "nt":
+        try:
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        except (AttributeError, ImportError):
+            pass
     try:
         asyncio.run(_run_tunnel_from_env())
     except RuntimeError as exc:
