@@ -288,6 +288,8 @@ class GooseExecutor(Executor):
         for builtin in self._builtins:
             argv.extend(["--with-builtin", builtin])
         launch_path = self._sandbox_launch_path(tuple(env.keys()))
+        _lg2 = logging.getLogger("omnigent.inner.goose_executor")
+        _lg2.warning("goose launch_path=%s cwd=%s", launch_path, self._cwd)
         # Windows: asyncio.create_subprocess_exec + PIPE is broken for goose
         # (I/O operation on closed pipe — goose re-sets stdio at startup).
         # Use subprocess.Popen directly and bridge reads/writes via
