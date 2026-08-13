@@ -315,13 +315,19 @@ class GooseExecutor(Executor):
         Kept as a named builder so the spawn-env canary can drive the real thing
         rather than a hand-copied prefix list.
         """
-        env = clean_agent_env(
-            # Goose natively reads OPENAI_BASE_URL / OPENAI_API_KEY / OPENAI_MODEL
-            # for OpenAI-compatible providers — allow them through (they come
-            # from the resolved omnigent provider via HARNESS_GOOSE_* wiring).
-            allow_prefixes=("GOOSE_", "OPENAI_"),
-            extra_allowed=declared_passthrough(self._os_env),
-        )
+        # Windows: inherit the full environment. The deny-by-default clean_agent_env
+        # can drop variables goose's TLS stack needs (CA stores, proxy, etc.) that
+        # are absent from the allowlist — observed as "Network error: Could not
+        # connect" inside the runner while a plain Popen with os.environ succeeds.
+        # Goose is a local desktop subprocess here, so the secret-leak surface is
+        # the same user's own processes. Other platforms keep the filtered env.
+        if os.name == "nt":
+            env = dict(os.environ)
+        else:
+            env = clean_agent_env(
+                allow_prefixes=("GOOSE_", "OPENAI_"),
+                extra_allowed=declared_passthrough(self._os_env),
+            )
         env.update(self._provider_env())
         import logging as _lg
         _lg.getLogger("omnigent.inner.goose_executor").warning(
