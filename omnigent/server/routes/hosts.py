@@ -798,6 +798,7 @@ def create_hosts_router(
             host_id=host_id,
             session_id=body.session_id,
             host_store=host_store,
+            account_store=account_store,
             host_registry=host_registry,
             conversation_store=conversation_store,
             permission_store=permission_store,

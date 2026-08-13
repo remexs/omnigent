@@ -17,6 +17,7 @@ Centralizing the checks here keeps the two call sites from drifting
 """
 
 from __future__ import annotations
+from typing import Any
 
 from dataclasses import dataclass
 
@@ -51,6 +52,7 @@ def resolve_host_owner(
     user_id: str | None,
     host_id: str,
     host_store: HostStore,
+    account_store: Any | None = None,
 ) -> Host:
     """
     Authorize that the caller owns a known host.
@@ -74,8 +76,17 @@ def resolve_host_owner(
     host = host_store.get_host(host_id)
     if host is None:
         raise HTTPException(status_code=404, detail="host not found")
+    # Admin (orchestrator) may launch on any host; regular users are
+    # owner-scoped. Matches the filesystem/worktree browse endpoints.
     if user_id is not None and host.user_id != user_id:
-        raise HTTPException(status_code=403, detail="not your host")
+        is_admin = False
+        if account_store is not None:
+            try:
+                is_admin = bool(account_store.is_admin(user_id))
+            except Exception:  # noqa: BLE001 — non-accounts stores lack is_admin
+                is_admin = False
+        if not is_admin:
+            raise HTTPException(status_code=403, detail="not your host")
     return host
 
 
@@ -85,6 +96,7 @@ def resolve_host_launch(
     host_id: str,
     session_id: str,
     host_store: HostStore,
+    account_store: Any | None = None,
     host_registry: HostRegistry,
     conversation_store: ConversationStore,
     permission_store: PermissionStore | None,
@@ -121,6 +133,7 @@ def resolve_host_launch(
         user_id=user_id,
         host_id=host_id,
         host_store=host_store,
+        account_store=account_store,
     )
 
     conn = host_registry.get(host_id)
