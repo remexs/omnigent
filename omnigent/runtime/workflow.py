@@ -1511,26 +1511,24 @@ def _build_goose_spawn_env(
         # so the secret travels with the spawn without living in the JSON.
         from omnigent.onboarding.provider_config import resolve_secret
 
+        # Goose natively reads the OpenAI-compatible env vars; without them a
+        # GOOSE_PROVIDER it doesn't know about fails model resolution
+        # ("Internal error"). Map base_url + key through OPENAI_* so the
+        # openai-compatible provider actually reaches the endpoint.
         for fam in provider.families.values():
-            if fam.api_key_ref:
-                env.setdefault("GOOSE_API_KEY", resolve_secret(fam.api_key_ref))
-                break
-            if fam.api_key:
-                env.setdefault("GOOSE_API_KEY", fam.api_key)
-                break
-            # Goose natively reads the OpenAI-compatible env vars; without them
-            # a GOOSE_PROVIDER it doesn't know about fails model resolution
-            # ("Internal error"). Map base_url + key through OPENAI_* so the
-            # openai-compatible provider actually reaches the endpoint.
             if fam.base_url:
                 env.setdefault("OPENAI_BASE_URL", fam.base_url)
+            if fam.api_key_ref:
+                env.setdefault("GOOSE_API_KEY", resolve_secret(fam.api_key_ref))
+            elif fam.api_key:
+                env.setdefault("GOOSE_API_KEY", fam.api_key)
         if env.get("GOOSE_API_KEY") and not env.get("OPENAI_API_KEY"):
             env.setdefault("OPENAI_API_KEY", env["GOOSE_API_KEY"])
         if model is None:
             for fam in provider.families.values():
                 dm = fam.models.get("default")
                 if dm:
-                    env.setdefault("GOOSE_MODEL", dm)
+                    env.setdefault("HARNESS_GOOSE_MODEL", dm)
                     env.setdefault("OPENAI_MODEL", dm)
                     break
     # Session workspace (selected working folder). ``None`` lets the goose
