@@ -475,6 +475,7 @@ def _ensure_default_agents(
     :param agent_cache: Cache for loaded agent specs.
     """
     _ensure_default_native_agents(agent_store, artifact_store, agent_cache)
+    _ensure_default_sdk_agents(agent_store, artifact_store, agent_cache)
     _ensure_default_debby_agent(agent_store, artifact_store, agent_cache)
     _ensure_default_polly_agent(agent_store, artifact_store, agent_cache)
     _ensure_extra_builtin_agents(agent_store, artifact_store, agent_cache)
@@ -583,6 +584,86 @@ def _build_native_bundle(provider: NativeHarnessProvider) -> bytes:
         spec_path = materialize(Path(tmpdir), **kwargs)
         bundle_dir = materialize_bundle(spec_path, Path(tmpdir) / "bundle")
         return _tar_gz_dir(bundle_dir)
+
+
+# SDK (non-terminal) harness agents, seeded alongside the native TUI agents.
+# A host without tmux (Windows) can only run these — the native agents are
+# gated on tmux availability (harness_readiness._tmux_available). Each entry
+# declares only the harness; model + auth resolve at launch from the user's
+# configured provider (executor.model omitted → provider's default model).
+_SDK_AGENT_SPECS: dict[str, dict[str, object]] = {
+    "pi-sdk": {
+        "spec_version": 1,
+        "name": "pi-sdk",
+        "description": "Pi via SDK (cross-platform, no terminal needed)",
+        "executor": {"harness": "pi"},
+        "interaction": {"modalities": {"input": ["text"], "output": ["text"]}},
+    },
+    "claude-sdk": {
+        "spec_version": 1,
+        "name": "claude-sdk",
+        "description": "Claude via SDK (cross-platform, no terminal needed)",
+        "executor": {"harness": "claude-sdk"},
+        "interaction": {"modalities": {"input": ["text"], "output": ["text"]}},
+    },
+    "goose-sdk": {
+        "spec_version": 1,
+        "name": "goose-sdk",
+        "description": "Goose via SDK (cross-platform, no terminal needed)",
+        "executor": {"harness": "goose"},
+        "interaction": {"modalities": {"input": ["text"], "output": ["text"]}},
+    },
+    "antigravity-sdk": {
+        "spec_version": 1,
+        "name": "antigravity-sdk",
+        "description": "Antigravity via SDK (cross-platform, no terminal needed)",
+        "executor": {"harness": "antigravity"},
+        "interaction": {"modalities": {"input": ["text"], "output": ["text"]}},
+    },
+}
+
+
+def _build_sdk_bundle(spec: dict[str, object]) -> bytes:
+    """Materialize an SDK agent spec dict into a tarball bundle."""
+    import tempfile
+
+    from omnigent.spec import materialize_bundle
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        src = Path(tmpdir) / "config.yaml"
+        src.write_text(
+            yaml.safe_dump(spec, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+        bundle_dir = materialize_bundle(src, Path(tmpdir) / "bundle")
+        return _tar_gz_dir(bundle_dir)
+
+
+def _ensure_default_sdk_agents(
+    agent_store: AgentStore,
+    artifact_store: ArtifactStore,
+    agent_cache: Any,
+) -> None:
+    """Seed the SDK (non-tmux) built-in agents (pi-sdk / claude-sdk / ...).
+
+    Idempotent like :func:`_ensure_default_native_agents`; redeploys refresh
+    a changed spec (content-addressed bundle + version bump).
+    """
+    for name, spec in _SDK_AGENT_SPECS.items():
+        try:
+            _ensure_builtin_agent(
+                agent_store,
+                artifact_store,
+                agent_cache,
+                name=name,
+                bundle_bytes=_build_sdk_bundle(spec),
+            )
+        except Exception:  # noqa: BLE001 — one bad spec must not block startup
+            import logging
+
+            logging.getLogger("omnigent.server.app").warning(
+                "failed to seed SDK agent %r", name, exc_info=True
+            )
 
 
 def _ensure_default_native_agents(
