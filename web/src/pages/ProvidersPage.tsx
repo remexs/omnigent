@@ -69,6 +69,7 @@ function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDo
     setError(null);
     try {
       const payload: Record<string, unknown> = {
+        name: name.trim(),
         kind,
         family,
         base_url: baseUrl.trim(),
@@ -85,7 +86,11 @@ function ProviderForm({ initial, onDone }: { initial?: ProviderWire | null; onDo
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        throw new Error((body as { error?: string })?.error ?? `${res.status}`);
+        // The API returns {"error":{"code":...,"message":...}} — surface the
+        // message instead of the raw object (which stringifies to "[object Object]").
+        const apiErr = (body as { error?: { message?: string } | string })?.error;
+        const message = typeof apiErr === "string" ? apiErr : apiErr?.message;
+        throw new Error(message ?? `${res.status}`);
       }
       await queryClient.invalidateQueries({ queryKey: ["providers"] });
       onDone();
