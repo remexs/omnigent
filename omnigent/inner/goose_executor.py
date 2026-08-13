@@ -34,6 +34,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import subprocess
 import logging
 import os
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
