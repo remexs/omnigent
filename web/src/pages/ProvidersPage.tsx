@@ -286,7 +286,9 @@ export function ProvidersPage() {
       // The server API redacts api keys; if the shared provider has a key
       // we can't see, ask the user to paste it for the local copy.
       let apiKey: string | undefined = f.api_key_ref ?? undefined;
-      if (!apiKey && f.api_key_ref !== null) {
+      // api_key_ref === null means the server HAS a key but hides it from the
+      // API. Prompt the user to paste it for the local copy (blank skips).
+      if (!apiKey) {
         const entered = window.prompt(
           L("This provider's API key is hidden on the server. Paste it to enable local execution (leave blank to skip):"),
           "",
