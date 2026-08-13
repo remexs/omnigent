@@ -6084,6 +6084,12 @@ async def _auto_create_repl_terminal(
     started_at = time.monotonic()
     workspace = os.environ.get("OMNIGENT_RUNNER_WORKSPACE", str(Path.cwd()))
     server_url = os.environ.get("RUNNER_SERVER_URL", "http://localhost:6767")
+    # The REPL terminal is a tmux-hosted TUI enhancement for SDK sessions.
+    # Without tmux (Windows) it cannot start and would fail the whole
+    # session with WinError 2 — skip it: the chat view works fine without
+    # the embedded terminal.
+    if os.name == "nt" or shutil.which("tmux") is None:
+        return None
     # Inherit the agent's os_env so its sandbox (e.g. ``type: none``) is honoured;
     # without sandbox= here and parent_os_env below, launch_terminal falls back to
     # _default_sandbox_for_platform (linux_bwrap), which fails in a hardened
