@@ -8,6 +8,7 @@ import re
 import tarfile
 import time
 import uuid
+import yaml
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from importlib import import_module
