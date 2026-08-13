@@ -1760,13 +1760,16 @@ export function NewChatLandingScreen() {
   // user-registered agents). This is the isNativeCodingAgent split, NOT the
   // builtins/customs split: Polly & Debby are built-ins but belong under
   // "Agents", not "Harnesses".
+  // Harnesses group = native CLIs the SELECTED host can run. Computed from
+  // the filtered agentList so unavailable natives (no tmux on Windows) don't
+  // even fold into "More" — the picker only ever offers runnable agents.
   const harnessEntries = useMemo(
-    () => agentListUnfiltered.filter((a) => isNativeCodingAgent(a)),
-    [agentListUnfiltered],
+    () => agentList.filter((a) => isNativeCodingAgent(a)),
+    [agentList],
   );
   const agentEntries = useMemo(
-    () => agentListUnfiltered.filter((a) => !isNativeCodingAgent(a)),
-    [agentListUnfiltered],
+    () => agentList.filter((a) => !isNativeCodingAgent(a)),
+    [agentList],
   );
 
   // "Create custom agent" dialog state and pending bundle. When the user
