@@ -2724,6 +2724,13 @@ def run_host_process(
 
     path = config_path or CONFIG_PATH
     identity = load_or_create_host_identity(path)
+    # Ensure the default workspace directory exists so a session that
+    # doesn't pick a workspace (the frontend defaults to ~/.omnigent/workspace)
+    # has somewhere to run — the runner refuses to spawn into a missing dir.
+    try:
+        (Path.home() / ".omnigent" / "workspace").mkdir(parents=True, exist_ok=True)
+    except OSError:  # noqa: BLE001 — best-effort; a real session still picks a path
+        pass
     if not path.exists():
         print(f"Auto-generated {path} ({identity.host_id}, name: {identity.name})")
     print(f"Connecting to {server_url} as {identity.name!r} ({identity.host_id})")

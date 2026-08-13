@@ -1719,6 +1719,14 @@ interface LandingDraft {
 
 let landingDraft: LandingDraft | null = null;
 
+/**
+ * Default workspace for a new session on the selected host. The host
+ * expands the tilde itself; the directory is created by the host at
+ * connect time (see host/connect.py ensure_default_workspace), so a
+ * fresh machine always has somewhere to run sessions.
+ */
+const DEFAULT_WORKSPACE = "~/.omnigent/workspace";
+
 // Test-only: clears the preserved landing draft so each case starts from a
 // clean module state (the draft is module-scoped and survives unmount by
 // design, which would otherwise leak between tests).
@@ -1912,7 +1920,9 @@ export function NewChatLandingScreen() {
   const [sandboxRepoBranch, setSandboxRepoBranch] = useState<string>(
     () => landingDraft?.sandboxRepoBranch ?? "",
   );
-  const [workspace, setWorkspace] = useState<string>(() => landingDraft?.workspace ?? "");
+  const [workspace, setWorkspace] = useState<string>(
+    () => landingDraft?.workspace ?? DEFAULT_WORKSPACE,
+  );
   const [branchName, setBranchName] = useState<string>(() => landingDraft?.branchName ?? "");
   // The base branch auto-fills from the configured default (Settings › Git)
   // when the user names a worktree branch, and is left alone once the user
@@ -2150,7 +2160,7 @@ export function NewChatLandingScreen() {
     setSandboxSelected(false);
     setSelectedHostId(null);
     setPickedAgentId(projectParam !== "" ? null : readLastAgentId());
-    setWorkspace("");
+    setWorkspace(DEFAULT_WORKSPACE);
     setBranchName("");
     seededHostRef.current = null;
     worktreeSeededForRef.current = null;
@@ -2892,9 +2902,9 @@ export function NewChatLandingScreen() {
     if (hostId === selectedHostId) return;
     setSandboxSelected(false);
     setSelectedHostId(hostId);
-    // Workspace is host-specific — clear it and let the seeding effect run for
-    // the new host.
-    setWorkspace("");
+    // Workspace is host-specific — reset to the default and let the seeding
+    // effect run for the new host.
+    setWorkspace(DEFAULT_WORKSPACE);
     seededHostRef.current = null;
   }
 
