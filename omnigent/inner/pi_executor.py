@@ -638,11 +638,15 @@ _PI_ENV_ALLOW_EXACT: frozenset[str] = frozenset(
         "SHELL",
         "TZ",
         # Windows system vars Node.js needs at runtime — without SystemRoot the
-        # node process aborts at startup (exit 134) which surfaces as
-        # WinError 2 on the session.
+        # node process aborts at startup (exit 134, CSPRNG assertion) which
+        # surfaces as WinError 2 on the session. Windows env names are
+        # case-insensitive but os.environ exposes them UPPERCASE, so list both.
         "SystemRoot",
+        "SYSTEMROOT",
         "SystemDrive",
+        "SYSTEMDRIVE",
         "ComSpec",
+        "COMSPEC",
         "PATHEXT",
         "PROCESSOR_ARCHITECTURE",
         "PROCESSOR_ARCHITEW6432",
