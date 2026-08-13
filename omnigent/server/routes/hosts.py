@@ -523,6 +523,16 @@ async def _resolve_agent_harness(
 
 
 
+
+async def _is_admin_orchestrator(user_id, account_store) -> bool:
+    """True when the caller is an admin (orchestrator) who may act on any host."""
+    if user_id is None or account_store is None:
+        return False
+    try:
+        return bool(await asyncio.to_thread(account_store.is_admin, user_id))
+    except Exception:  # noqa: BLE001 — non-accounts stores lack is_admin
+        return False
+
 def _is_windows_drive_path(path: str) -> bool:
     """True for a Windows drive path (``D:\\x`` / ``D:/x`` / ``D:``)."""
     return len(path) >= 2 and path[0].isalpha() and path[1] == ":"
@@ -696,7 +706,9 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        if user_id is not None and host.user_id != user_id and not await _is_admin_orchestrator(
+            user_id, account_store
+        ):
             raise HTTPException(status_code=403, detail="not your host")
 
         # Status comes from the DB so the answer is consistent across
@@ -730,7 +742,9 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        if user_id is not None and host.user_id != user_id and not await _is_admin_orchestrator(
+            user_id, account_store
+        ):
             raise HTTPException(status_code=403, detail="not your host")
         conn = host_registry.get(host.host_id)
         if conn is None:
@@ -1238,7 +1252,9 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        if user_id is not None and host.user_id != user_id and not await _is_admin_orchestrator(
+            user_id, account_store
+        ):
             raise HTTPException(status_code=403, detail="not your host")
 
         path = body.path
@@ -1340,7 +1356,9 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        if user_id is not None and host.user_id != user_id and not await _is_admin_orchestrator(
+            user_id, account_store
+        ):
             raise HTTPException(status_code=403, detail="not your host")
 
         conn = host_registry.get(host.host_id)
@@ -1442,7 +1460,9 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        if user_id is not None and host.user_id != user_id and not await _is_admin_orchestrator(
+            user_id, account_store
+        ):
             raise HTTPException(status_code=403, detail="not your host")
 
         conn = host_registry.get(host.host_id)
@@ -1512,7 +1532,9 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        if user_id is not None and host.user_id != user_id and not await _is_admin_orchestrator(
+            user_id, account_store
+        ):
             raise HTTPException(status_code=403, detail="not your host")
 
         conn = host_registry.get(host.host_id)
@@ -1563,7 +1585,15 @@ def create_hosts_router(
         host = await asyncio.to_thread(host_store.get_host, host_id)
         if host is None:
             raise HTTPException(status_code=404, detail="host not found")
-        if user_id is not None and host.user_id != user_id:
+        # Admin (orchestrator) may list worktrees on any host's repos, matching
+        # the filesystem browse endpoints; regular users stay owner-scoped.
+        is_admin = False
+        if user_id is not None and account_store is not None:
+            try:
+                is_admin = await asyncio.to_thread(account_store.is_admin, user_id)
+            except Exception:  # noqa: BLE001 — non-accounts stores lack is_admin
+                is_admin = False
+        if user_id is not None and host.user_id != user_id and not is_admin:
             raise HTTPException(status_code=403, detail="not your host")
 
         if not path.strip():
