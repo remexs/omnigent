@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CpuIcon, DownloadIcon, PlusIcon, RefreshCwIcon, Trash2Icon, XIcon } from "lucide-react";
 import { authenticatedFetch } from "@/lib/identity";
-import { isElectronShell, writeLocalProvider } from "@/lib/nativeBridge";
+import { isElectronShell, readLocalProviders, writeLocalProvider } from "@/lib/nativeBridge";
 import { L } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +44,10 @@ async function fetchProviders(): Promise<ProviderWire[]> {
   // "server schedules, host executes" model — both belong to the page).
   if (isElectronShell()) {
     const local = await readLocalProviders();
-    const localNames = new Set(local.map((p) => String(p.name)));
-    return [...local.map((p) => ({ ...p, scope: "local" as const })), ...server.filter((p) => !localNames.has(p.name))];
+    // Keep BOTH lists independent: local providers (this machine) AND shared
+    // server templates are shown side by side even when names collide, so a
+    // shared provider is always installable regardless of local state.
+    return [...local.map((p) => ({ ...p, scope: "local" as const })), ...server];
   }
   return server;
 }
