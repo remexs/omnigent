@@ -1497,6 +1497,14 @@ def _build_goose_spawn_env(
     provider = _resolve_provider_for_build(spec, harness_type="goose", for_launch=True)
     if provider is not None:
         env["HARNESS_GOOSE_PROVIDER"] = provider.name
+        # Provider's default model, when the spec doesn't pin one — goose
+        # errors with "Configuration value not found: GOOSE_MODEL" without it.
+        if model is None:
+            for fam in provider.families.values():
+                default_model = fam.models.get("default")
+                if default_model:
+                    env["HARNESS_GOOSE_MODEL"] = default_model
+                    break
         # The resolved provider's api key (if any) as a bearer credential env
         # var that goose custom-provider JSON can reference via api_key_env.
         # Families hold a key *reference* (env:VAR / keychain:name); resolve it
