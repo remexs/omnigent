@@ -199,6 +199,20 @@ def _harness_availability_core(harness: str) -> HarnessAvailability:
         ``False`` or a reason string otherwise.
     """
     canonical = _canonical_harness(harness)
+    # Native (TUI) harnesses embed a live terminal via tmux; without tmux
+    # (Windows) they cannot start. Gate all native family branches below.
+    _NATIVE_FAMILIES = (
+        _CURSOR_NATIVE_HARNESSES
+        | _KIRO_NATIVE_HARNESSES
+        | _GOOSE_NATIVE_HARNESSES
+        | _HERMES_NATIVE_HARNESSES
+    )
+    # Bare GOOSE_KEY is the headless (ACP/SDK) goose — no tmux needed.
+    if (
+        canonical in _NATIVE_FAMILIES
+        or canonical in (_GOOSE_NATIVE_HARNESSES | {GOOSE_KEY})
+    ) and canonical != GOOSE_KEY and not _tmux_available():
+        return False
     if canonical == "acp":
         # The generic ACP harness has no fixed binary — "configured" means at
         # least one agent is registered in the ``acp:`` config block. Each
