@@ -2372,7 +2372,11 @@ def _parse_skill(skill_md: Path) -> SkillSpec:
         ``strict=False``) can catch them uniformly.
     """
     try:
-        text = skill_md.read_text()
+        # SKILL.md files are authored as UTF-8; on Windows Path.read_text()
+        # defaults to the ANSI code page (GBK/cp936) and fails to decode them
+        # ("'gbk' codec can't decode byte ..."). Pin UTF-8 so skills load
+        # identically on every platform.
+        text = skill_md.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         # UnicodeDecodeError (a non-UTF-8 SKILL.md) is a ValueError, not an
         # OSError — funnel it through OmnigentError too so the lenient
