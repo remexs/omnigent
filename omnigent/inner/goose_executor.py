@@ -339,8 +339,12 @@ class GooseExecutor(Executor):
         empty dict leaves Goose's ambient configuration untouched.
         """
         env: dict[str, str] = {}
-        if self._provider:
-            env["GOOSE_PROVIDER"] = self._provider
+        # GOOSE_PROVIDER naming an omnigent-only provider does NOT work: goose
+        # resolves providers from its OWN config (~/.config/goose), so a name it
+        # doesn't know yields "Provider not set". Use goose's native OpenAI-compatible
+        # env vars (OPENAI_BASE_URL / OPENAI_API_KEY / OPENAI_MODEL) — already
+        # injected from the resolved omnigent provider — and only carry the model
+        # through GOOSE_MODEL (harmless, keeps the env log informative).
         if self._model:
             env["GOOSE_MODEL"] = self._model
         return env
