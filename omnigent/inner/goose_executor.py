@@ -287,16 +287,18 @@ class GooseExecutor(Executor):
         for builtin in self._builtins:
             argv.extend(["--with-builtin", builtin])
         launch_path = self._sandbox_launch_path(tuple(env.keys()))
-        _STREAM_LIMIT = 16 * 1024 * 1024
-        self._proc = await asyncio.create_subprocess_exec(
-            launch_path,
-            *argv,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+        # Windows: asyncio.create_subprocess_exec + PIPE is broken for goose
+        # (I/O operation on closed pipe — goose re-sets stdio at startup).
+        # Use subprocess.Popen directly and bridge reads/writes via
+        # asyncio.to_thread so the asyncio interface stays intact.
+        self._proc = await asyncio.to_thread(
+            subprocess.Popen,
+            [launch_path, *argv],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             env=env,
             cwd=self._cwd,
-            limit=_STREAM_LIMIT,
         )
         self._reader_task = asyncio.create_task(self._read_stdout())
         self._stderr_task = asyncio.create_task(self._read_stderr())
@@ -409,7 +411,7 @@ class GooseExecutor(Executor):
         assert self._proc and self._proc.stderr
         try:
             while True:
-                raw_line = await self._proc.stderr.readline()
+                raw_line = await asyncio.to_thread(self._proc.stderr.readline)
                 if not raw_line:
                     break
                 line = raw_line.decode("utf-8", errors="replace").rstrip()
@@ -430,7 +432,7 @@ class GooseExecutor(Executor):
         assert self._proc and self._proc.stdout
         try:
             while True:
-                raw_line = await self._proc.stdout.readline()
+                raw_line = await asyncio.to_thread(self._proc.stdout.readline)
                 if not raw_line:
                     # EOF — the goose subprocess exited. Wake in-flight futures so
                     # run_turn fails fast instead of blocking until idle timeout.
@@ -471,8 +473,8 @@ class GooseExecutor(Executor):
         """Write one newline-terminated JSON message to goose stdin."""
         assert self._proc and self._proc.stdin
         encoded = (json.dumps(msg) + "\n").encode("utf-8")
-        self._proc.stdin.write(encoded)
-        await self._proc.stdin.drain()
+        await asyncio.to_thread(self._proc.stdin.write, encoded)
+        await asyncio.to_thread(self._proc.stdin.flush)
 
     async def _rpc(
         self,
@@ -1184,7 +1186,7 @@ class GooseExecutor(Executor):
                 self._proc.stdin.close()  # type: ignore[union-attr]
             try:
                 self._proc.terminate()
-                await asyncio.wait_for(self._proc.wait(), timeout=5)
+                await asyncio.wait_for(asyncio.to_thread(self._proc.wait), timeout=5)
             except Exception:  # noqa: BLE001
                 with contextlib.suppress(Exception):
                     self._proc.kill()
