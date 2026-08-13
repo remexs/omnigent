@@ -320,6 +320,14 @@ class GooseExecutor(Executor):
             extra_allowed=declared_passthrough(self._os_env),
         )
         env.update(self._provider_env())
+        import logging as _lg
+        _lg.getLogger("omnigent.inner.goose_executor").warning(
+            "goose spawn env: OPENAI_BASE_URL=%s OPENAI_API_KEY=%s GOOSE_PROVIDER=%s GOOSE_MODEL=%s",
+            env.get("OPENAI_BASE_URL"),
+            bool(env.get("OPENAI_API_KEY")),
+            env.get("GOOSE_PROVIDER"),
+            env.get("GOOSE_MODEL"),
+        )
         return env
 
     def _provider_env(self) -> dict[str, str]:
