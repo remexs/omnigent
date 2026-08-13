@@ -22,6 +22,11 @@ export const BUILTIN_AGENTS = new Set([
   "goose-native-ui", // Goose
   "qwen-native-ui", // Qwen Code
   "kimi-native-ui", // Kimi
+  // SDK (non-terminal) variants — usable on hosts without tmux (Windows).
+  "pi-sdk",
+  "claude-sdk",
+  "goose-sdk",
+  "antigravity-sdk",
   "polly",
   "debby",
 ]);
