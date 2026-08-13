@@ -283,11 +283,22 @@ export function ProvidersPage() {
         alert(L("This provider has no family block to sync."));
         return;
       }
+      // The server API redacts api keys; if the shared provider has a key
+      // we can't see, ask the user to paste it for the local copy.
+      let apiKey: string | undefined = f.api_key_ref ?? undefined;
+      if (!apiKey && f.api_key_ref !== null) {
+        const entered = window.prompt(
+          L("This provider's API key is hidden on the server. Paste it to enable local execution (leave blank to skip):"),
+          "",
+        );
+        if (entered === null) return; // user cancelled
+        apiKey = entered.trim() || undefined;
+      }
       const res = await writeLocalProvider(p.name, {
         kind: p.kind,
         family: fam,
         base_url: f.base_url ?? undefined,
-        api_key: f.api_key_ref ?? undefined,
+        api_key: apiKey,
         model: f.models?.default ?? undefined,
         wire_api: f.wire_api ?? undefined,
       });

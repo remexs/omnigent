@@ -1467,7 +1467,8 @@ export const zhCN: Record<string, string> = {
   "Model providers": "模型提供商",
   "Configure OpenAI-compatible endpoints used by pi, goose, codex, and claude-sdk.":
     "配置 pi、goose、codex 和 claude-sdk 使用的 OpenAI 兼容端点。",
-      "Sync to this machine": "同步到本机",
+      "This provider's API key is hidden on the server. Paste it to enable local execution (leave blank to skip):": "此供应商的 API 密钥在服务器上已隐藏。请粘贴以启用本地执行（留空跳过）：",
+"Sync to this machine": "同步到本机",
   "Copy this shared provider to this machine's host config": "将此公用供应商复制到本机执行配置",
   "This provider has no family block to sync.": "此供应商没有可同步的家族配置。",
 "Storage": "存储位置",
