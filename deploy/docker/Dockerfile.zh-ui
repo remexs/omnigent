@@ -1,0 +1,9 @@
+# Omnigent 汉化镜像（zh-ui 分支）——基于官方镜像 overlay 汉化源码 + web-ui
+# 构建：docker build -f deploy/docker/Dockerfile.zh-ui -t omnigent-server-local:latest .
+FROM ghcr.io/omnigent-ai/omnigent-server:latest
+COPY omnigent/ /build/omnigent/
+COPY omnigent/server/static/web-ui /build/omnigent/server/static/web-ui
+COPY examples/ /build/examples/
+# 用 zh-ui 的 entrypoint（含 job_store/任务功能）覆盖官方镜像自带的
+COPY deploy/docker/entrypoint.py /app/entrypoint.py
+RUN find /build/omnigent -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
