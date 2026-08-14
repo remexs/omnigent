@@ -1043,12 +1043,17 @@ async def _create_subprocess_exec(*args: Any, **kwargs: Any) -> asyncio.subproce
     and leaks the mock into every other test in the process).
 
     :param args: Positional argv components forwarded to
-        ``asyncio.create_subprocess_exec``.
+        ``subprocess.Popen``.
     :param kwargs: Keyword args (``stdin``, ``stdout``, ``stderr``,
         ``env``, ``cwd``, ...) forwarded as-is.
     :returns: The spawned subprocess handle.
+
+    Windows note: ``asyncio.create_subprocess_exec`` + PIPE is broken for
+    node CLIs (pi) — the transport reports "I/O operation on closed pipe"
+    right after spawn, while a plain ``subprocess.Popen`` works. Spawn via
+    ``Popen`` in a worker thread so the asyncio interface stays intact.
     """
-    return await asyncio.create_subprocess_exec(*args, **kwargs)
+    return await asyncio.to_thread(subprocess.Popen, *args, **kwargs)
 
 
 def _clean_pi_env(extra_allowed: Sequence[str] | None = None) -> dict[str, str]:
@@ -1162,7 +1167,10 @@ class _PiRpcSession:
         """Background task: read lines from Pi stdout and enqueue them."""
         assert self.process is not None and self.process.stdout is not None
         try:
-            async for raw_line in self._iter_stream_lines(self.process.stdout):
+            while True:
+                raw_line = await asyncio.to_thread(self.process.stdout.readline)
+                if not raw_line:
+                    break
                 line = raw_line.decode("utf-8", errors="replace").rstrip("\n\r")
                 if line:
                     self._line_queue.put_nowait(line)
@@ -1178,7 +1186,10 @@ class _PiRpcSession:
         if self.process is None or self.process.stderr is None:
             return
         try:
-            async for raw_line in self._iter_stream_lines(self.process.stderr):
+            while True:
+                raw_line = await asyncio.to_thread(self.process.stderr.readline)
+                if not raw_line:
+                    break
                 text = raw_line.decode("utf-8", errors="replace").rstrip("\n\r")
                 if text:
                     logger.debug("pi stderr: %s", text)
@@ -1215,8 +1226,14 @@ class _PiRpcSession:
         if self.process is None or self.process.stdin is None:
             raise RuntimeError("Pi process not running")
         line = json.dumps(command, separators=(",", ":")) + "\n"
-        self.process.stdin.write(line.encode("utf-8"))
-        await self.process.stdin.drain()
+        encoded = line.encode("utf-8")
+
+        def _write() -> None:
+            assert self.process is not None and self.process.stdin is not None
+            self.process.stdin.write(encoded)
+            self.process.stdin.flush()
+
+        await asyncio.to_thread(_write)
 
     async def read_line(self, timeout: float = 120.0) -> str | None:
         """Read the next JSONL line from Pi's stdout. Returns None on EOF."""
@@ -1237,7 +1254,7 @@ class _PiRpcSession:
             with contextlib.suppress(ProcessLookupError):
                 self.process.terminate()
             try:
-                await asyncio.wait_for(self.process.wait(), timeout=2.0)
+                await asyncio.wait_for(asyncio.to_thread(self.process.wait), timeout=2.0)
             except (asyncio.TimeoutError, ProcessLookupError, RuntimeError):
                 # RuntimeError can happen when the subprocess was created on a
                 # different event loop (e.g. test fixtures that call close() in
