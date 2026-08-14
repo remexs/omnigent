@@ -99,17 +99,9 @@ def _fetch_shell_command_token(command: str) -> str | None:
     :returns: The stripped token, or ``None`` when the command fails or
         prints no token.
     """
-    result = subprocess.run(
-        ["sh", "-c", command],
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    token = result.stdout.strip()
-    if result.returncode != 0 or not token:
-        logger.debug("Pi Databricks auth command failed: %s", result.stderr.strip())
-        return None
-    return token
+    from ._subprocess_lifecycle import run_auth_command
+
+    return run_auth_command(command)
 
 
 # Tool-server callback provided by ``Session._wire_sdk_executor``. Invoked
@@ -1053,7 +1045,8 @@ async def _create_subprocess_exec(*args: Any, **kwargs: Any) -> asyncio.subproce
     right after spawn, while a plain ``subprocess.Popen`` works. Spawn via
     ``Popen`` in a worker thread so the asyncio interface stays intact.
     """
-    return await asyncio.to_thread(subprocess.Popen, *args, **kwargs)
+    argv = list(args)
+    return await asyncio.to_thread(subprocess.Popen, argv, **kwargs)
 
 
 def _clean_pi_env(extra_allowed: Sequence[str] | None = None) -> dict[str, str]:

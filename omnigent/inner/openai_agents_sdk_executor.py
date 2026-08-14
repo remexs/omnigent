@@ -603,14 +603,10 @@ class _ShellCommandBearerAuth(httpx.Auth):
         :yields: The request with the auth header set.
         :raises RuntimeError: When the command fails or prints no token.
         """
-        result = subprocess.run(
-            ["sh", "-c", self._command],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        token = result.stdout.strip()
-        if result.returncode != 0 or not token:
+        from ._subprocess_lifecycle import run_auth_command
+
+        token = run_auth_command(self._command)
+        if not token:
             raise RuntimeError("Databricks auth command failed to return a bearer token.")
         request.headers["Authorization"] = f"Bearer {token}"
         yield request
