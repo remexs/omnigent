@@ -444,10 +444,13 @@ def build_app(resolved_config: _ResolvedConfig | None = None) -> _BuiltApp:
     # customized shell). Version pinned to the current build → electron-updater
     # reports update-not-available. Bump the version here when we ship a new
     # desktop build.
-    from fastapi import Response
-
+    # NB: no ``-> Response`` annotation — ``from __future__ import
+    # annotations`` turns it into a ForwardRef that FastAPI can't resolve
+    # (Response is imported inside this function), breaking route registration.
     @app.get("/desktop-updates/latest.yml")
-    async def _desktop_updates_latest() -> Response:
+    async def _desktop_updates_latest():
+        from fastapi import Response
+
         return Response(
             content=(
                 "version: 0.9.1\n"
