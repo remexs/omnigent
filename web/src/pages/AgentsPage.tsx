@@ -406,7 +406,13 @@ export function AgentsPage() {
 
   const sorted = useMemo(() => [...agents].sort((a, b) => a.name.localeCompare(b.name)), [agents]);
 
-  const orchestrators = useMemo(() => sorted.filter((a) => a.is_orchestrator), [sorted]);
+  // A real orchestrator owns sub-agents; ``is_orchestrator`` also comes back
+  // true for plain ``spawn: true`` built-ins (see builtin_agents.py), so gate
+  // on sub_agents to keep the section to actual orchestrators.
+  const orchestrators = useMemo(
+    () => sorted.filter((a) => a.is_orchestrator && (a.sub_agents?.length ?? 0) > 0),
+    [sorted],
+  );
   // Built-ins are server-managed and read-only — outside the maintenance
   // scope, so they render in a collapsed read-only section (or are absent
   // when there are none). Everything else is user-maintainable.
