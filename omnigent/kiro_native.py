@@ -240,12 +240,13 @@ def run_kiro_native(
 
 def _materialize_kiro_agent_spec(tmpdir: Path, *, model: str | None = None) -> Path:
     """Write the terminal-first agent spec used by ``omnigent kiro``."""
-    yaml_path = tmpdir / "kiro-native-ui.yaml"
-    executor: dict[str, str] = {"harness": "kiro-native"}
+    yaml_path = tmpdir / "config.yaml"
+    executor: dict[str, object] = {"config": {"harness": "kiro-native"}}
     if model:
-        executor["model"] = model
+        executor["config"]["model"] = model
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Kiro is running in the session terminal. The user drives the kiro-cli TUI directly."
         ),

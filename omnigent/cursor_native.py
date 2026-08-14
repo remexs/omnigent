@@ -367,14 +367,15 @@ def _materialize_cursor_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "cursor-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw: dict[str, object] = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Cursor is running in the session terminal. The user drives the "
             "cursor-agent TUI directly."
         ),
-        "executor": {"harness": "cursor-native"},
+        "executor": {"config": {"harness": "cursor-native"}},
         "spawn": True,
         "os_env": {
             "type": "caller_process",

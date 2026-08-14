@@ -200,13 +200,14 @@ def _materialize_hermes_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "hermes-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Hermes is running in the session terminal. The user drives the hermes TUI directly."
         ),
-        "executor": {"harness": "hermes-native"},
+        "executor": {"config": {"harness": "hermes-native"}},
         "spawn": True,
         "os_env": {
             "type": "caller_process",

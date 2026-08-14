@@ -80,12 +80,13 @@ def _materialize_opencode_agent_spec(
     :param model: Optional model id, e.g. ``"anthropic/claude-opus-4"``.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "opencode-native-ui.yaml"
-    executor: dict[str, str] = {"harness": "opencode-native"}
+    yaml_path = tmpdir / "config.yaml"
+    executor: dict[str, object] = {"config": {"harness": "opencode-native"}}
     if model is not None:
-        executor["model"] = model
+        executor["config"]["model"] = model
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "OpenCode is running in the session terminal. Web UI messages are "
             "forwarded into the same native OpenCode server session."

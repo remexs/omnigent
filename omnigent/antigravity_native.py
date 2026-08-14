@@ -292,14 +292,15 @@ def _materialize_antigravity_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "antigravity-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw: dict[str, object] = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Antigravity (agy) is running in the session terminal. Web UI "
             "turns are forwarded into the native agy conversation."
         ),
-        "executor": {"harness": "antigravity-native"},
+        "executor": {"config": {"harness": "antigravity-native"}},
         # Opt the native session into the child-session spawn writes so the
         # wrapped agy can author agent configs and launch them as sub-agent
         # sessions. The Omnigent MCP relay (wired in #1194 — see

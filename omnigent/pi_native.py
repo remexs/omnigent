@@ -247,14 +247,15 @@ def _materialize_pi_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "pi-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Pi is running in the session terminal. Web UI messages are "
             "forwarded into that Pi process through the native extension bridge."
         ),
-        "executor": {"harness": "pi-native"},
+        "executor": {"config": {"harness": "pi-native"}},
         "spawn": True,
         "os_env": {
             "type": "caller_process",

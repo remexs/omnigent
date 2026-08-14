@@ -201,14 +201,15 @@ def _materialize_goose_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "goose-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Goose is running in the session terminal. The user drives the "
             "goose session TUI directly."
         ),
-        "executor": {"harness": "goose-native"},
+        "executor": {"config": {"harness": "goose-native"}},
         "spawn": True,
         "os_env": {
             "type": "caller_process",

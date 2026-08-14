@@ -205,13 +205,14 @@ def _materialize_kimi_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "kimi-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Kimi is running in the session terminal. The user drives the kimi TUI directly."
         ),
-        "executor": {"harness": "kimi-native"},
+        "executor": {"config": {"harness": "kimi-native"}},
         "spawn": True,
         "os_env": {
             "type": "caller_process",

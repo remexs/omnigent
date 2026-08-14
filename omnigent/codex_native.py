@@ -545,12 +545,13 @@ def _materialize_codex_agent_spec(
     :param model: Optional model id, e.g. ``"gpt-5.4-mini"``.
     :returns: Path to the generated YAML spec.
     """
-    yaml_path = tmpdir / "codex-native-ui.yaml"
-    executor: dict[str, str] = {"harness": "codex-native"}
+    yaml_path = tmpdir / "config.yaml"
+    executor: dict[str, object] = {"config": {"harness": "codex-native"}}
     if model is not None:
-        executor["model"] = model
+        executor["config"]["model"] = model
     raw: _JsonObject = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Codex is running in the session terminal. Web UI messages are "
             "forwarded into the same native Codex app-server thread."

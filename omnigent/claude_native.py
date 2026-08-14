@@ -2079,19 +2079,22 @@ def _materialize_claude_agent_spec(tmpdir: Path) -> Path:
     :param tmpdir: Temporary directory for the generated YAML file.
     :returns: Path to a generated YAML spec.
     """
-    yaml_path = tmpdir / "claude-native-ui.yaml"
+    yaml_path = tmpdir / "config.yaml"
     raw = {
         "name": _AGENT_NAME,
+        "spec_version": 1,
         "prompt": (
             "Claude Code is running in the session terminal. Web UI messages are "
             "forwarded into that Claude Code process through the native bridge."
         ),
         "executor": {
-            "harness": "claude-native",
+            "config": {
+                "harness": "claude-native",
             # Conservative pre-first-turn default; the forwarder
             # overrides it via ``external_session_usage`` once the
             # real model + ``[1m]`` alias are observed.
             "context_window": 200_000,
+            },
         },
         # Opt the native session into the child-session spawn writes
         # (sys_session_create / sys_session_send / sys_session_close)
