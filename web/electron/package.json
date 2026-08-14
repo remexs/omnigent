@@ -53,7 +53,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://omnigent.ai/_desktop/updates/"
+        "url": "http://192.168.10.20:8000/desktop-updates/"
       }
     ],
     "afterPack": "build/afterPack.js",
@@ -94,7 +94,7 @@
       "publish": [
         {
           "provider": "generic",
-          "url": "https://omnigent.ai/_desktop/updates/"
+          "url": "http://192.168.10.20:8000/desktop-updates/"
         }
       ]
     },
@@ -130,7 +130,7 @@
       "publish": [
         {
           "provider": "generic",
-          "url": "https://omnigent.ai/_desktop/updates/"
+          "url": "http://192.168.10.20:8000/desktop-updates/"
         }
       ]
     },
@@ -142,7 +142,7 @@
       "publish": [
         {
           "provider": "generic",
-          "url": "https://omnigent.ai/_desktop/updates/"
+          "url": "http://192.168.10.20:8000/desktop-updates/"
         }
       ]
     },
