@@ -143,6 +143,11 @@ def _read_bundle_config(
 ) -> str | None:
     """Read the raw ``config.yaml`` from an agent's extracted bundle.
 
+    Native built-in bundles carry their spec under the agent's name
+    (``<name>.yaml`` — the spec filename) rather than ``config.yaml``;
+    fall back to any ``*.yaml`` in the bundle root so their config is
+    visible too.
+
     :param agent_cache: The agent cache (holds the extracted workdir).
     :param agent_id: Agent identifier.
     :param bundle_location: Artifact store key.
@@ -153,6 +158,9 @@ def _read_bundle_config(
         cfg = loaded.workdir / "config.yaml"
         if cfg.is_file():
             return cfg.read_text(encoding="utf-8")
+        for candidate in sorted(loaded.workdir.glob("*.yaml")):
+            if candidate.is_file():
+                return candidate.read_text(encoding="utf-8")
         return None
     except Exception:  # noqa: BLE001 — read failure degrades to None
         return None
