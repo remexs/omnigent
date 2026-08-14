@@ -327,9 +327,7 @@ class GooseExecutor(Executor):
             env = dict(os.environ)
         else:
             env = clean_agent_env(
-                # OPENCODE_ carries the API key for goose's built-in
-                # opencode_go provider (auto-selected for opencode.ai base urls).
-                allow_prefixes=("GOOSE_", "OPENAI_", "OPENCODE_"),
+                allow_prefixes=("GOOSE_", "OPENAI_"),
                 extra_allowed=declared_passthrough(self._os_env),
             )
         env.update(self._provider_env())
@@ -349,16 +347,16 @@ class GooseExecutor(Executor):
 
         Goose resolves its provider + credential from its own config
         (``goose configure`` → keyring / ``~/.config/goose/config.yaml``); these
-        env vars only *override* the provider/model when the spec named one. An
-        empty dict leaves Goose's ambient configuration untouched.
+        env vars only *override* the provider/model when the workflow pinned one.
+        ``GOOSE_PROVIDER`` names a provider goose itself knows (e.g. ``openai``,
+        whose credential arrives via the ``OPENAI_*`` env vars the workflow
+        injects) — an omnigent-only provider name does NOT work, so the workflow
+        pins the built-in ``openai`` provider rather than the config's name.
+        An empty dict leaves Goose's ambient configuration untouched.
         """
         env: dict[str, str] = {}
-        # GOOSE_PROVIDER naming an omnigent-only provider does NOT work: goose
-        # resolves providers from its OWN config (~/.config/goose), so a name it
-        # doesn't know yields "Provider not set". Use goose's native OpenAI-compatible
-        # env vars (OPENAI_BASE_URL / OPENAI_API_KEY / OPENAI_MODEL) — already
-        # injected from the resolved omnigent provider — and only carry the model
-        # through GOOSE_MODEL (harmless, keeps the env log informative).
+        if self._provider:
+            env["GOOSE_PROVIDER"] = self._provider
         if self._model:
             env["GOOSE_MODEL"] = self._model
         return env

@@ -1470,11 +1470,14 @@ def _build_goose_spawn_env(
 
     Maps spec.executor fields → the ``HARNESS_GOOSE_*`` env vars defined in
     ``omnigent/inner/goose_harness.py``. Unlike the SDK harnesses, Goose owns its
-    own auth via ``goose configure`` (keyring / ``~/.config/goose/config.yaml``),
-    so this builder wires **no** provider/gateway credential — it forwards only an
-    optional model override and the os_env/sandbox spec. A ``databricks-*`` model
-    is dropped (not a valid Goose model id; the provider/model then come from the
-    user's Goose config), mirroring how the native CLIs handle gateway ids.
+    own auth via ``goose configure`` (keyring / ``~/.config/goose/config.yaml``).
+    When a provider serves the goose family (config.yaml ``providers:`` default
+    or ``spec.executor.auth``), the provider's base URL / key / model are
+    threaded through the OpenAI-compatible env vars (``OPENAI_*``) and goose's
+    built-in ``openai`` provider is pinned via ``GOOSE_PROVIDER`` so the
+    endpoint actually receives the provider's credential. A ``databricks-*``
+    model is dropped (not a valid Goose model id), mirroring how the native
+    CLIs handle gateway ids.
 
     :param spec: The agent spec.
     :param workdir: The bundle's on-disk path. Accepted for signature parity with
@@ -1486,6 +1489,7 @@ def _build_goose_spawn_env(
     model = _resolve_spec_model(spec)
     if model is not None and not model.startswith(("databricks-", "databricks/")):
         env["HARNESS_GOOSE_MODEL"] = model
+        env["OPENAI_MODEL"] = model
     # Provider routing (company gateway / custom provider): when a provider
     # serves the goose family (config.yaml ``providers:`` with a default, or
     # spec.executor.auth), thread it through as GOOSE_PROVIDER so goose uses
@@ -1496,46 +1500,29 @@ def _build_goose_spawn_env(
     # (``api_key_env``), so the key never lives in the JSON file.
     provider = _resolve_provider_for_build(spec, harness_type="goose", for_launch=True)
     if provider is not None:
-        env["HARNESS_GOOSE_PROVIDER"] = provider.name
-        # Provider's default model, when the spec doesn't pin one — goose
-        # errors with "Configuration value not found: GOOSE_MODEL" without it.
-        if model is None:
-            for fam in provider.families.values():
-                default_model = fam.models.get("default")
-                if default_model:
-                    env["HARNESS_GOOSE_MODEL"] = default_model
-                    break
-        # The resolved provider's api key (if any) as a bearer credential env
-        # var that goose custom-provider JSON can reference via api_key_env.
-        # Families hold a key *reference* (env:VAR / keychain:name); resolve it
-        # so the secret travels with the spawn without living in the JSON.
+        # Pin goose's built-in ``openai`` provider explicitly. Without
+        # GOOSE_PROVIDER=openai, goose auto-selects its opencode_go provider
+        # for opencode.ai base urls, which reads OPENCODE_API_KEY (never
+        # OPENAI_API_KEY) and silently falls back to goose's own cached key.
+        env["HARNESS_GOOSE_PROVIDER"] = "openai"
+        # Only the ``openai`` family serves goose (see _HARNESS_FAMILY).
         from omnigent.onboarding.provider_config import resolve_secret
 
-        # Goose natively reads the OpenAI-compatible env vars; without them a
-        # GOOSE_PROVIDER it doesn't know about fails model resolution
-        # ("Internal error"). Map base_url + key through OPENAI_* so the
-        # openai-compatible provider actually reaches the endpoint.
-        for fam in provider.families.values():
+        fam = provider.family(OPENAI_FAMILY)
+        if fam is not None:
             if fam.base_url:
                 env.setdefault("OPENAI_BASE_URL", fam.base_url)
             if fam.api_key_ref:
-                env.setdefault("GOOSE_API_KEY", resolve_secret(fam.api_key_ref))
+                env.setdefault("OPENAI_API_KEY", resolve_secret(fam.api_key_ref))
             elif fam.api_key:
-                env.setdefault("GOOSE_API_KEY", fam.api_key)
-        if env.get("GOOSE_API_KEY") and not env.get("OPENAI_API_KEY"):
-            env.setdefault("OPENAI_API_KEY", env["GOOSE_API_KEY"])
-        # goose's built-in opencode_go provider (auto-selected when base_url
-        # matches opencode.ai) reads OPENCODE_API_KEY, NOT OPENAI_API_KEY —
-        # without this the key silently falls back to goose's own cached one.
-        if env.get("GOOSE_API_KEY") and not env.get("OPENCODE_API_KEY"):
-            env.setdefault("OPENCODE_API_KEY", env["GOOSE_API_KEY"])
-        if model is None:
-            for fam in provider.families.values():
-                dm = fam.models.get("default")
-                if dm:
-                    env.setdefault("HARNESS_GOOSE_MODEL", dm)
-                    env.setdefault("OPENAI_MODEL", dm)
-                    break
+                env.setdefault("OPENAI_API_KEY", fam.api_key)
+            # Provider's default model, when the spec doesn't pin one — goose
+            # errors with "Configuration value not found: GOOSE_MODEL" without it.
+            if fam.default_model:
+                if "OPENAI_MODEL" not in env:
+                    env["OPENAI_MODEL"] = fam.default_model
+                if "HARNESS_GOOSE_MODEL" not in env:
+                    env["HARNESS_GOOSE_MODEL"] = fam.default_model
     # Session workspace (selected working folder). ``None`` lets the goose
     # harness fall back to OMNIGENT_RUNNER_WORKSPACE — see HARNESS_GOOSE_CWD.
     if cwd is not None:
