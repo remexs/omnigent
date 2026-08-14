@@ -225,7 +225,21 @@ def _harness_availability_core(harness: str) -> HarnessAvailability:
         except Exception:
             return False
     if canonical in _SDK_HARNESSES:
-        return True
+        # In-process SDK harnesses spawn with a provider credential; without
+        # one the agent shows up in the picker but fails every turn ("Invalid
+        # API key"). Gate on the harness's provider family being configured,
+        # like the CLI harnesses do. ``antigravity`` is Gemini-native: its
+        # ``openai`` family mapping only serves default resolution — the
+        # executor rejects generic providers — so check the ``gemini`` family.
+        if canonical == "antigravity":
+            from omnigent.onboarding.provider_config import get_default_provider
+
+            try:
+                provider = get_default_provider(load_config(), GEMINI_FAMILY)
+            except Exception:
+                return False
+            return provider is not None and provider.kind != SUBSCRIPTION_KIND
+        return _family_provider_configured(canonical)
     if canonical in _CURSOR_NATIVE_HARNESSES:
         # Native Cursor (``omni cursor``) wraps the ``cursor-agent`` CLI — gate
         # on that binary. Keep the missing-binary case as the historical bare

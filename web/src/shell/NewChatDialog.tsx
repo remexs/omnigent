@@ -2084,9 +2084,10 @@ export function NewChatLandingScreen() {
   const allHosts = hosts ?? [];
   const selectedHost = allHosts.find((h) => h.host_id === selectedHostId);
   // Filter the agent list to what the SELECTED host can actually run: when a
-  // host is chosen and a harness is reported unavailable (e.g. native TUI
-  // without tmux on Windows), drop those agents so the picker only offers
-  // runnable options — and the default (agentList[0]) is always usable.
+  // host is chosen and a harness is reported unavailable (native TUI without
+  // tmux on Windows, or an SDK harness without a provider credential), drop
+  // those agents so the picker only offers runnable options — and the default
+  // (agentList[0]) is always usable.
   const agentList = useMemo(() => {
     if (!selectedHost?.configured_harnesses) return agentListUnfiltered;
     const unavailable = new Set(
@@ -2094,12 +2095,9 @@ export function NewChatLandingScreen() {
         .filter(([, v]) => v === false || (typeof v === "string" && v !== ""))
         .map(([h]) => h),
     );
-    // Only drop NATIVE harnesses reported unavailable; SDK agents stay (their
-    // harness appears as available, or the host simply didn't report it).
     return agentListUnfiltered.filter((a) => {
       if (!a.harness) return true;
-      if (!unavailable.has(a.harness)) return true;
-      return !isNativeCodingAgent(a);
+      return !unavailable.has(a.harness);
     });
   }, [agentListUnfiltered, selectedHost]);
   const onlineHosts = allHosts.filter((h) => h.status === "online");

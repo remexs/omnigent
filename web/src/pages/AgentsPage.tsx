@@ -58,7 +58,7 @@ function formatTs(ts?: number | null): string {
 }
 
 /** Expandable detail card for one agent: metadata + editable config. */
-function AgentDetailCard({ agent }: { agent: ManagedAgent }) {
+function AgentDetailCard({ agent, readonly = false }: { agent: ManagedAgent; readonly?: boolean }) {
   const [open, setOpen] = useState(false);
   const [yaml, setYaml] = useState(agent.config_yaml ?? "");
   const [dirty, setDirty] = useState(false);
@@ -151,6 +151,17 @@ function AgentDetailCard({ agent }: { agent: ManagedAgent }) {
             <p className="text-sm text-muted-foreground">{agent.description}</p>
           )}
 
+          {readonly ? (
+            <div className="space-y-1.5">
+              <span className="text-sm font-medium">{L("Config (YAML)")}</span>
+              <pre className="min-h-40 overflow-auto rounded-md border bg-muted p-3 font-mono text-xs whitespace-pre-wrap">
+                {yaml || "—"}
+              </pre>
+              <p className="text-xs text-muted-foreground">
+                {L("Built-in agents are read-only and managed by the server.")}
+              </p>
+            </div>
+          ) : (
           <div className="space-y-1.5">
             <span className="text-sm font-medium">{L("Config (YAML)")}</span>
             <Textarea
@@ -163,10 +174,17 @@ function AgentDetailCard({ agent }: { agent: ManagedAgent }) {
               }}
             />
           </div>
+          )}
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex flex-wrap items-center justify-end gap-2">
+            {readonly ? (
+              <span className="text-xs text-muted-foreground">
+                {L("Read-only built-in")}
+              </span>
+            ) : (
+              <>
             {!isBuiltin && (
               <Button
                 type="button"
@@ -182,6 +200,8 @@ function AgentDetailCard({ agent }: { agent: ManagedAgent }) {
             <Button type="button" size="sm" disabled={!dirty || saving} onClick={saveYaml}>
               {saving ? L("Saving…") : L("Save")}
             </Button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -387,7 +407,15 @@ export function AgentsPage() {
   const sorted = useMemo(() => [...agents].sort((a, b) => a.name.localeCompare(b.name)), [agents]);
 
   const orchestrators = useMemo(() => sorted.filter((a) => a.is_orchestrator), [sorted]);
-  const others = useMemo(() => sorted.filter((a) => !a.is_orchestrator), [sorted]);
+  // Built-ins are server-managed and read-only — outside the maintenance
+  // scope, so they render in a collapsed read-only section (or are absent
+  // when there are none). Everything else is user-maintainable.
+  const [showBuiltins, setShowBuiltins] = useState(false);
+  const builtins = useMemo(() => sorted.filter((a) => a.builtin === true), [sorted]);
+  const maintainable = useMemo(
+    () => sorted.filter((a) => !a.is_orchestrator && a.builtin !== true),
+    [sorted],
+  );
 
   return (
     <Section
@@ -436,11 +464,29 @@ export function AgentsPage() {
         </div>
       )}
 
-      {others.length > 0 && (
+      {maintainable.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium">{L("Other agents")}</h3>
-          {others.map((a) => (
+          <h3 className="text-sm font-medium">{L("Agents")}</h3>
+          {maintainable.map((a) => (
             <AgentDetailCard key={a.id} agent={a} />
+          ))}
+        </div>
+      )}
+
+      {builtins.length > 0 && (
+        <div className="mt-6 space-y-2">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between text-sm font-medium"
+            onClick={() => setShowBuiltins((v) => !v)}
+          >
+            <span>{L("Built-in agents")} ({builtins.length})</span>
+            <ChevronDownIcon
+              className={`size-4 transition-transform ${showBuiltins ? "rotate-180" : ""}`}
+            />
+          </button>
+          {showBuiltins && builtins.map((a) => (
+            <AgentDetailCard key={a.id} agent={a} readonly />
           ))}
         </div>
       )}
