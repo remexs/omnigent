@@ -202,15 +202,25 @@ def _replace_agent_config(
     loaded = agent_cache.load(agent.id, agent.bundle_location, expand_env=False)
     workdir = loaded.workdir
 
+    # Replace the spec file the bundle already uses so the structure stays
+    # consistent: SDK/custom bundles carry ``config.yaml``; native-style
+    # bundles carry ``<name>.yaml``. Writing ``config.yaml`` into a
+    # native-style bundle would leave both files and reads would keep
+    # returning the stale ``<name>.yaml``.
+    existing_yamls = sorted(p for p in workdir.iterdir() if p.is_file() and p.suffix == ".yaml")
+    spec_filename = "config.yaml"
+    if existing_yamls and "config.yaml" not in {p.name for p in existing_yamls}:
+        spec_filename = existing_yamls[0].name
+
     # Validate the new config by writing it into a staging copy.
     with tempfile.TemporaryDirectory() as tmpdir:
         staging = Path(tmpdir) / "bundle"
         shutil.copytree(workdir, staging)
-        (staging / "config.yaml").write_text(new_config, encoding="utf-8")
+        (staging / spec_filename).write_text(new_config, encoding="utf-8")
         try:
             load_spec_dir(staging)
         except Exception as exc:
-            raise ValueError(f"Invalid config.yaml: {exc}") from exc
+            raise ValueError(f"Invalid {spec_filename}: {exc}") from exc
 
         buf = io.BytesIO()
         with (
