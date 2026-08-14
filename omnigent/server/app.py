@@ -2743,6 +2743,29 @@ def create_app(
             """Serve the API-only landing page (no web UI bundle present)."""
             return FileResponse(_API_ONLY_LANDING_HTML, media_type="text/html")
 
+    # Desktop auto-update feed (zh-ui): pinned ``latest.yml`` so the desktop
+    # shell checks THIS server instead of the official omnigent feed — an
+    # official build newer than ours would otherwise replace the customized
+    # shell. Version equals the current build → electron-updater reports
+    # update-not-available. Bump here when shipping a new desktop build.
+    @app.get("/desktop-updates/latest.yml")
+    async def _desktop_updates_latest():
+        from fastapi import Response
+
+        return Response(
+            content=(
+                "version: 0.9.1\n"
+                "files:\n"
+                "  - url: Omnigent-Setup-0.9.1.exe\n"
+                "    sha512: 6O9nXNdFe24KZKKtSgsyHgbAUra+uR8wJm9LFvWlumAqQ4oiZeRvEUWgEn+c02wKcUR7VEv7n/yLQBMQA24wmg==\n"
+                "    size: 104957468\n"
+                "path: Omnigent-Setup-0.9.1.exe\n"
+                "sha512: 6O9nXNdFe24KZKKtSgsyHgbAUra+uR8wJm9LFvWlumAqQ4oiZeRvEUWgEn+c02wKcUR7VEv7n/yLQBMQA24wmg==\n"
+                "releaseDate: '2026-08-14T00:00:00.000Z'\n"
+            ),
+            media_type="text/yaml",
+        )
+
     return app
 
 

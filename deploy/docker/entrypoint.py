@@ -438,33 +438,6 @@ def build_app(resolved_config: _ResolvedConfig | None = None) -> _BuiltApp:
         sandbox_config=sandbox_config,
     )
 
-    # Desktop auto-update feed: serve a pinned ``latest.yml`` so the zh-ui
-    # desktop shell checks THIS server instead of the official omnigent feed
-    # (an official build newer than ours would otherwise replace the
-    # customized shell). Version pinned to the current build → electron-updater
-    # reports update-not-available. Bump the version here when we ship a new
-    # desktop build.
-    # NB: no ``-> Response`` annotation — ``from __future__ import
-    # annotations`` turns it into a ForwardRef that FastAPI can't resolve
-    # (Response is imported inside this function), breaking route registration.
-    @app.get("/desktop-updates/latest.yml")
-    async def _desktop_updates_latest():
-        from fastapi import Response
-
-        return Response(
-            content=(
-                "version: 0.9.1\n"
-                "files:\n"
-                "  - url: Omnigent-Setup-0.9.1.exe\n"
-                "    sha512: 6O9nXNdFe24KZKKtSgsyHgbAUra+uR8wJm9LFvWlumAqQ4oiZeRvEUWgEn+c02wKcUR7VEv7n/yLQBMQA24wmg==\n"
-                "    size: 104957468\n"
-                "path: Omnigent-Setup-0.9.1.exe\n"
-                "sha512: 6O9nXNdFe24KZKKtSgsyHgbAUra+uR8wJm9LFvWlumAqQ4oiZeRvEUWgEn+c02wKcUR7VEv7n/yLQBMQA24wmg==\n"
-                "releaseDate: '2026-08-14T00:00:00.000Z'\n"
-            ),
-            media_type="text/yaml",
-        )
-
     return _BuiltApp(app=app, host=resolved_config.host, port=resolved_config.port)
 
 
