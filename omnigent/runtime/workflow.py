@@ -1524,6 +1524,11 @@ def _build_goose_spawn_env(
                 env.setdefault("GOOSE_API_KEY", fam.api_key)
         if env.get("GOOSE_API_KEY") and not env.get("OPENAI_API_KEY"):
             env.setdefault("OPENAI_API_KEY", env["GOOSE_API_KEY"])
+        # goose's built-in opencode_go provider (auto-selected when base_url
+        # matches opencode.ai) reads OPENCODE_API_KEY, NOT OPENAI_API_KEY —
+        # without this the key silently falls back to goose's own cached one.
+        if env.get("GOOSE_API_KEY") and not env.get("OPENCODE_API_KEY"):
+            env.setdefault("OPENCODE_API_KEY", env["GOOSE_API_KEY"])
         if model is None:
             for fam in provider.families.values():
                 dm = fam.models.get("default")

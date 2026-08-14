@@ -327,7 +327,9 @@ class GooseExecutor(Executor):
             env = dict(os.environ)
         else:
             env = clean_agent_env(
-                allow_prefixes=("GOOSE_", "OPENAI_"),
+                # OPENCODE_ carries the API key for goose's built-in
+                # opencode_go provider (auto-selected for opencode.ai base urls).
+                allow_prefixes=("GOOSE_", "OPENAI_", "OPENCODE_"),
                 extra_allowed=declared_passthrough(self._os_env),
             )
         env.update(self._provider_env())
